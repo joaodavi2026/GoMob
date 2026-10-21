@@ -13,6 +13,12 @@ export const demoUsers = [
     role: "ADMIN",
   },
   {
+    name: "Cliente",
+    email: "cliente@gmail.com",
+    password: "cliente",
+    role: "USER",
+  },
+  {
     name: "Admin",
     email: "admin@gmail.com",
     password: "admin",
