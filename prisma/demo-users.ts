@@ -12,4 +12,10 @@ export const demoUsers = [
     password: "GoMobAdmin2026!",
     role: "ADMIN",
   },
+  {
+    name: "Admin",
+    email: "admin@gmail.com",
+    password: "admin",
+    role: "ADMIN",
+  },
 ] as const;
