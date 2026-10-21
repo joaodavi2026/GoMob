@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: #ff6b00;
+  --color-primary-hover: #e85d00;
+  --color-primary-pressed: #cc5200;
+  --color-primary-light: #fff1e6;
+  --color-canvas: #f8f9fb;
+  --color-ink: #17212b;
+  --color-muted: #687482;
+  --color-border: #e6eaf0;
+  --color-risk-low: #16a34a;
+  --color-risk-moderate: #d97706;
+  --color-risk-high: #dc2626;
+  --color-risk-unknown: #94a3b8;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --shadow-soft: 0 1px 2px rgb(23 33 43 / 0.04), 0 4px 16px rgb(23 33 43 / 0.06);
+}
+
+html,
+body {
+  height: 100%;
+}
+body {
+  background: #fff;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@keyframes gomob-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

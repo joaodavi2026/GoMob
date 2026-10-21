@@ -1,0 +1,185 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum DataSource {
+  SPTRANS
+  DEMO
+}
+
+enum RiskLevel {
+  LOW
+  MODERATE
+  HIGH
+  INSUFFICIENT_DATA
+}
+
+model User {
+  id           String        @id @default(cuid())
+  name         String
+  email        String        @unique
+  passwordHash String
+  role         Role          @default(USER)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  favorites    Favorite[]
+  auditLogs    AuditLog[]
+}
+
+model Favorite {
+  id                   String   @id @default(cuid())
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  originLabel          String
+  destinationLabel     String
+  originLatitude       Float
+  originLongitude      Float
+  destinationLatitude  Float
+  destinationLongitude Float
+  nickname             String
+  createdAt            DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model BusLine {
+  id             String           @id @default(cuid())
+  externalCode   String
+  displayCode    String
+  name           String
+  direction      Int              @default(1)
+  active         Boolean          @default(false)
+  source         DataSource       @default(DEMO)
+  lastSyncedAt   DateTime?
+  vehicles       BusVehicle[]
+  stops          BusLineStop[]
+  demand         HistoricalDemand[]
+  risks          RiskEstimate[]
+  alerts         Alert[]
+
+  @@unique([externalCode, direction, source])
+  @@index([active])
+}
+
+model BusStop {
+  id           String        @id @default(cuid())
+  externalCode String
+  name         String
+  latitude     Float
+  longitude    Float
+  source       DataSource    @default(DEMO)
+  lines        BusLineStop[]
+
+  @@unique([externalCode, source])
+}
+
+model BusLineStop {
+  id       String  @id @default(cuid())
+  lineId   String
+  stopId   String
+  sequence Int?
+  line     BusLine @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  stop     BusStop @relation(fields: [stopId], references: [id], onDelete: Cascade)
+
+  @@unique([lineId, stopId])
+}
+
+model BusVehicle {
+  id                 String             @id @default(cuid())
+  externalIdentifier String
+  lineId             String
+  line               BusLine            @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  latitude           Float
+  longitude          Float
+  observedAt         DateTime
+  source             DataSource
+  isDemo             Boolean            @default(false)
+  snapshots          PositionSnapshot[]
+  risks              RiskEstimate[]
+
+  @@unique([externalIdentifier, source])
+  @@index([lineId, observedAt])
+}
+
+model PositionSnapshot {
+  id         String     @id @default(cuid())
+  vehicleId  String
+  vehicle    BusVehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  latitude   Float
+  longitude  Float
+  observedAt DateTime
+
+  @@index([vehicleId, observedAt])
+}
+
+model HistoricalDemand {
+  id             String   @id @default(cuid())
+  lineId         String
+  line           BusLine  @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  referenceDate  DateTime
+  passengerCount Int
+  granularity    String
+  source         String
+
+  @@index([lineId, referenceDate])
+}
+
+model RiskEstimate {
+  id           String      @id @default(cuid())
+  lineId       String
+  line         BusLine     @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  vehicleId    String?
+  vehicle      BusVehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  riskScore    Float?
+  riskLevel    RiskLevel
+  confidence   Float?
+  calculatedAt DateTime    @default(now())
+  expiresAt    DateTime
+  modelVersion String
+  sourceType   String
+
+  @@index([lineId, calculatedAt])
+}
+
+model Alert {
+  id          String    @id @default(cuid())
+  lineId      String?
+  line        BusLine?  @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  type        String
+  title       String
+  description String
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+  isDemo      Boolean   @default(false)
+
+  @@index([createdAt])
+}
+
+model AppSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action     String
+  entityType String
+  entityId   String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+}
