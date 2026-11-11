@@ -125,7 +125,9 @@ export function Combobox({
   emptyText = "No results found.",
   loading,
   className,
+  bare,
 }: {
+  bare?: boolean;
   label: string;
   options: ComboOption[];
   query: string;
@@ -170,7 +172,12 @@ export function Combobox({
       <label htmlFor={id} className="sr-only">
         {label}
       </label>
-      <div className="flex h-12 items-center gap-2 rounded-xl border border-border bg-white px-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+      <div
+        className={cn(
+          "flex items-center gap-2",
+          bare ? "h-8" : "h-12 rounded-xl border border-border bg-white px-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
+        )}
+      >
         {leading && <span className="shrink-0 text-muted">{leading}</span>}
         <input
           id={id}
@@ -189,12 +196,18 @@ export function Combobox({
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
-          className="h-full min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted/70"
+          className={cn(
+            "h-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted/70",
+            bare ? "text-[15px] font-semibold placeholder:font-medium" : "text-sm",
+          )}
         />
-        <ChevronDown className="h-4 w-4 shrink-0 text-muted" aria-hidden />
+        {!bare && <ChevronDown className="h-4 w-4 shrink-0 text-muted" aria-hidden />}
       </div>
       {open && (
-        <ul id={`${id}-list`} role="listbox" aria-label={label} className="absolute z-40 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border border-border bg-white p-1 shadow-soft">
+        <ul id={`${id}-list`} role="listbox" aria-label={label} className={cn(
+            "absolute z-40 mt-1 max-h-64 overflow-y-auto rounded-2xl border border-border bg-white p-1 shadow-float",
+            bare ? "-left-10 right-0 top-full" : "w-full",
+          )}>
           {loading && <li className="px-3 py-2 text-sm text-muted">Searching...</li>}
           {!loading && shown.length === 0 && <li className="px-3 py-2 text-sm text-muted">{emptyText}</li>}
           {shown.map((o, i) => (

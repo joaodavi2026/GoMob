@@ -239,7 +239,7 @@ function wireEvents(
         ${dir ? `<div class="gm-pop-sub">To ${esc(dir.headsign)}</div>` : ""}
         <div class="gm-pop-grid">
           <span>Vehicle</span><b>${esc(String(pr.p))}</b>
-          <span>Accessible</span><b>${Number(pr.a) ? "Yes ♿" : "No"}</b>
+          <span>Acessível</span><b>${Number(pr.a) ? "♿ Veículo cadastrado como acessível" : "Sem registro de acessibilidade"}</b>
           <span>Last GPS</span><b>${age < 0 ? "—" : age < 60 ? `${age}s ago` : `${Math.round(age / 60)} min ago`}</b>
         </div>
         ${line ? `<button type="button" class="gm-pop-btn">Show this line</button>` : ""}`;
@@ -422,7 +422,7 @@ export default function NetworkMap(p: NetworkMapProps) {
         }
     if (!any) return;
     const wide = box.current && box.current.clientWidth >= 1024;
-    map.fitBounds(b, { padding: wide ? { top: 60, bottom: 60, left: 440, right: 70 } : { top: 40, bottom: 260, left: 30, right: 30 }, maxZoom: 15, duration: 900 });
+    map.fitBounds(b, { padding: wide ? { top: 60, bottom: 60, left: 440, right: 70 } : { top: 80, bottom: Math.round((box.current?.clientHeight ?? 700) * 0.58), left: 40, right: 70 }, maxZoom: 15, duration: 900 });
   }, [p.selectedLine, p.network, loadingShapes]);
 
   // ---- foco em parada ----------------------------------------------------------------------
@@ -432,7 +432,7 @@ export default function NetworkMap(p: NetworkMapProps) {
     const s = p.network.stops[p.focusStop];
     if (!s) return;
     const wide = box.current && box.current.clientWidth >= 1024;
-    map.flyTo({ center: [s[3], s[2]], zoom: Math.max(map.getZoom(), 15.5), duration: 800, offset: wide ? [190, 0] : [0, -100] });
+    map.flyTo({ center: [s[3], s[2]], zoom: Math.max(map.getZoom(), 15.5), duration: 800, offset: wide ? [190, 0] : [0, -Math.round((box.current?.clientHeight ?? 700) * 0.28)] });
   }, [p.focusStop, p.network]);
 
   // ---- camadas opcionais -----------------------------------------------------------------

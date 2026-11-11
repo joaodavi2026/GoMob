@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "./button";
 
 export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("rounded-2xl border border-border bg-white shadow-soft", className)} {...props} />;
+  return <div className={cn("rounded-3xl border border-black/[0.04] bg-white shadow-soft", className)} {...props} />;
 }
 
 export function Skeleton({ className }: { className?: string }) {
@@ -45,8 +45,8 @@ export function EmptyState({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-canvas px-6 py-10 text-center">
-      <span className="text-muted">{icon ?? <Inbox className="h-8 w-8" aria-hidden />}</span>
+    <div className="flex flex-col items-center gap-2.5 rounded-3xl bg-white px-6 py-8 text-center shadow-soft">
+      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-light text-primary [&_svg]:h-6 [&_svg]:w-6">{icon ?? <Inbox className="h-6 w-6" aria-hidden />}</span>
       <p className="font-semibold">{title}</p>
       {description && <p className="max-w-sm text-sm text-muted">{description}</p>}
       {action && (
@@ -60,9 +60,11 @@ export function EmptyState({
 
 export function ErrorState({ message = "Something went wrong.", onRetry }: { message?: string; onRetry?: () => void }) {
   return (
-    <div role="alert" className="flex flex-col items-center gap-3 rounded-2xl border border-risk-high/20 bg-risk-high/5 px-6 py-8 text-center">
-      <AlertTriangle className="h-8 w-8 text-risk-high" aria-hidden />
-      <p className="text-sm">{message}</p>
+    <div role="alert" className="flex flex-col items-center gap-2.5 rounded-3xl bg-white px-6 py-7 text-center shadow-soft">
+      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-risk-moderate/10 text-risk-moderate">
+        <AlertTriangle className="h-5 w-5" aria-hidden />
+      </span>
+      <p className="max-w-xs text-sm text-muted">{message}</p>
       {onRetry && (
         <Button variant="secondary" size="sm" onClick={onRetry}>
           Try again

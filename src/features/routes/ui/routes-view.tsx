@@ -3,8 +3,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowUpDown, Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowUpDown, Flag, Info, MapPin } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Card, EmptyState, ErrorState, Skeleton } from "@/components/ui/primitives";
 import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api";
@@ -15,15 +15,25 @@ import { SORT_LABELS, type RouteSearchResponse, type SortKey } from "../types";
 import { RouteCard, type RouteTag } from "./route-card";
 import { RouteDetails } from "./route-details";
 
-const select = "h-11 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20";
+const select = "-ml-1 h-7 w-full appearance-none truncate bg-transparent text-[15px] font-semibold text-ink outline-none";
 
 function PointSelect({ label, value, onChange }: { label: string; value: GeoPoint | null; onChange: (p: GeoPoint) => void }) {
   const known = value ? matchKnownPlace(value) : undefined;
   const custom = value && !known;
   return (
-    <label className="block">
-      <span className="mb-1.5 block text-sm font-medium">{label}</span>
+    <label className="flex items-center gap-3 rounded-3xl bg-canvas px-4 py-3 pr-16">
+      <span
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+          label === "Origin" ? "bg-white text-primary shadow-soft" : "bg-night text-white",
+        )}
+      >
+        {label === "Origin" ? <MapPin className="h-[18px] w-[18px]" aria-hidden /> : <Flag className="h-[17px] w-[17px]" aria-hidden />}
+      </span>
+      <span className="min-w-0 flex-1">
+      <span className="block text-[11px] font-medium text-muted">{label === "Origin" ? "From" : "To"}</span>
       <select
+        aria-label={label}
         className={select}
         value={known?.id ?? (custom ? "custom" : "")}
         onChange={(e) => {
@@ -37,6 +47,7 @@ function PointSelect({ label, value, onChange }: { label: string; value: GeoPoin
           <option key={p.id} value={p.id}>{p.label}</option>
         ))}
       </select>
+      </span>
     </label>
   );
 }
@@ -114,29 +125,45 @@ export function RoutesView() {
   ].filter(Boolean) as [string, string[]][];
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-5 px-4 py-6">
+    <div className="mx-auto w-full max-w-5xl space-y-5 pb-4 pt-2">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight">Smart Routes</h1>
-        <p className="mt-1 text-muted">Bus-only trips. Walking is allowed to reach stops and transfer.</p>
+        <h1 className="text-[30px] leading-tight tracking-tight">
+          <span className="font-light text-muted">Smart</span> <span className="font-extrabold">routes</span>
+        </h1>
+        <p className="mt-1 text-sm text-muted">Bus-only trips. Walking is allowed to reach stops and transfer.</p>
       </header>
 
-      <Card className="p-4">
-        <div className="grid items-end gap-3 sm:grid-cols-[1fr_auto_1fr]">
+      <div className="rounded-[28px] bg-white p-2 shadow-soft">
+        <div className="relative space-y-2">
           <PointSelect label="Origin" value={origin} onChange={(p) => { setOrigin(p); setSelectedId(null); }} />
-          <Button type="button" variant="secondary" size="icon" onClick={swap} aria-label="Swap origin and destination" className="mx-auto rounded-full">
-            <ArrowUpDown className="h-4 w-4" aria-hidden />
-          </Button>
           <PointSelect label="Destination" value={destination} onChange={(p) => { setDestination(p); setSelectedId(null); }} />
+          <button
+            type="button"
+            onClick={swap}
+            aria-label="Swap origin and destination"
+            className="tap absolute right-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-ink shadow-soft ring-1 ring-border"
+          >
+            <ArrowUpDown className="h-[18px] w-[18px]" aria-hidden />
+          </button>
         </div>
-        <label className="mt-3 block sm:max-w-xs">
-          <span className="mb-1.5 block text-sm font-medium">Sort by</span>
-          <select className={select} value={sort} onChange={(e) => setSort(e.target.value as SortKey)}>
-            {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
-              <option key={k} value={k}>{SORT_LABELS[k]}</option>
-            ))}
-          </select>
-        </label>
-      </Card>
+        <div className="no-scrollbar mt-2 flex gap-2 overflow-x-auto px-1 pb-1" role="radiogroup" aria-label="Sort by">
+          {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
+            <button
+              key={k}
+              type="button"
+              role="radio"
+              aria-checked={sort === k}
+              onClick={() => setSort(k)}
+              className={cn(
+                "tap shrink-0 rounded-full px-4 py-2 text-xs font-semibold",
+                sort === k ? "bg-night text-white" : "bg-canvas text-ink",
+              )}
+            >
+              {SORT_LABELS[k]}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {(!origin || !destination) && (
         <EmptyState title="Choose an origin and a destination" description="Pick two places to compare bus routes." />
@@ -208,7 +235,9 @@ export function RoutesView() {
                   saving={save.isPending}
                 />
               ) : (
-                <EmptyState title="Select a route" description="Choose View route on a card to see the path, steps and risk per line." />
+                <div className="hidden lg:block">
+                  <EmptyState title="Select a route" description="Choose View route on a card to see the path, steps and risk per line." />
+                </div>
               )}
             </div>
           </div>

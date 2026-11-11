@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import {
   Accessibility,
@@ -20,6 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { SearchInput } from "@/components/ui/search-input";
+import { SpeakButton, useA11y } from "@/features/a11y/a11y";
 import { cn } from "@/lib/utils";
 import {
   MODES,
@@ -82,7 +84,7 @@ export function NetworkExplorer() {
 
 /** Área de mapa em tela cheia dentro do shell (abaixo do header, acima da navegação mobile). */
 function Shell({ children }: { children: React.ReactNode }) {
-  return <div className="fixed inset-x-0 bottom-16 top-14 z-20 overflow-hidden bg-canvas lg:bottom-0 lg:left-60">{children}</div>;
+  return <div className="fixed inset-0 z-20 overflow-hidden bg-canvas lg:left-60 lg:top-14">{children}</div>;
 }
 
 function Explorer({ network }: { network: Network }) {
@@ -90,7 +92,11 @@ function Explorer({ network }: { network: Network }) {
 
   const [query, setQuery] = useState("");
   const q = useDeferredValue(query);
-  const [modes, setModes] = useState<number[]>([3, 1, 2]);
+  const [modes, setModes] = useState<number[]>(() => {
+    if (typeof window === "undefined") return [3, 1, 2];
+    const m = Number(new URLSearchParams(window.location.search).get("mode"));
+    return m === 1 || m === 2 ? [1, 2] : m === 3 ? [3] : [3, 1, 2];
+  });
   const [regions, setRegions] = useState<string[]>([]);
   // deep-link ?line=CODE
   const [selectedLine, setSelectedLine] = useState<number | null>(() => {
@@ -100,8 +106,15 @@ function Explorer({ network }: { network: Network }) {
     return li >= 0 ? li : null;
   });
   const [selectedDir, setSelectedDir] = useState<number | null>(null);
-  const [selectedStop, setSelectedStop] = useState<number | null>(null);
-  const [focusStop, setFocusStop] = useState<number | null>(null);
+  // deep-link ?stop=STOP_ID (diretório de terminais da Acessibilidade)
+  const [initialStop] = useState<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    const id = new URLSearchParams(window.location.search).get("stop");
+    const si = id ? network.stops.findIndex((s) => s[0] === id) : -1;
+    return si >= 0 ? si : null;
+  });
+  const [selectedStop, setSelectedStop] = useState<number | null>(initialStop);
+  const [focusStop, setFocusStop] = useState<number | null>(initialStop);
   const [showStops, setShowStops] = useState(true);
   const [showLive, setShowLive] = useState(true);
   const [heatmap, setHeatmap] = useState(false);
@@ -110,7 +123,12 @@ function Explorer({ network }: { network: Network }) {
 
   const fleetQ = useFleet(showLive);
   const fleet = fleetQ.data;
-  const vehicles = useMemo(() => (fleet?.state === "LIVE" ? fleet.vehicles : []), [fleet]);
+  const a11y = useA11y();
+  const accessibleOnly = a11y.prefs.accessibleOnly;
+  const vehicles = useMemo(
+    () => (fleet?.state === "LIVE" ? (accessibleOnly ? fleet.vehicles.filter((v) => v[5] === 1) : fleet.vehicles) : []),
+    [fleet, accessibleOnly],
+  );
 
   const liveByCode = useMemo(() => {
     const m = new Map<string, number>();
@@ -190,8 +208,21 @@ function Explorer({ network }: { network: Network }) {
         onSelectStop={selectStop}
       />
 
+      {/* Voltar (mobile) */}
+      <Link
+        href="/home"
+        aria-label="Back to home"
+        className="tap absolute left-4 top-[max(16px,env(safe-area-inset-top))] z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white text-ink shadow-float lg:hidden"
+      >
+        <ArrowLeft className="h-5 w-5" aria-hidden />
+      </Link>
+
       {/* Camadas */}
-      <div className="absolute right-[52px] top-2.5 z-10 flex flex-col gap-1.5 sm:flex-row" role="group" aria-label="Map layers">
+      <div
+        className="absolute left-[72px] top-[max(16px,env(safe-area-inset-top))] z-10 flex gap-1.5 lg:left-auto lg:right-[52px] lg:top-2.5"
+        role="group"
+        aria-label="Map layers"
+      >
         <LayerToggle on={showLive} onClick={() => setShowLive((v) => !v)} icon={<Radio className="h-4 w-4" aria-hidden />} label="Live buses" />
         <LayerToggle on={heatmap} disabled={!showLive} onClick={() => setHeatmap((v) => !v)} icon={<Flame className="h-4 w-4" aria-hidden />} label="Heatmap" />
         <LayerToggle on={showStops} onClick={() => setShowStops((v) => !v)} icon={<MapPin className="h-4 w-4" aria-hidden />} label="Stops" />
@@ -226,19 +257,20 @@ function Explorer({ network }: { network: Network }) {
       <section
         aria-label="Network explorer"
         className={cn(
-          "absolute z-20 flex flex-col overflow-hidden bg-white shadow-[0_8px_30px_rgb(23_33_43/0.16)]",
-          "inset-x-0 bottom-0 rounded-t-2xl lg:inset-x-auto lg:bottom-3 lg:left-3 lg:top-3 lg:w-[400px] lg:rounded-2xl",
-          panelOpen ? "max-h-[58%] lg:max-h-none" : "max-h-[64px] lg:max-h-[64px]",
+          "absolute z-20 flex flex-col overflow-hidden bg-white shadow-[0_-8px_40px_rgb(18_21_27/0.18)] transition-[max-height] duration-300",
+          "inset-x-0 bottom-0 rounded-t-[28px] pb-[calc(92px+env(safe-area-inset-bottom))] lg:inset-x-auto lg:bottom-3 lg:left-3 lg:top-3 lg:w-[400px] lg:rounded-3xl lg:pb-0",
+          panelOpen ? "max-h-[56%] lg:max-h-none" : "max-h-[178px] lg:max-h-[72px]",
         )}
       >
+        <span className="mx-auto mt-2.5 h-1.5 w-10 shrink-0 rounded-full bg-border lg:hidden" aria-hidden />
         <button
           type="button"
           onClick={() => setPanelOpen((o) => !o)}
-          className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-4 py-3 text-left"
+          className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-5 py-3 text-left"
           aria-expanded={panelOpen}
         >
           <div className="min-w-0">
-            <h1 className="truncate text-base font-bold">São Paulo transit network</h1>
+            <h1 className="truncate text-lg font-bold tracking-tight">São Paulo network</h1>
             <p className="truncate text-xs text-muted">
               {network.counts.lines.toLocaleString("en-US")} lines · {network.counts.stops.toLocaleString("en-US")} stops · live buses: {liveLabel}
             </p>
@@ -269,7 +301,7 @@ function Explorer({ network }: { network: Network }) {
               <div className="grid grid-cols-3 gap-2">
                 <Stat label="Lines" value={network.counts.lines.toLocaleString("en-US")} />
                 <Stat label="Stops" value={network.counts.stops.toLocaleString("en-US")} />
-                <Stat label="Buses now" value={liveLabel} accent={fleet?.state === "LIVE" && showLive} />
+                <Stat label={accessibleOnly ? "Acessíveis" : "Buses now"} value={liveLabel} accent={fleet?.state === "LIVE" && showLive} />
               </div>
 
               {showLive && fleet?.state === "UNAVAILABLE" && <LiveNotice reason={fleet.reason} />}
@@ -362,7 +394,7 @@ function LayerToggle({ on, onClick, icon, label, disabled }: { on: boolean; onCl
       aria-pressed={on}
       title={label}
       className={cn(
-        "flex h-9 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold shadow-soft transition-colors disabled:opacity-40",
+        "tap flex h-11 w-11 items-center justify-center rounded-full text-xs font-semibold shadow-float transition-colors disabled:opacity-40 lg:h-9 lg:w-auto lg:gap-1.5 lg:rounded-xl lg:border lg:px-2.5 lg:shadow-soft",
         on ? "border-primary bg-primary text-white" : "border-border bg-white text-ink hover:bg-canvas",
       )}
     >
@@ -454,6 +486,21 @@ function LineDetail({
   const maxPerHour = Math.max(1, ...perHour);
   const nowH = new Date().getHours();
 
+  // resumo falado (pt-BR) para quem usa a leitura em voz alta
+  const spoken = (() => {
+    const kind = line.type === 1 ? "Metrô" : line.type === 2 ? "Trem" : "Ônibus";
+    const parts = [`${kind}, linha ${line.code.replace(/-/g, " ")}. ${line.name}.`];
+    if (d) {
+      parts.push(`Sentido ${d.headsign}.`);
+      if (d.minHeadway) parts.push(`Passa a cada ${d.minHeadway} minutos no horário de pico.`);
+      if (d.first) parts.push(`Funciona das ${d.first} às ${d.last}.`);
+      if (d.stops.length) parts.push(`${d.stops.length} paradas, de ${network.stops[d.stops[0]][1]} até ${network.stops[d.stops[d.stops.length - 1]][1]}.`);
+    }
+    if (line.fare !== null) parts.push(`Tarifa: ${line.fare.toFixed(2).replace(".", ",")} reais.`);
+    if (liveState === "LIVE") parts.push(`${live.length} veículos ao vivo, ${accessible} cadastrados como acessíveis.`);
+    return parts.join(" ");
+  })();
+
   return (
     <div className="flex flex-col gap-3 p-4">
       <div className="flex items-start gap-2">
@@ -469,6 +516,7 @@ function LineDetail({
             </span>
           </div>
           <h2 className="mt-1.5 text-base font-bold leading-snug">{line.name}</h2>
+          <SpeakButton text={spoken} label="Ouvir linha" className="mt-2" />
         </div>
         <button type="button" onClick={onBack} className="rounded-lg p-1 text-muted hover:bg-canvas hover:text-ink" aria-label="Close line">
           <X className="h-5 w-5" aria-hidden />

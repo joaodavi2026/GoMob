@@ -7,7 +7,7 @@ import { ArrowRight, Pencil, Search, Star, Trash2 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, EmptyState, ErrorState, Skeleton } from "@/components/ui/primitives";
+import { Card, EmptyState, Skeleton } from "@/components/ui/primitives";
 import { ConfirmDialog, Modal } from "@/components/ui/overlay";
 import { useToast } from "@/components/ui/toast";
 
@@ -66,13 +66,22 @@ export function FavoritesView() {
   });
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-6 md:py-10">
-      <h1 className="text-2xl font-bold">Your favorite journeys</h1>
+    <div className="mx-auto w-full max-w-3xl pb-4 pt-2 md:py-10">
+      <h1 className="text-[30px] leading-tight tracking-tight">
+        <span className="font-light text-muted">Saved</span> <span className="font-extrabold">journeys</span>
+      </h1>
       <p className="mt-1 text-sm text-muted">Saved routes, ready to search again.</p>
 
       <div className="mt-6 space-y-3">
         {list.isLoading && [0, 1, 2].map((i) => <Skeleton key={i} className="h-24 w-full" />)}
-        {list.isError && <ErrorState message="We couldn't load your favorites." onRetry={() => list.refetch()} />}
+        {list.isError && (
+          <EmptyState
+            icon={<Star className="h-6 w-6" aria-hidden />}
+            title="Favorites are offline"
+            description="Saved journeys need the database. Connect DATABASE_URL to keep your routes here."
+            action={{ label: "Try again", onClick: () => list.refetch() }}
+          />
+        )}
         {list.data?.length === 0 && (
           <EmptyState
             icon={<Star className="h-8 w-8" aria-hidden />}
@@ -100,10 +109,8 @@ export function FavoritesView() {
                 </Button>
               </div>
             </div>
-            <Link href={searchHref(f)} className="mt-3 block">
-              <Button variant="secondary" size="sm" className="w-full sm:w-auto">
-                <Search className="h-4 w-4" /> Search again
-              </Button>
+            <Link href={searchHref(f)} className="tap mt-3 flex h-11 items-center justify-center gap-2 rounded-2xl bg-night text-sm font-semibold text-white">
+              <Search className="h-4 w-4" aria-hidden /> Search again
             </Link>
           </Card>
         ))}

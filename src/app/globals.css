@@ -5,16 +5,72 @@
   --color-primary-hover: #e85d00;
   --color-primary-pressed: #cc5200;
   --color-primary-light: #fff1e6;
-  --color-canvas: #f8f9fb;
-  --color-ink: #17212b;
-  --color-muted: #687482;
-  --color-border: #e6eaf0;
+  --color-canvas: #f1f2f5;
+  --color-ink: #12151b;
+  --color-muted: #6b7280;
+  --color-border: #e5e7ec;
+  --color-night: #111318;
+  --color-night-2: #1b1e25;
+  --color-night-3: #262a33;
   --color-risk-low: #16a34a;
   --color-risk-moderate: #d97706;
   --color-risk-high: #dc2626;
   --color-risk-unknown: #94a3b8;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --shadow-soft: 0 1px 2px rgb(23 33 43 / 0.04), 0 4px 16px rgb(23 33 43 / 0.06);
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --shadow-soft: 0 1px 2px rgb(18 21 27 / 0.03), 0 6px 20px rgb(18 21 27 / 0.06);
+  --shadow-float: 0 10px 30px rgb(18 21 27 / 0.22), 0 2px 6px rgb(18 21 27 / 0.12);
+}
+
+/* esconde a barra de rolagem em carrosséis horizontais */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.snap-row {
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 20px;
+}
+.snap-row > * {
+  scroll-snap-align: start;
+}
+@keyframes gomob-drive {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+@keyframes gomob-nudge {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes gomob-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: gomob-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.tap {
+  transition: transform 0.12s ease;
+}
+.tap:active {
+  transform: scale(0.97);
 }
 
 html,
@@ -22,7 +78,7 @@ body {
   height: 100%;
 }
 body {
-  background: #fff;
+  background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -61,3 +117,99 @@ body {
 .gm-pop-list { margin-top: 6px; display: flex; flex-direction: column; gap: 2px; max-height: 240px; overflow-y: auto; }
 .gm-pop-row { display: flex; align-items: center; gap: 8px; text-align: left; border-radius: 8px; padding: 5px 6px; }
 .gm-pop-row:hover { background: var(--color-canvas); }
+
+/* controles do MapLibre no estilo do app */
+.maplibregl-ctrl-top-right {
+  top: max(4px, env(safe-area-inset-top));
+}
+.maplibregl-ctrl-group {
+  border-radius: 18px !important;
+  box-shadow: var(--shadow-float) !important;
+  overflow: hidden;
+}
+.maplibregl-ctrl-group button {
+  width: 44px !important;
+  height: 40px !important;
+}
+@media (min-width: 1024px) {
+  .maplibregl-ctrl-group button {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  .maplibregl-ctrl-group {
+    border-radius: 10px !important;
+  }
+}
+
+/* ---- Acessibilidade (preferências em src/features/a11y) ---- */
+html.a11y-text-lg {
+  font-size: 112.5%;
+}
+html.a11y-text-xl {
+  font-size: 128%;
+}
+html.a11y-text-lg :where(.text-\[10px\], .text-\[11px\], .text-xs),
+html.a11y-text-xl :where(.text-\[10px\], .text-\[11px\], .text-xs) {
+  font-size: 0.875rem;
+  line-height: 1.35;
+}
+html.a11y-reduce-motion *,
+html.a11y-reduce-motion *::before,
+html.a11y-reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+html.a11y-simple .a11y-hide-simple {
+  display: none !important;
+}
+/* alto contraste: texto mais escuro, bordas visíveis, laranja com contraste AA para texto branco */
+html.a11y-contrast body {
+  background: #ffffff;
+}
+html.a11y-contrast .text-muted,
+html.a11y-contrast .text-muted\/70 {
+  color: #1f2430 !important;
+}
+html.a11y-contrast .bg-canvas {
+  background-color: #ffffff !important;
+}
+html.a11y-contrast .bg-primary {
+  background-color: #b34700 !important;
+}
+html.a11y-contrast .text-primary,
+html.a11y-contrast .text-primary-pressed {
+  color: #9a3d00 !important;
+}
+html.a11y-contrast .shadow-soft,
+html.a11y-contrast .shadow-float {
+  box-shadow: 0 0 0 2px #12151b !important;
+}
+html.a11y-contrast .border-border {
+  border-color: #4b5563 !important;
+}
+html.a11y-contrast :focus-visible {
+  outline: 4px solid #12151b;
+  outline-offset: 3px;
+}
+@keyframes a11y-flash {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.a11y-flash {
+  animation: a11y-flash 0.6s ease-in-out 4;
+}
+/* tamanhos fixos em px também acompanham o "Texto maior" (convertidos para rem) */
+html:is(.a11y-text-lg, .a11y-text-xl) :where(.text-\[13px\]) { font-size: 0.8125rem; }
+html:is(.a11y-text-lg, .a11y-text-xl) :where(.text-\[15px\]) { font-size: 0.9375rem; }
+html:is(.a11y-text-lg, .a11y-text-xl) :where(.text-\[17px\]) { font-size: 1.0625rem; }
+html:is(.a11y-text-lg, .a11y-text-xl) :where(.text-\[26px\]) { font-size: 1.625rem; }
+html:is(.a11y-text-lg, .a11y-text-xl) :where(.text-\[28px\]) { font-size: 1.75rem; }
+html:is(.a11y-text-lg, .a11y-text-xl) :where(.text-\[30px\]) { font-size: 1.875rem; }
+html:is(.a11y-text-lg, .a11y-text-xl) :where(.text-\[34px\]) { font-size: 2.125rem; }

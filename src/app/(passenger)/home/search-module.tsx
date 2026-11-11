@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { ArrowUpDown, Flag, LocateFixed, MapPin, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Combobox, type ComboOption } from "@/components/ui/dropdown";
-import { Card } from "@/components/ui/primitives";
 import { useToast } from "@/components/ui/toast";
 import { KNOWN_PLACES, routesHref, toPoint, type PickedPoint } from "./places";
 
@@ -82,16 +81,20 @@ export function SearchModule() {
     router.push(routesHref(origin, dest));
   }
 
+  const row = "relative flex items-center gap-3 rounded-3xl bg-canvas px-4 py-3";
   return (
-    <Card className="p-4 sm:p-5">
-      <form onSubmit={submit} noValidate>
-        <div className="grid gap-3 lg:grid-cols-[1fr_auto_1fr] lg:items-start">
-          <div>
-            <p className="mb-1.5 text-sm font-medium">Origin</p>
+    <form onSubmit={submit} noValidate className="relative mt-6 rounded-[28px] bg-white p-2 shadow-soft">
+      <div className="relative space-y-2">
+        <div className={row}>
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-soft">
+            <MapPin className="h-[18px] w-[18px]" aria-hidden />
+          </span>
+          <div className="min-w-0 flex-1 pr-12">
+            <p className="text-[11px] font-medium text-muted">From</p>
             <Combobox
+              bare
               label="Origin"
               placeholder="Where are you starting?"
-              leading={<MapPin className="h-4 w-4 text-primary" aria-hidden />}
               options={OPTIONS}
               query={oq}
               onQueryChange={(q) => {
@@ -105,29 +108,18 @@ export function SearchModule() {
               }}
               emptyText="No known place matches. Try another name."
             />
-            <button
-              type="button"
-              onClick={locate}
-              disabled={locating}
-              className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-primary-pressed hover:underline disabled:opacity-60"
-            >
-              <LocateFixed className="h-4 w-4" aria-hidden />
-              {locating ? "Locating..." : "Use current location"}
-            </button>
           </div>
-
-          <div className="flex justify-center lg:pt-7">
-            <Button type="button" variant="secondary" size="icon" onClick={swap} aria-label="Swap origin and destination" className="rounded-full">
-              <ArrowUpDown className="h-4 w-4 lg:rotate-90" aria-hidden />
-            </Button>
-          </div>
-
-          <div>
-            <p className="mb-1.5 text-sm font-medium">Destination</p>
+        </div>
+        <div className={row}>
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-night text-white">
+            <Flag className="h-[17px] w-[17px]" aria-hidden />
+          </span>
+          <div className="min-w-0 flex-1 pr-12">
+            <p className="text-[11px] font-medium text-muted">To</p>
             <Combobox
+              bare
               label="Destination"
               placeholder="Where to?"
-              leading={<Flag className="h-4 w-4 text-primary" aria-hidden />}
               options={OPTIONS}
               query={dq}
               onQueryChange={(q) => {
@@ -143,44 +135,58 @@ export function SearchModule() {
             />
           </div>
         </div>
+        <button
+          type="button"
+          onClick={swap}
+          aria-label="Swap origin and destination"
+          className="tap absolute right-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-ink shadow-soft ring-1 ring-border"
+        >
+          <ArrowUpDown className="h-[18px] w-[18px]" aria-hidden />
+        </button>
+      </div>
 
-        <div className="mt-4">
-          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">Quick picks</p>
-          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-            {KNOWN_PLACES.slice(0, 8).map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => {
-                  // Fill origin first, then destination.
-                  if (!origin) {
-                    setOrigin(toPoint(p));
-                    setOq(p.label);
-                  } else {
-                    setDest(toPoint(p));
-                    setDq(p.label);
-                  }
-                  setError(null);
-                }}
-                className="shrink-0 rounded-full border border-border bg-white px-3 py-1.5 text-sm text-ink transition-colors hover:border-primary/50 hover:bg-primary-light"
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-        </div>
+      <div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto px-2 pb-1">
+        <button
+          type="button"
+          onClick={locate}
+          disabled={locating}
+          className="tap flex shrink-0 items-center gap-1.5 rounded-full bg-primary-light px-3 py-2 text-xs font-semibold text-primary-pressed disabled:opacity-60"
+        >
+          <LocateFixed className="h-3.5 w-3.5" aria-hidden />
+          {locating ? "Locating..." : "My location"}
+        </button>
+        {KNOWN_PLACES.slice(0, 8).map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            onClick={() => {
+              // Fill origin first, then destination.
+              if (!origin) {
+                setOrigin(toPoint(p));
+                setOq(p.label);
+              } else {
+                setDest(toPoint(p));
+                setDq(p.label);
+              }
+              setError(null);
+            }}
+            className="tap shrink-0 rounded-full bg-canvas px-3 py-2 text-xs font-medium text-ink"
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
 
-        {error && (
-          <p role="alert" className="mt-3 text-sm text-risk-high">
-            {error}
-          </p>
-        )}
+      {error && (
+        <p role="alert" className="mx-2 mt-2 text-sm text-risk-high">
+          {error}
+        </p>
+      )}
 
-        <Button type="submit" size="lg" className="mt-4 w-full">
-          <Search className="h-5 w-5" aria-hidden />
-          Find my route
-        </Button>
-      </form>
-    </Card>
+      <Button type="submit" size="lg" className="mt-2 w-full rounded-[22px]">
+        <Search className="h-5 w-5" aria-hidden />
+        Search routes
+      </Button>
+    </form>
   );
 }

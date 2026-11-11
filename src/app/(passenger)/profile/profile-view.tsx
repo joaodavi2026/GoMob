@@ -113,7 +113,9 @@ export function ProfileView() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Profile</h1>
+      <h1 className="pt-2 text-[30px] leading-tight tracking-tight">
+        <span className="font-light text-muted">Your</span> <span className="font-extrabold">profile</span>
+      </h1>
 
       {me.isPending ? (
         <Skeleton className="h-64 w-full rounded-2xl" />
@@ -122,7 +124,7 @@ export function ProfileView() {
       ) : (
         <Card className="p-5">
           <div className="flex items-center gap-4">
-            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary text-xl font-bold text-white shadow-soft" aria-hidden>
+            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-pressed text-xl font-bold text-white ring-4 ring-primary-light" aria-hidden>
               {initials(user.name)}
             </span>
             <div className="min-w-0 flex-1">

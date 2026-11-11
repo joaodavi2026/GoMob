@@ -262,7 +262,101 @@ async function main() {
   writeFileSync(join(outDir, "network.json"), JSON.stringify(network));
   writeFileSync(join(outDir, "shapes.geojson"), JSON.stringify({ type: "FeatureCollection", features }));
 
+  // ---- destaques para a Home (leve, sem carregar a rede inteira) ----
+  const summary = (l: (typeof lines)[number]) => {
+    const d = l.dirs[0];
+    return {
+      code: l.code,
+      name: l.name,
+      type: l.type,
+      color: l.color,
+      textColor: l.textColor,
+      fare: l.fare,
+      minHeadway: Math.min(...l.dirs.map((x) => x.minHeadway ?? Infinity)) === Infinity ? null : Math.min(...l.dirs.map((x) => x.minHeadway ?? Infinity)),
+      trip: d?.trip ?? null,
+      stops: d?.stops.length ?? 0,
+      from: l.dirs[1]?.headsign ?? null,
+      to: d?.headsign ?? null,
+      hours: d?.first ? `${d.first}–${d.last}` : null,
+    };
+  };
+  const rail = lines.filter((l) => l.type !== 3).map(summary);
+  // ônibus mais frequentes, no máximo 2 por região para dar variedade
+  const perRegion = new Map<string, number>();
+  const popular = lines
+    .filter((l) => l.type === 3 && l.dirs.some((d) => d.minHeadway) && l.dirs.some((d) => d.stops.length > 10))
+    .map(summary)
+    .sort((a, b) => (a.minHeadway ?? 99) - (b.minHeadway ?? 99) || b.stops - a.stops)
+    .filter((l) => {
+      const n = perRegion.get(l.color) ?? 0;
+      if (n >= 2) return false;
+      perRegion.set(l.color, n + 1);
+      return true;
+    })
+    .slice(0, 12);
+  writeFileSync(
+    join(outDir, "highlights.json"),
+    JSON.stringify({ generatedAt: network.generatedAt, counts: { ...network.counts, bus: lines.filter((l) => l.type === 3).length, rail: rail.length }, rail, popular }),
+  );
+  const railFeatures = lines.flatMap((l) => {
+    if (l.type === 3) return [];
+    const d = l.dirs.find((x) => x.shape !== null);
+    if (!d || d.shape === null) return [];
+    const f = features[d.shape] as { geometry: { coordinates: number[][] } };
+    const coords = simplify(f.geometry.coordinates as Pt[], 0.0003).map(([x, y]) => [r5(x), r5(y)]);
+    return [{ type: "Feature", properties: { code: l.code, c: l.color, t: l.type }, geometry: { type: "LineString", coordinates: coords } }];
+  });
+  writeFileSync(join(outDir, "rail.geojson"), JSON.stringify({ type: "FeatureCollection", features: railFeatures }));
+
+  // ---- diretório de terminais (paradas "Terminal X ...") ----
+  const stopLineSets = new Map<number, Set<number>>();
+  lines.forEach((l, li) => l.dirs.forEach((d) => d.stops.forEach((s) => (stopLineSets.get(s) ?? stopLineSets.set(s, new Set()).get(s)!).add(li))));
+  const termName = (n: string) =>
+    n
+      .replace(/\s+/g, " ")
+      .replace(/\(.*?\)/g, "")
+      .replace(/,.*$/, "")
+      .replace(/\s+-.*$/, "")
+      .replace(/\s+(Lado|Pl\.?|Plat\.?|Plataforma|Desemb\.?|Desembarque|Embarque|Ref\.?|Pmv|Central|Sul|Norte)\b.*$/i, "")
+      .replace(/\s+Pl\d+.*$/i, "")
+      .replace(/\s+\d+$/, "")
+      .replace(/^Terminal Cptm /i, "Terminal ")
+      .trim();
+  const deaccent = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const terms = new Map<string, { stops: number[]; names: Map<string, number> }>();
+  stops.forEach((s, i) => {
+    if (!/^Terminal\s/i.test(s[1])) return;
+    const n = termName(s[1]);
+    const k = deaccent(n);
+    const t = terms.get(k) ?? terms.set(k, { stops: [], names: new Map() }).get(k)!;
+    t.stops.push(i);
+    t.names.set(n, (t.names.get(n) ?? 0) + 1);
+  });
+  const terminals = [...terms.values()]
+    .map((t) => {
+      // nome exibido: a variante com acento mais frequente
+      const name = [...t.names.entries()].sort((a, b) => (/[^\x00-\x7F]/.test(b[0]) ? 1 : 0) - (/[^\x00-\x7F]/.test(a[0]) ? 1 : 0) || b[1] - a[1])[0][0];
+      const ls = new Set<number>();
+      t.stops.forEach((s) => stopLineSets.get(s)?.forEach((l) => ls.add(l)));
+      const lat = t.stops.reduce((a, s) => a + stops[s][2], 0) / t.stops.length;
+      const lon = t.stops.reduce((a, s) => a + stops[s][3], 0) / t.stops.length;
+      return {
+        name,
+        lat: r5(lat),
+        lon: r5(lon),
+        stopId: stops[t.stops[0]][0],
+        platforms: t.stops.length,
+        lineCount: ls.size,
+        lines: [...ls].slice(0, 40).map((li) => lines[li].code),
+      };
+    })
+    .filter((t) => t.lineCount > 0)
+    .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+  writeFileSync(join(outDir, "terminals.json"), JSON.stringify({ generatedAt: network.generatedAt, terminals }));
+  console.log(`terminais=${terminals.length}`);
+
   const mb = (f: string) => (statSync(join(outDir, f)).size / 1e6).toFixed(2) + " MB";
+  console.log(`highlights.json ${mb("highlights.json")} · rail.geojson ${mb("rail.geojson")}`);
   console.log(`linhas=${lines.length} paradas=${stops.length} traçados=${features.length}`);
   console.log(`pontos: ${rawPts} -> ${keptPts} (${((keptPts / rawPts) * 100).toFixed(1)}%)`);
   console.log(`network.json ${mb("network.json")} · shapes.geojson ${mb("shapes.geojson")} · ${((Date.now() - t0) / 1000).toFixed(1)}s`);

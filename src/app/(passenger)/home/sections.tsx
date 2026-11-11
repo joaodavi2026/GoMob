@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, BellRing, Brain, Heart } from "lucide-react";
+import { BellRing, Brain, ChevronRight, Heart } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { BusCard } from "@/components/ui/cards";
 import { RiskIndicator, timeAgo } from "@/components/ui/indicators";
@@ -29,8 +29,8 @@ export function SectionHeader({ title, href, linkLabel }: { title: string; href?
     <div className="mb-3 flex items-end justify-between gap-3">
       <h2 className="text-xl font-bold tracking-tight text-ink">{title}</h2>
       {href && (
-        <Link href={href} className="inline-flex items-center gap-1 text-sm font-medium text-primary-pressed hover:underline">
-          {linkLabel ?? "See all"} <ArrowRight className="h-4 w-4" aria-hidden />
+        <Link href={href} className="inline-flex items-center gap-0.5 text-sm font-semibold text-muted hover:text-ink">
+          {linkLabel ?? "See all"} <ChevronRight className="h-4 w-4" aria-hidden />
         </Link>
       )}
     </div>
@@ -41,7 +41,7 @@ function ListSkeleton({ rows = 3 }: { rows?: number }) {
   return (
     <div className="space-y-2" role="status" aria-label="Loading">
       {Array.from({ length: rows }).map((_, i) => (
-        <Skeleton key={i} className="h-16 w-full rounded-2xl" />
+        <Skeleton key={i} className="h-16 w-full rounded-3xl" />
       ))}
     </div>
   );
@@ -55,14 +55,14 @@ export function FavoriteJourneys() {
   const favs = q.data?.favorites ?? [];
 
   return (
-    <section aria-labelledby="fav-h">
+    <section aria-labelledby="fav-h" className="mt-8">
       <div id="fav-h">
         <SectionHeader title="Your favorite journeys" href="/favorites" />
       </div>
       {q.isPending ? (
         <ListSkeleton />
       ) : q.isError ? (
-        <ErrorState message="We could not load your favorites right now." onRetry={() => q.refetch()} />
+        <EmptyState icon={<Heart className="h-6 w-6" aria-hidden />} title="Favorites are offline" description="Saved journeys need the database. Search a route to plan a trip meanwhile." />
       ) : favs.length === 0 ? (
         <EmptyState
           icon={<Heart className="h-8 w-8" aria-hidden />}
@@ -83,9 +83,9 @@ export function FavoriteJourneys() {
                     ),
                   )
                 }
-                className="flex w-full items-center gap-3 rounded-2xl border border-border bg-white p-3 text-left shadow-soft transition-colors hover:border-primary/40"
+                className="tap flex w-full items-center gap-3 rounded-3xl bg-white p-3 text-left shadow-soft"
               >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary-light text-primary">
                   <Heart className="h-5 w-5" aria-hidden />
                 </span>
                 <span className="min-w-0 flex-1">
@@ -145,7 +145,7 @@ export function LiveUpdates() {
   const q = useQuery({ queryKey: ["alerts"], queryFn: () => apiFetch<{ alerts: AlertItem[] }>("/api/alerts"), retry: 0, refetchInterval: 60_000 });
   const alerts = q.data?.alerts ?? [];
   return (
-    <section aria-labelledby="alerts-h">
+    <section aria-labelledby="alerts-h" id="updates" className="mt-8 scroll-mt-4">
       <div id="alerts-h">
         <SectionHeader title="Live bus updates" />
       </div>
@@ -159,9 +159,9 @@ export function LiveUpdates() {
         <ul className="space-y-2">
           {alerts.slice(0, 4).map((a) => (
             <li key={a.id}>
-              <Card className="p-3">
+              <Card className="p-4">
                 <div className="flex items-start gap-3">
-                  <BellRing className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary-light text-primary"><BellRing className="h-5 w-5" aria-hidden /></span>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold">{a.title}</p>
                     <p className="mt-0.5 text-sm text-muted">{a.description}</p>
@@ -194,7 +194,7 @@ export function IntelligenceCard() {
   const failed = lines.isError || risk.isError;
 
   return (
-    <section aria-labelledby="intel-h">
+    <section aria-labelledby="intel-h" className="mt-8">
       <div id="intel-h">
         <SectionHeader title="GoMob Intelligence" href="/predict" linkLabel="Predict" />
       </div>
@@ -220,7 +220,7 @@ export function IntelligenceCard() {
           </p>
           <Link
             href="/predict"
-            className="mt-3 inline-flex h-9 items-center rounded-xl border border-border bg-white px-3 text-sm font-semibold text-ink hover:bg-canvas"
+            className="tap mt-4 inline-flex h-11 items-center rounded-full bg-night px-5 text-sm font-semibold text-white"
           >
             Predict a future trip
           </Link>

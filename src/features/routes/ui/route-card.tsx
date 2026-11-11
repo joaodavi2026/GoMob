@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Footprints, Repeat } from "lucide-react";
+import { Bus, Clock, Footprints, Repeat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge, Card, DemoBadge } from "@/components/ui/primitives";
 import { RiskBadge } from "@/components/ui/risk-badge";
@@ -34,47 +34,70 @@ export function RouteCard({
 }) {
   const codes = busLineCodes(route);
   return (
-    <Card className={cn("p-4 transition-shadow", selected && "border-primary ring-2 ring-primary/20", tags.length > 0 && !selected && "border-primary/40")}>
-      {tags.length > 0 && (
-        <div className="mb-2 flex flex-wrap gap-1.5">
-          {tags.map((t) => (
-            <Badge key={t} tone="primary">{t}</Badge>
-          ))}
+    <Card className={cn("overflow-hidden p-0 transition-shadow", selected && "ring-2 ring-primary")}>
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[28px] font-extrabold leading-none tracking-tight text-ink">
+              {route.durationMinutes !== null ? route.durationMinutes : "—"}
+              <span className="ml-1 text-sm font-semibold text-muted">min</span>
+            </p>
+            {tags.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {tags.map((t) => (
+                  <Badge key={t} tone="primary" className="border-0 px-2 py-0.5 text-[11px]">{t}</Badge>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center justify-end gap-1">
+            {codes.map((c, i) => (
+              <span key={c} className="flex items-center gap-1">
+                {i > 0 && <span className="text-xs text-muted" aria-hidden>›</span>}
+                <span className="flex items-center gap-1 rounded-xl bg-night px-2 py-1 text-xs font-bold text-white">
+                  <Bus className="h-3 w-3 text-primary" aria-hidden />
+                  {c}
+                </span>
+              </span>
+            ))}
+          </div>
         </div>
-      )}
-      <div className="flex flex-wrap items-center gap-1.5">
-        {codes.map((c, i) => (
-          <span key={c} className="flex items-center gap-1.5">
-            {i > 0 && <span className="text-muted" aria-hidden>+</span>}
-            <span className="rounded-lg bg-primary px-2 py-0.5 text-sm font-bold text-white">{c}</span>
-          </span>
-        ))}
+
+        <div className="mt-4 flex gap-3">
+          <div className="flex flex-col items-center pt-1" aria-hidden>
+            <span className="h-2.5 w-2.5 rounded-full border-2 border-primary" />
+            <span className="my-1 w-0.5 flex-1 rounded-full bg-primary/30" />
+            <span className="h-2.5 w-2.5 rounded-full bg-night" />
+          </div>
+          <div className="min-w-0 flex-1 space-y-2">
+            <p className="truncate text-sm font-semibold text-ink">{origin}</p>
+            <p className="truncate text-sm font-semibold text-ink">{destination}</p>
+          </div>
+        </div>
       </div>
-      <p className="mt-2 text-sm text-muted">{origin} to {destination}</p>
-      <dl className="mt-3 grid grid-cols-3 gap-2 text-sm">
-        <div>
-          <dt className="flex items-center gap-1 text-xs text-muted"><Clock className="h-3.5 w-3.5" aria-hidden /> Duration</dt>
-          <dd className="font-semibold">{route.durationMinutes !== null ? `${route.durationMinutes} min` : "Unknown"}</dd>
+
+      <div className="relative border-t border-dashed border-border px-4 py-3">
+        <span className="absolute -left-2.5 -top-2.5 h-5 w-5 rounded-full bg-canvas" aria-hidden />
+        <span className="absolute -right-2.5 -top-2.5 h-5 w-5 rounded-full bg-canvas" aria-hidden />
+        <dl className="flex items-center gap-4 text-xs text-muted">
+          <div className="flex items-center gap-1">
+            <dt><Footprints className="h-3.5 w-3.5" aria-label="Walking" /></dt>
+            <dd className="font-semibold text-ink">{route.walkMinutes} min</dd>
+          </div>
+          <div className="flex items-center gap-1">
+            <dt><Repeat className="h-3.5 w-3.5" aria-label="Transfers" /></dt>
+            <dd className="font-semibold text-ink">{route.transfers} transfer{route.transfers === 1 ? "" : "s"}</dd>
+          </div>
+          <div className="ml-auto">{route.risk ? <RiskBadge level={route.risk.level} /> : <RiskBadge level="INSUFFICIENT_DATA" />}</div>
+        </dl>
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted">
+          <Clock className="h-3 w-3" aria-hidden /> Data as of {time(route.dataTimestamp)} · {SOURCE_LABEL[route.source]}
+          {route.source === "DEMO" && <DemoBadge label="Demo" />}
         </div>
-        <div>
-          <dt className="flex items-center gap-1 text-xs text-muted"><Footprints className="h-3.5 w-3.5" aria-hidden /> Walking</dt>
-          <dd className="font-semibold">{route.walkMinutes} min</dd>
-        </div>
-        <div>
-          <dt className="flex items-center gap-1 text-xs text-muted"><Repeat className="h-3.5 w-3.5" aria-hidden /> Transfers</dt>
-          <dd className="font-semibold">{route.transfers}</dd>
-        </div>
-      </dl>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        {route.risk ? <RiskBadge level={route.risk.level} /> : <RiskBadge level="INSUFFICIENT_DATA" />}
-        {route.source === "DEMO" && <DemoBadge />}
+        <Button className="mt-3 w-full" variant={selected ? "primary" : "dark"} onClick={onView} aria-pressed={selected}>
+          {selected ? "Viewing route" : "View route"}
+        </Button>
       </div>
-      <p className="mt-2 text-xs text-muted">
-        Data as of {time(route.dataTimestamp)} - Source: {SOURCE_LABEL[route.source]}
-      </p>
-      <Button className="mt-3 w-full" variant={selected ? "primary" : "secondary"} onClick={onView} aria-pressed={selected}>
-        View route
-      </Button>
     </Card>
   );
 }

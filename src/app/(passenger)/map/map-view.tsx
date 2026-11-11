@@ -54,8 +54,10 @@ export function MapView() {
   return (
     <div className="flex flex-col gap-3">
       <div>
-        <h1 className="text-xl font-bold">Map</h1>
-        <div className="mt-2 flex flex-wrap items-center gap-2" aria-label="Line filter" role="group">
+        <h1 className="text-[30px] leading-tight tracking-tight">
+          <span className="font-light text-muted">Live</span> <span className="font-extrabold">buses</span>
+        </h1>
+        <div className="no-scrollbar -mx-5 mt-3 flex items-center gap-2 overflow-x-auto px-5" aria-label="Line filter" role="group">
           {linesQ.isLoading && Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-9 w-24 rounded-full" />)}
           {lines.map((l) => {
             const on = selectedIds.includes(l.id);
@@ -67,8 +69,8 @@ export function MapView() {
                 onClick={() => toggle(l.id)}
                 title={l.name}
                 className={cn(
-                  "h-9 rounded-full border px-3 text-sm font-medium transition-colors",
-                  on ? "border-primary bg-primary-light text-primary-pressed" : "border-border bg-white text-ink hover:bg-canvas",
+                  "tap h-11 shrink-0 rounded-full px-4 text-sm font-semibold shadow-soft transition-colors",
+                  on ? "bg-night text-white" : "bg-white text-ink",
                 )}
               >
                 {l.displayCode}
@@ -78,7 +80,7 @@ export function MapView() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 text-sm">
+      <div className="flex flex-wrap items-center gap-2 rounded-3xl bg-white p-2 pl-3 text-sm shadow-soft">
         <LiveStatus state={status} label={STATUS_LABEL[status]} />
         <span className="text-muted" aria-live="polite">
           {vehiclesQ.dataUpdatedAt ? timeAgo(new Date(vehiclesQ.dataUpdatedAt).toISOString(), now) : "Not updated yet"}
@@ -93,7 +95,7 @@ export function MapView() {
       </div>
 
       {fallback && (
-        <p role="status" className="rounded-xl bg-primary-light px-3 py-2 text-sm">
+        <p role="status" className="rounded-2xl bg-primary-light px-4 py-2.5 text-xs text-primary-pressed">
           Live data is temporarily unavailable. Showing explicitly identified demonstration data instead.
         </p>
       )}
@@ -108,7 +110,7 @@ export function MapView() {
         </p>
       )}
 
-      <div className="relative h-[calc(100dvh-17rem)] min-h-[380px] overflow-hidden rounded-2xl border border-border">
+      <div className="relative h-[calc(100dvh-20rem)] min-h-[420px] overflow-hidden rounded-[28px] shadow-soft">
         <TransitMap
           className="h-full w-full"
           vehicles={vehicles}
