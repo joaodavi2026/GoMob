@@ -48,3 +48,6 @@ next-env.d.ts
 
 !.env.example
 .claude/
+
+# gerado por scripts/copy-maplibre-worker.mjs
+/public/vendor/

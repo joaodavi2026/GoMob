@@ -45,3 +45,19 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---- Network map (MapLibre popups/tooltip) ---- */
+.gm-tip b { font-weight: 700; }
+.gm-tip span { opacity: 0.75; }
+.maplibregl-popup-content { border-radius: 14px; padding: 12px 14px; box-shadow: 0 8px 28px rgb(23 33 43 / 0.18); }
+.gm-pop { font-family: var(--font-sans); color: var(--color-ink); font-size: 12px; }
+.gm-pop-badge { display: inline-flex; align-items: center; border-radius: 6px; padding: 2px 6px; font-weight: 700; font-size: 11px; white-space: nowrap; }
+.gm-pop-title { margin-top: 6px; font-weight: 700; font-size: 13px; line-height: 1.3; }
+.gm-pop-sub { margin-top: 2px; color: var(--color-muted); }
+.gm-pop-grid { margin-top: 8px; display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; }
+.gm-pop-grid span { color: var(--color-muted); }
+.gm-pop-btn { margin-top: 10px; width: 100%; border-radius: 9px; background: var(--color-primary); color: #fff; font-weight: 600; padding: 7px 0; }
+.gm-pop-btn:hover { background: var(--color-primary-hover); }
+.gm-pop-list { margin-top: 6px; display: flex; flex-direction: column; gap: 2px; max-height: 240px; overflow-y: auto; }
+.gm-pop-row { display: flex; align-items: center; gap: 8px; text-align: left; border-radius: 8px; padding: 5px 6px; }
+.gm-pop-row:hover { background: var(--color-canvas); }

@@ -5,12 +5,13 @@ import type { Map as MlMap, Marker as MlMarker } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import { Crosshair, LocateFixed } from "lucide-react";
 import { SAO_PAULO_CENTER } from "@/config/transit";
+import { configureMaplibreWorker } from "@/components/maps/maplibre-worker";
 import { cn } from "@/lib/utils";
 import { classifyFreshness } from "@/server/transit/freshness";
 import type { GeoPoint, TransitStop, TransitVehicle } from "@/types/transit";
 import type { TransitMapProps } from "./transit-map";
 
-const DEFAULT_STYLE = "https://demotiles.maplibre.org/style.json";
+const DEFAULT_STYLE = "https://tiles.openfreemap.org/styles/positron";
 const BUS_SVG =
   '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#17212b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6v6M16 6v6M2 12h19.6M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg>';
 
@@ -78,6 +79,7 @@ export default function TransitMapImpl({
       if (cancelled || !container.current) return;
       const ml = (mod as unknown as { default?: typeof mod }).default ?? mod;
       mlRef.current = ml;
+      configureMaplibreWorker(ml);
       map = new ml.Map({
         container: container.current,
         style: process.env.NEXT_PUBLIC_MAP_STYLE_URL || DEFAULT_STYLE,
@@ -251,7 +253,7 @@ export default function TransitMapImpl({
 
   return (
     <div className={cn("relative overflow-hidden bg-canvas", className)}>
-      <div ref={container} className="absolute inset-0" role="application" aria-label="Map of São Paulo" />
+      <div ref={container} className="h-full w-full" role="application" aria-label="Map of São Paulo" />
       <div className="absolute left-3 top-3 z-10 flex flex-col gap-2">
         {showReset && (
           <button type="button" onClick={resetView} className="flex h-10 items-center gap-1.5 rounded-xl border border-border bg-white px-3 text-sm font-medium shadow-soft hover:bg-canvas">

@@ -203,6 +203,8 @@ export function createSptransClient(opts: SptransClientOptions = {}) {
     stopsByLine: (codigoLinha: number) => get(`/Parada/BuscarParadasPorLinha?codigoLinha=${Math.trunc(codigoLinha)}`, SPTRANS_TTL.stopsMs, true),
     /** Posições nunca são servidas de cópia antiga em caso de erro. */
     positionsByLine: (codigoLinha: number) => get(`/Posicao/Linha?codigoLinha=${Math.trunc(codigoLinha)}`, SPTRANS_TTL.positionsMs, false),
+    /** Todas as posições da frota (uma chamada, ~15 mil veículos). */
+    allPositions: () => get(`/Posicao`, SPTRANS_TTL.positionsMs, false),
     getHealth: (): SptransHealth => ({ ...health }),
     clearCache: () => cache.clear(),
   };

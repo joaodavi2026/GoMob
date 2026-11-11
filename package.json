@@ -13,7 +13,8 @@
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate && node scripts/copy-maplibre-worker.mjs",
+    "gtfs:build": "tsx scripts/build-gtfs.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
