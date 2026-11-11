@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, GraduationCap, Heart, LogOut, Pencil, X } from "lucide-react";
+import { Check, GraduationCap, Heart, Pencil, X } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge, Card, ErrorState, Skeleton } from "@/components/ui/primitives";
-import { ConfirmDialog } from "@/components/ui/overlay";
 import { useToast } from "@/components/ui/toast";
 import { initials, useMe } from "@/components/layout/hooks";
 
@@ -50,8 +49,6 @@ export function ProfileView() {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
   const [nameError, setNameError] = useState<string>();
-  const [confirmLogout, setConfirmLogout] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT_PREFS);
 
   useEffect(() => {
@@ -94,18 +91,6 @@ export function ProfileView() {
     setNameError(undefined);
     if (v === me.data?.name) return setEditing(false);
     save.mutate(v);
-  }
-
-  async function logout() {
-    setLoggingOut(true);
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-    } catch {
-      /* continue to login regardless */
-    }
-    qc.clear();
-    router.replace("/login");
-    router.refresh();
   }
 
   const user = me.data;
@@ -205,22 +190,6 @@ export function ProfileView() {
           Some figures may come from simulated demonstration data and are always labelled as such. Crowding risk is an estimate, not an official measurement.
         </p>
       </Card>
-
-      <Button variant="secondary" size="lg" className="w-full text-risk-high" onClick={() => setConfirmLogout(true)}>
-        <LogOut className="h-5 w-5" aria-hidden />
-        Sign out
-      </Button>
-
-      <ConfirmDialog
-        open={confirmLogout}
-        onClose={() => setConfirmLogout(false)}
-        onConfirm={logout}
-        loading={loggingOut}
-        title="Sign out of GoMob?"
-        description="You will need to sign in again to see your favorites and routes."
-        confirmLabel="Sign out"
-        destructive
-      />
     </div>
   );
 }

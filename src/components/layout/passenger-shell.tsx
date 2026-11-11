@@ -2,13 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
-import { Accessibility, LogOut, ShieldCheck, User as UserIcon } from "lucide-react";
+import { Accessibility, ShieldCheck, User as UserIcon } from "lucide-react";
 import { ReadScreenButton } from "@/features/a11y/a11y";
 import { Logo } from "@/components/ui/logo";
 import { LiveStatus } from "@/components/ui/indicators";
 import { Dropdown } from "@/components/ui/dropdown";
-import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import type { IntegrationState } from "@/types/transit";
 import { initials, useMe, useSystemStatus } from "./hooks";
@@ -52,21 +50,7 @@ function SourceIndicator() {
 
 export function UserMenu({ className }: { className?: string }) {
   const router = useRouter();
-  const qc = useQueryClient();
-  const toast = useToast();
   const { data: me } = useMe();
-
-  async function logout() {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-    } catch {
-      /* the redirect below still clears the client state */
-    }
-    qc.clear();
-    toast.success("Signed out.");
-    router.replace("/login");
-    router.refresh();
-  }
 
   return (
     <Dropdown
@@ -82,7 +66,6 @@ export function UserMenu({ className }: { className?: string }) {
         ...(me?.role === "ADMIN"
           ? [{ key: "admin", label: "Admin panel", icon: <ShieldCheck className="h-4 w-4" aria-hidden />, onSelect: () => router.push("/admin") }]
           : []),
-        { key: "logout", label: "Sign out", icon: <LogOut className="h-4 w-4" aria-hidden />, onSelect: logout, danger: true },
       ]}
       trigger={(p) => (
         <button

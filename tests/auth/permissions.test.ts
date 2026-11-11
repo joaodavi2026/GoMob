@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { hasRole, homeForRole } from "@/server/auth/roles";
-import { decideAccess } from "@/server/auth/route-policy";
 
 const getSession = vi.fn();
 vi.mock("@/server/auth/session", () => ({ getSession: () => getSession() }));
@@ -32,23 +31,13 @@ describe("roles", () => {
   });
 });
 
-describe("decideAccess (proxy policy)", () => {
-  const user = { role: "USER" as const };
-  const admin = { role: "ADMIN" as const };
-  it("login is public for anonymous, redirects by role when signed in", () => {
-    expect(decideAccess("/login", null)).toEqual({ action: "next" });
-    expect(decideAccess("/login", user)).toEqual({ action: "redirect", to: "/home" });
-    expect(decideAccess("/login", admin)).toEqual({ action: "redirect", to: "/admin" });
-  });
-  it("anonymous is sent to /login on protected routes", () => {
-    expect(decideAccess("/home", null)).toEqual({ action: "redirect", to: "/login" });
-    expect(decideAccess("/admin/lines", null)).toEqual({ action: "redirect", to: "/login" });
-  });
-  it("USER cannot enter /admin, ADMIN can", () => {
-    expect(decideAccess("/admin", user)).toEqual({ action: "redirect", to: "/home" });
-    expect(decideAccess("/admin/settings", user)).toEqual({ action: "redirect", to: "/home" });
-    expect(decideAccess("/admin/settings", admin)).toEqual({ action: "next" });
-    expect(decideAccess("/administrator", user)).toEqual({ action: "next" });
-    expect(decideAccess("/home", user)).toEqual({ action: "next" });
+describe("open access (no login)", () => {
+  it("without a session cookie every visitor gets the open session", async () => {
+    vi.resetModules();
+    vi.doUnmock("@/server/auth/session");
+    vi.doMock("next/headers", () => ({ cookies: async () => ({ get: () => undefined }) }));
+    const { getSession: real, OPEN_SESSION } = await import("@/server/auth/session");
+    await expect(real()).resolves.toEqual(OPEN_SESSION);
+    expect(OPEN_SESSION.role).toBe("ADMIN");
   });
 });

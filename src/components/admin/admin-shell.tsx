@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Activity, Bus, FlaskConical, Gauge, LayoutDashboard, LogOut, Menu, Radio, Settings, Sparkles, X, Database } from "lucide-react";
+import { Activity, Bus, FlaskConical, Gauge, LayoutDashboard, Menu, Smartphone, Radio, Settings, Sparkles, X, Database } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { Badge } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
@@ -28,9 +28,7 @@ function isActive(pathname: string, item: (typeof NAV)[number]) {
 
 export function AdminShell({ user, mode, children }: { user: { name: string }; mode: "LIVE" | "DEMO"; children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect -- fecha o drawer ao navegar
   useEffect(() => setOpen(false), [pathname]);
@@ -55,16 +53,6 @@ export function AdminShell({ user, mode, children }: { user: { name: string }; m
     .slice(0, 2)
     .map((p) => p[0]?.toUpperCase())
     .join("") || "A";
-
-  async function logout() {
-    setLoggingOut(true);
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-    } finally {
-      router.replace("/login");
-      router.refresh();
-    }
-  }
 
   const nav = (
     <nav aria-label="Admin navigation" className="flex flex-col gap-1">
@@ -143,14 +131,13 @@ export function AdminShell({ user, mode, children }: { user: { name: string }; m
               {initials}
             </span>
             <span className="hidden max-w-32 truncate text-sm font-medium md:inline">{user.name}</span>
-            <button
-              onClick={logout}
-              disabled={loggingOut}
-              aria-label="Sign out"
-              className="flex h-10 w-10 items-center justify-center rounded-xl text-muted hover:bg-canvas hover:text-ink disabled:opacity-60"
+            <Link
+              href="/home"
+              aria-label="Back to the app"
+              className="flex h-10 items-center gap-1.5 rounded-xl px-3 text-sm font-medium text-muted hover:bg-canvas hover:text-ink"
             >
-              <LogOut className="h-5 w-5" />
-            </button>
+              <Smartphone className="h-5 w-5" aria-hidden /> <span className="hidden sm:inline">Back to app</span>
+            </Link>
           </div>
         </header>
         <main className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-8">{children}</main>
