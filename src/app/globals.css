@@ -213,3 +213,147 @@ html:is(.a11y-text-lg, .a11y-text-xl) :where(.text-\[26px\]) { font-size: 1.625r
 html:is(.a11y-text-lg, .a11y-text-xl) :where(.text-\[28px\]) { font-size: 1.75rem; }
 html:is(.a11y-text-lg, .a11y-text-xl) :where(.text-\[30px\]) { font-size: 1.875rem; }
 html:is(.a11y-text-lg, .a11y-text-xl) :where(.text-\[34px\]) { font-size: 2.125rem; }
+
+/* ---- Ícones animados das ações grandes da Home (animated-icons.tsx) ---- */
+.ai-anim {
+  overflow: visible;
+}
+.ai-anim .ai-draw,
+.ai-anim .ai-pop,
+.ai-anim .ai-wheel,
+.ai-anim .ai-col,
+.ai-anim .ai-roof,
+.ai-anim .ai-flag,
+.ai-anim .ai-hand,
+.ai-anim .ai-heart,
+.ai-anim .ai-bus,
+.ai-anim .ai-speed {
+  transform-box: fill-box;
+}
+/* rota */
+.ai-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: ai-draw 3.2s ease-in-out infinite;
+}
+@keyframes ai-draw {
+  0% { stroke-dashoffset: 1; }
+  45%, 80% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -1; }
+}
+.ai-pop {
+  transform-origin: center;
+  animation: ai-pop 3.2s ease-in-out infinite;
+}
+.ai-pop-end {
+  animation-name: ai-pop-end;
+}
+@keyframes ai-pop {
+  0%, 12%, 100% { transform: scale(1); }
+  5% { transform: scale(1.35); }
+}
+@keyframes ai-pop-end {
+  0%, 40%, 56%, 100% { transform: scale(1); }
+  47% { transform: scale(1.4); }
+}
+.ai-dot {
+  animation: ai-dot 3.2s linear infinite;
+}
+@keyframes ai-dot {
+  0%, 46% { opacity: 1; }
+  52%, 100% { opacity: 0; }
+}
+/* ônibus */
+.ai-bus {
+  animation: ai-bounce 0.55s ease-in-out infinite;
+}
+@keyframes ai-bounce {
+  50% { transform: translateY(-0.9px); }
+}
+.ai-wheel {
+  transform-origin: center;
+  animation: ai-spin 0.5s linear infinite;
+}
+@keyframes ai-spin {
+  to { transform: rotate(360deg); }
+}
+.ai-speed {
+  opacity: 0;
+  animation: ai-speed 0.9s linear infinite;
+}
+.ai-speed-2 { animation-delay: 0.3s; }
+.ai-speed-3 { animation-delay: 0.6s; }
+@keyframes ai-speed {
+  0% { opacity: 0; transform: translateX(3px); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-4px); }
+}
+/* terminal */
+.ai-col {
+  transform-origin: bottom;
+  animation: ai-rise 3.6s cubic-bezier(0.3, 1.4, 0.5, 1) infinite;
+}
+.ai-col-2 { animation-delay: 0.1s; }
+.ai-col-3 { animation-delay: 0.2s; }
+.ai-col-4 { animation-delay: 0.3s; }
+@keyframes ai-rise {
+  0%, 4% { transform: scaleY(0); }
+  18%, 86% { transform: scaleY(1); }
+  96%, 100% { transform: scaleY(0); }
+}
+.ai-roof {
+  animation: ai-roof 3.6s ease-out infinite;
+}
+@keyframes ai-roof {
+  0%, 18% { opacity: 0; transform: translateY(-7px); }
+  30% { opacity: 1; transform: translateY(0.8px); }
+  36%, 86% { opacity: 1; transform: translateY(0); }
+  96%, 100% { opacity: 0; transform: translateY(-3px); }
+}
+.ai-flag {
+  transform-origin: left center;
+  animation: ai-wave 0.8s ease-in-out infinite alternate;
+}
+@keyframes ai-wave {
+  from { transform: skewY(-12deg) scaleX(0.85); }
+  to { transform: skewY(10deg) scaleX(1); }
+}
+/* ajuda */
+.ai-hand {
+  transform-origin: left bottom;
+  animation: ai-lift 2.4s ease-in-out infinite;
+}
+@keyframes ai-lift {
+  0%, 100% { transform: rotate(0) translateY(0); }
+  45% { transform: rotate(-7deg) translateY(-1px); }
+}
+.ai-heart {
+  opacity: 0;
+  transform-origin: center;
+  animation: ai-float 2.4s ease-out infinite;
+}
+.ai-heart-2 { animation-delay: 1.2s; }
+@keyframes ai-float {
+  0% { opacity: 0; transform: translate(-2px, 4px) scale(0.3); }
+  25% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(2px, -7px) scale(0.75) rotate(12deg); }
+}
+/* sem movimento: ícones aparecem montados e parados */
+@media (prefers-reduced-motion: reduce) {
+  .ai-anim,
+  .ai-anim * {
+    animation: none !important;
+  }
+  .ai-anim .ai-dot,
+  .ai-anim .ai-speed {
+    display: none;
+  }
+}
+html.a11y-reduce-motion .ai-anim,
+html.a11y-reduce-motion .ai-anim * {
+  animation: none !important;
+}
+html.a11y-reduce-motion .ai-anim .ai-dot,
+html.a11y-reduce-motion .ai-anim .ai-speed {
+  display: none;
+}

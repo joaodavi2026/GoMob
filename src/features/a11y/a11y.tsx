@@ -127,7 +127,12 @@ export function A11yProvider({ children }: { children: React.ReactNode }) {
     const profiles = on ? cur.profiles.filter((x) => x !== p) : [...cur.profiles, p];
     save(on ? { ...cur, profiles } : { ...cur, ...PRESETS[p], profiles });
   }, []);
-  const reset = useCallback(() => save(DEFAULT_PREFS), []);
+  /** Desliga tudo: volta ao padrão e para qualquer leitura em andamento. */
+  const reset = useCallback(() => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();
+    setSpeaking(false);
+    save(DEFAULT_PREFS);
+  }, []);
 
   const stop = useCallback(() => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();

@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Accessibility, Bus, ChevronRight, HandHelping, Landmark, Route } from "lucide-react";
+import { Accessibility, ChevronRight, Power } from "lucide-react";
 import { useA11y } from "@/features/a11y/a11y";
 import { cn } from "@/lib/utils";
+import { BusIcon, HelpIcon, RouteIcon, TerminalIcon } from "./animated-icons";
 
 const LABELS: [keyof ReturnType<typeof useA11y>["prefs"], string][] = [
   ["voice", "Voz"],
@@ -16,13 +17,14 @@ const LABELS: [keyof ReturnType<typeof useA11y>["prefs"], string][] = [
 
 /** Entrada sempre visível para a área de Acessibilidade. */
 export function AccessibilityBanner() {
-  const { prefs, active } = useA11y();
+  const { prefs, active, reset } = useA11y();
   const on = LABELS.filter(([k]) => prefs[k]).map(([, l]) => l);
   if (prefs.textSize > 0) on.push("Texto maior");
   return (
+    <div className="mt-5">
     <Link
       href="/accessibility"
-      className={cn("tap mt-5 flex items-center gap-3 rounded-3xl p-3.5 pr-4 shadow-soft", active ? "bg-night text-white" : "bg-white text-ink")}
+      className={cn("tap flex items-center gap-3 rounded-3xl p-3.5 pr-4 shadow-soft", active ? "bg-night text-white" : "bg-white text-ink")}
     >
       <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-white">
         <Accessibility className="h-7 w-7" aria-hidden />
@@ -35,14 +37,24 @@ export function AccessibilityBanner() {
       </span>
       <ChevronRight className={cn("h-5 w-5 shrink-0", active ? "text-white/70" : "text-muted")} aria-hidden />
     </Link>
+    {active && (
+      <button
+        type="button"
+        onClick={reset}
+        className="tap mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-white text-sm font-bold text-ink shadow-soft"
+      >
+        <Power className="h-4 w-4 text-primary" aria-hidden /> Desligar acessibilidade
+      </button>
+    )}
+    </div>
   );
 }
 
 const ACTIONS = [
-  { href: "/routes", label: "Planejar viagem", icon: Route },
-  { href: "/map", label: "Próximos ônibus", icon: Bus },
-  { href: "/accessibility#terminais", label: "Terminais e pontos", icon: Landmark },
-  { href: "/accessibility#ajuda", label: "Pedir ajuda", icon: HandHelping },
+  { href: "/routes", label: "Planejar viagem", icon: RouteIcon },
+  { href: "/map", label: "Próximos ônibus", icon: BusIcon },
+  { href: "/accessibility#terminais", label: "Terminais e pontos", icon: TerminalIcon },
+  { href: "/accessibility#ajuda", label: "Pedir ajuda", icon: HelpIcon },
 ];
 
 /** Quatro ações grandes, mostradas quando algum recurso de acessibilidade está ligado. */
@@ -57,7 +69,7 @@ export function BigActions() {
           href={href}
           className={cn("tap flex min-h-[112px] flex-col justify-between rounded-3xl p-4 shadow-soft", i === 0 ? "bg-primary text-white" : "bg-white text-ink")}
         >
-          <Icon className={cn("h-8 w-8", i === 0 ? "text-white" : "text-primary")} aria-hidden />
+          <Icon className={cn("h-9 w-9", i === 0 ? "text-white" : "text-primary")} />
           <span className="text-[17px] font-bold leading-tight">{label}</span>
         </Link>
       ))}

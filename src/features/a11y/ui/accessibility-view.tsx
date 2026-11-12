@@ -19,6 +19,7 @@ import {
   MapPin,
   MessageSquareText,
   Phone,
+  Power,
   RotateCcw,
   Type,
   Vibrate,
@@ -53,6 +54,15 @@ export function AccessibilityView() {
         <p className="mt-2 text-sm text-muted">
           Escolha os recursos que quer usar. Você não precisa informar nenhuma deficiência nem criar conta: tudo fica salvo só neste celular.
         </p>
+        {a.active && (
+          <button
+            type="button"
+            onClick={a.reset}
+            className="tap mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-night text-base font-bold text-white shadow-soft"
+          >
+            <Power className="h-5 w-5 text-primary" aria-hidden /> Desligar acessibilidade
+          </button>
+        )}
       </header>
 
       {/* Perfis */}
