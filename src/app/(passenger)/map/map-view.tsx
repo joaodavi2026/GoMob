@@ -55,8 +55,19 @@ export function MapView() {
     <div className="flex flex-col gap-3">
       <div>
         <h1 className="text-[30px] leading-tight tracking-tight">
-          <span className="font-light text-muted">Ônibus</span> <span className="font-extrabold">ao vivo</span>
+          {isDemo || fallback ? (
+            <>
+              <span className="font-light text-muted">Mapa</span> <span className="font-extrabold">simulado</span>
+            </>
+          ) : (
+            <>
+              <span className="font-light text-muted">Ônibus</span> <span className="font-extrabold">ao vivo</span>
+            </>
+          )}
         </h1>
+        {(isDemo || fallback) && (
+          <p className="mt-1 text-sm text-muted">Posições de exemplo para a demonstração. Não são ônibus reais neste momento.</p>
+        )}
         <div className="no-scrollbar -mx-5 mt-3 flex items-center gap-2 overflow-x-auto px-5" aria-label="Filtro de linhas" role="group">
           {linesQ.isLoading && Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-9 w-24 rounded-full" />)}
           {lines.map((l) => {

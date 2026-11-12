@@ -18,6 +18,8 @@ const LABELS: [keyof ReturnType<typeof useA11y>["prefs"], string][] = [
 /** Entrada sempre visível para a área de Acessibilidade. */
 export function AccessibilityBanner() {
   const { prefs, active, reset } = useA11y();
+  // a entrada principal é o botão Acessibilidade no topo; o banner só aparece com algo ligado
+  if (!active) return null;
   const on = LABELS.filter(([k]) => prefs[k]).map(([, l]) => l);
   if (prefs.textSize > 0) on.push("Texto maior");
   return (

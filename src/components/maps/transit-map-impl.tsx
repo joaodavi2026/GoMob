@@ -3,7 +3,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Map as MlMap, Marker as MlMarker } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
-import { Crosshair, LocateFixed } from "lucide-react";
+import { Crosshair, LocateFixed, RotateCw } from "lucide-react";
 import { SAO_PAULO_CENTER } from "@/config/transit";
 import { configureMaplibreWorker } from "@/components/maps/maplibre-worker";
 import { cn } from "@/lib/utils";
@@ -63,6 +63,9 @@ export default function TransitMapImpl({
   const meMarker = useRef<MlMarker | null>(null);
   const [ready, setReady] = useState(false);
   const [geoMsg, setGeoMsg] = useState<string | null>(null);
+  /** Falha ao carregar o mapa (WebGL indisponível, estilo/rede fora do ar). `attempt` refaz o init. */
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   // callbacks estáveis
   const cb = useRef({ onSelectVehicle, onPickPoint });
@@ -74,6 +77,10 @@ export default function TransitMapImpl({
   useEffect(() => {
     let cancelled = false;
     let map: MlMap | null = null;
+    // sem "load" em 12 s, consideramos que o mapa falhou (o passo a passo da rota continua visível)
+    const watchdog = setTimeout(() => {
+      if (!cancelled && !loadedRef.current) setFailed(true);
+    }, 12_000);
     (async () => {
       const mod = await import("maplibre-gl");
       if (cancelled || !container.current) return;
@@ -90,7 +97,12 @@ export default function TransitMapImpl({
       map.addControl(new ml.NavigationControl({ showCompass: false }), "top-right");
       map.on("load", () => {
         loadedRef.current = true;
+        clearTimeout(watchdog);
+        setFailed(false);
         setReady(true);
+      });
+      map.on("error", () => {
+        if (!loadedRef.current && !cancelled) setFailed(true);
       });
       map.on("click", (e) => {
         if (cb.current.onPickPoint) {
@@ -100,17 +112,20 @@ export default function TransitMapImpl({
         }
       });
       mapRef.current = map;
-    })().catch(() => setGeoMsg("Não foi possível carregar o mapa."));
+    })().catch(() => {
+      if (!cancelled) setFailed(true);
+    });
     const vm = markers.current;
     return () => {
       cancelled = true;
+      clearTimeout(watchdog);
       vm.forEach((m) => m.marker.remove());
       vm.clear();
       map?.remove();
       mapRef.current = null;
       loadedRef.current = false;
     };
-  }, []);
+  }, [attempt]);
 
   // veículos
   useEffect(() => {
@@ -267,6 +282,23 @@ export default function TransitMapImpl({
         )}
         {geoMsg && <p role="status" className="max-w-[14rem] rounded-lg bg-ink px-3 py-1.5 text-xs text-white">{geoMsg}</p>}
       </div>
+      {failed && (
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-canvas p-6 text-center" role="alert">
+          <p className="text-sm font-semibold text-ink">Não foi possível carregar o mapa.</p>
+          <p className="max-w-xs text-xs text-muted">As informações da viagem continuam disponíveis em texto.</p>
+          <button
+            type="button"
+            onClick={() => {
+              setFailed(false);
+              setReady(false);
+              setAttempt((a) => a + 1);
+            }}
+            className="tap flex h-11 items-center gap-2 rounded-full bg-night px-5 text-sm font-semibold text-white"
+          >
+            <RotateCw className="h-4 w-4" aria-hidden /> Tentar carregar o mapa
+          </button>
+        </div>
+      )}
       {children}
     </div>
   );

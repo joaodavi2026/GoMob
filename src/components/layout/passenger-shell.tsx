@@ -30,7 +30,8 @@ function SourceIndicator() {
       state = "DEMO";
       label = "Dados de demonstração";
     } else {
-      const states = data.integrations.map((i) => i.state);
+      // só fontes configuradas contam (ex.: o mapa base não é uma fonte de dados ao vivo)
+      const states = data.integrations.filter((i) => i.configured).map((i) => i.state);
       if (states.includes("UNAVAILABLE")) {
         state = "UNAVAILABLE";
         label = "Dados ao vivo indisponíveis";
@@ -100,7 +101,8 @@ function FloatingNav({ pathname }: { pathname: string }) {
     <nav aria-label="Principal" className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(14px,env(safe-area-inset-bottom))] lg:hidden">
       <ul className="pointer-events-auto mx-auto flex max-w-[420px] items-center justify-between rounded-full bg-night/95 p-1.5 shadow-float ring-1 ring-white/5 backdrop-blur-md">
         {NAV_ITEMS.filter((n) => n.mobile).map(({ href, label, icon: StaticIcon }) => {
-          const active = isActive(pathname, href);
+          // Rotas não está na barra: a busca começa na Início, então ela fica destacada
+          const active = isActive(pathname, href) || (href === "/home" && isActive(pathname, "/routes"));
           const Icon = NAV_ANIM[href] ?? StaticIcon;
           return (
             <li key={href}>

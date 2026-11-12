@@ -551,7 +551,7 @@ function LineDetail({
         <>
           <div className="grid grid-cols-2 gap-2">
             <Kpi icon={<Ticket className="h-4 w-4" aria-hidden />} label="Tarifa" value={line.fare !== null ? brl(line.fare) : "—"} />
-            <Kpi icon={<Clock className="h-4 w-4" aria-hidden />} label="Melhor intervalo" value={d?.minHeadway ? `a cada ${d.minHeadway} min` : "—"} />
+            <Kpi icon={<Clock className="h-4 w-4" aria-hidden />} label="Melhor intervalo (programado)" value={d?.minHeadway ? `a cada ${d.minHeadway} min` : "—"} />
             <Kpi icon={<Clock className="h-4 w-4" aria-hidden />} label="Horário" value={d?.first ? `${d.first}–${d.last}` : "—"} sub={daysLabel(d?.days ?? null)} />
             <Kpi icon={<Bus className="h-4 w-4" aria-hidden />} label="Tempo de viagem" value={d?.trip ? `~${d.trip} min` : "—"} sub={`${d?.stops.length ?? 0} paradas`} />
           </div>

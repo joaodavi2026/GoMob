@@ -60,9 +60,10 @@ export const regionLabel = (color: string) => REGIONS.find((r) => r.color === co
 
 export const SHAPES_URL = "/gtfs/shapes.geojson";
 
-export function useNetwork() {
+export function useNetwork(enabled = true) {
   return useQuery({
     queryKey: ["network", "gtfs"],
+    enabled,
     staleTime: Infinity,
     gcTime: Infinity,
     queryFn: async () => {

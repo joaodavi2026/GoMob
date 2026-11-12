@@ -3,9 +3,9 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { ArrowRight, Bell, Bus, ChevronRight, Clock, Compass, MapPin, Ticket, TrainFront, TramFront } from "lucide-react";
+import { ArrowRight, Bus, ChevronRight, Clock, Compass, MapPin, Ticket, TrainFront, TramFront } from "lucide-react";
 import { useMe } from "@/components/layout/hooks";
-import { UserMenu } from "@/components/layout/passenger-shell";
+import { AccessibilityButton, UserMenu } from "@/components/layout/passenger-shell";
 import { configureMaplibreWorker } from "@/components/maps/maplibre-worker";
 import { Skeleton } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
@@ -32,22 +32,15 @@ export function HomeHeader() {
           </p>
         </div>
       </div>
-      <a href="#updates" aria-label="Avisos ao vivo" className="tap relative flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-soft">
-        <Bell className="h-5 w-5 text-ink" aria-hidden />
-        <span className="absolute right-3 top-3 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
-      </a>
+      <AccessibilityButton className="shrink-0" />
     </header>
   );
 }
 
 export function HomeTitle() {
   return (
-    <h1 className="rise mt-6 text-[34px] leading-[1.08] tracking-tight text-ink">
-      <span className="font-light text-muted">Explore</span>
-      <br />
-      <span className="font-extrabold">
-        Vá a qualquer lugar de <span className="text-primary">SP</span>?
-      </span>
+    <h1 className="rise mt-5 text-[34px] font-extrabold leading-[1.08] tracking-tight text-ink">
+      Para onde <span className="text-primary">vamos?</span>
     </h1>
   );
 }
@@ -152,6 +145,7 @@ export function PopularLines() {
   return (
     <section aria-labelledby="pop-h" className="mt-8">
       <SectionTitle id="pop-h" title="Linhas mais frequentes" href="/network" link="Mapa" />
+      <p className="-mt-2 mb-3 text-xs text-muted">Horário programado (GTFS da SPTrans), não previsão em tempo real.</p>
       <div className="no-scrollbar snap-row -mx-5 flex gap-3 overflow-x-auto px-5 pb-2">
         {!h.data
           ? Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-[172px] w-[240px] shrink-0 rounded-3xl" />)

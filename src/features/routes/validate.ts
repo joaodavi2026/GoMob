@@ -35,7 +35,9 @@ export function validateBusOnlyRoute(option: BusRouteOption, transferPoints?: Tr
   }
   if (buses.length === 0) return { valid: false, reason: "A rota não tem etapa de ônibus." };
   for (const b of buses) {
-    if (looksNonBus(b.lineCode, b.lineName)) return { valid: false, reason: `A linha ${b.lineCode} não é um serviço de ônibus.` };
+    // No GTFS o tipo da linha é oficial (route_type 3 = ônibus); nomes como "Metrô Santana - Itaim Bibi"
+    // são de ônibus que vão até a estação, então a heurística por texto só vale para as outras fontes.
+    if (option.source !== "GTFS" && looksNonBus(b.lineCode, b.lineName)) return { valid: false, reason: `A linha ${b.lineCode} não é um serviço de ônibus.` };
     if (!b.lineCode || !b.boardStop || !b.alightStop) return { valid: false, reason: "Etapa de ônibus sem linha ou paradas." };
   }
   if (option.transfers !== buses.length - 1) return { valid: false, reason: "O número de baldeações não corresponde às etapas de ônibus." };

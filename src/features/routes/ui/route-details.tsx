@@ -30,9 +30,6 @@ export function RouteDetails({
   const firstLineId = firstBus && firstBus.kind === "BUS" ? firstBus.lineId : undefined;
   return (
     <Card className="overflow-hidden">
-      <div className="h-64 w-full sm:h-80">
-        <TransitMap vehicles={[]} highlightPath={route.path} extraPoints={[origin, destination]} fitToPath showLocate={false} className="h-full w-full" />
-      </div>
       <div className="space-y-4 p-4">
         <div className="flex items-start justify-between gap-2">
           <div>
@@ -74,6 +71,14 @@ export function RouteDetails({
             </li>
           ))}
         </ol>
+
+        {/* o mapa vem depois do passo a passo: se falhar, a viagem continua legível acima */}
+        <div>
+          <h3 className="mb-2 text-sm font-semibold">Mapa do trajeto</h3>
+          <div className="h-64 w-full overflow-hidden rounded-2xl sm:h-80">
+            <TransitMap vehicles={[]} highlightPath={route.path} extraPoints={[origin, destination]} fitToPath showLocate={false} className="h-full w-full" />
+          </div>
+        </div>
 
         {route.risk && (
           <div>
