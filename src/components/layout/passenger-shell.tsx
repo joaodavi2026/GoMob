@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Accessibility, ShieldCheck, User as UserIcon } from "lucide-react";
 import { ReadScreenButton } from "@/features/a11y/a11y";
+import { CompassIcon, HeartIcon, HomeIcon, LiveIcon, RouteIcon } from "@/components/icons/animated-icons";
 import { Logo } from "@/components/ui/logo";
 import { LiveStatus } from "@/components/ui/indicators";
 import { Dropdown } from "@/components/ui/dropdown";
@@ -84,26 +85,37 @@ export function UserMenu({ className }: { className?: string }) {
   );
 }
 
+/** Ícones animados da cápsula (o desktop continua com os ícones estáticos de NAV_ITEMS). */
+const NAV_ANIM: Record<string, (p: { className?: string }) => React.ReactElement> = {
+  "/home": HomeIcon,
+  "/network": CompassIcon,
+  "/routes": RouteIcon,
+  "/map": LiveIcon,
+  "/favorites": HeartIcon,
+};
+
 /** Cápsula de navegação flutuante (mobile). O item ativo vira uma pílula laranja com rótulo. */
 function FloatingNav({ pathname }: { pathname: string }) {
   return (
     <nav aria-label="Principal" className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(14px,env(safe-area-inset-bottom))] lg:hidden">
       <ul className="pointer-events-auto mx-auto flex max-w-[420px] items-center justify-between rounded-full bg-night/95 p-1.5 shadow-float ring-1 ring-white/5 backdrop-blur-md">
-        {NAV_ITEMS.filter((n) => n.mobile).map(({ href, label, icon: Icon }) => {
+        {NAV_ITEMS.filter((n) => n.mobile).map(({ href, label, icon: StaticIcon }) => {
           const active = isActive(pathname, href);
+          const Icon = NAV_ANIM[href] ?? StaticIcon;
           return (
             <li key={href}>
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
                 aria-label={label}
+                data-still={active ? undefined : ""}
                 className={cn(
                   "tap flex h-12 items-center rounded-full transition-all duration-300",
                   active ? "gap-2 bg-primary pl-1.5 pr-4 text-white" : "w-12 justify-center text-white/60 hover:bg-white/10 hover:text-white",
                 )}
               >
                 <span className={cn("flex items-center justify-center rounded-full", active && "h-9 w-9 bg-white text-primary")}>
-                  <Icon className={cn("h-5 w-5", active && "stroke-[2.4]")} aria-hidden />
+                  <Icon className={cn("h-[22px] w-[22px]", active && "stroke-[2.4]")} />
                 </span>
                 {active && <span className="truncate text-sm font-semibold">{label}</span>}
               </Link>

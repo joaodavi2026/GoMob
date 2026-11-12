@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Accessibility, ChevronRight, Power } from "lucide-react";
 import { useA11y } from "@/features/a11y/a11y";
 import { cn } from "@/lib/utils";
-import { BusIcon, HelpIcon, RouteIcon, TerminalIcon } from "./animated-icons";
+import { BusIcon, HelpIcon, RouteIcon, TerminalIcon } from "@/components/icons/animated-icons";
 
 const LABELS: [keyof ReturnType<typeof useA11y>["prefs"], string][] = [
   ["voice", "Voz"],

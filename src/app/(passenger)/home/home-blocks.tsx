@@ -3,12 +3,13 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { ArrowRight, Bell, Bus, ChevronRight, Clock, Compass, MapPin, Radio, Ticket, TrainFront, TramFront } from "lucide-react";
+import { ArrowRight, Bell, Bus, ChevronRight, Clock, Compass, MapPin, Ticket, TrainFront, TramFront } from "lucide-react";
 import { useMe } from "@/components/layout/hooks";
 import { UserMenu } from "@/components/layout/passenger-shell";
 import { configureMaplibreWorker } from "@/components/maps/maplibre-worker";
 import { Skeleton } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
+import { BusIcon, LiveIcon, MetroIcon, TrainIcon } from "@/components/icons/animated-icons";
 import { BusArt } from "./bus-art";
 import { networkHref, useHighlights, type LineSummary } from "./highlights";
 
@@ -52,10 +53,10 @@ export function HomeTitle() {
 }
 
 const MODES = [
-  { href: "/network?mode=3", label: "Ônibus", icon: Bus },
-  { href: "/network?mode=1", label: "Metrô", icon: TramFront },
-  { href: "/network?mode=2", label: "Trem", icon: TrainFront },
-  { href: "/map", label: "Ao vivo", icon: Radio },
+  { href: "/network?mode=3", label: "Ônibus", icon: BusIcon },
+  { href: "/network?mode=1", label: "Metrô", icon: MetroIcon },
+  { href: "/network?mode=2", label: "Trem", icon: TrainIcon },
+  { href: "/map", label: "Ao vivo", icon: LiveIcon },
 ];
 
 export function ModePills() {
@@ -71,7 +72,7 @@ export function ModePills() {
           )}
         >
           <span className={cn("flex h-9 w-9 items-center justify-center rounded-full", i === 0 ? "bg-white text-primary" : "bg-canvas text-ink")}>
-            <Icon className="h-[18px] w-[18px]" aria-hidden />
+            <Icon className="h-6 w-6" />
           </span>
           {label}
         </Link>

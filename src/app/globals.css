@@ -366,3 +366,120 @@ html.a11y-reduce-motion .ai-anim .ai-dot,
 html.a11y-reduce-motion .ai-anim .ai-speed {
   display: none;
 }
+
+/* ---- Ícones animados: pílulas de modo e barra de navegação ---- */
+.ai-anim .ai-sway,
+.ai-anim .ai-approach,
+.ai-anim .ai-hop,
+.ai-anim .ai-smoke,
+.ai-anim .ai-beat,
+.ai-anim .ai-blink,
+.ai-anim .ai-glow,
+.ai-anim .ai-core,
+.ai-anim .ai-ring {
+  transform-box: fill-box;
+}
+.ai-sway {
+  transform-origin: center bottom;
+  animation: ai-sway 1.6s ease-in-out infinite;
+}
+@keyframes ai-sway {
+  0%, 100% { transform: rotate(0) translateX(0); }
+  25% { transform: rotate(-3deg) translateX(-0.4px); }
+  75% { transform: rotate(3deg) translateX(0.4px); }
+}
+.ai-blink {
+  animation: ai-blink 1.2s steps(1, end) infinite;
+}
+.ai-blink-2 { animation-delay: 0.6s; }
+@keyframes ai-blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+.ai-approach {
+  transform-origin: center bottom;
+  animation: ai-approach 2.2s ease-in-out infinite;
+}
+@keyframes ai-approach {
+  0%, 100% { transform: scale(0.86); }
+  55% { transform: scale(1.06); }
+  70% { transform: scale(1); }
+}
+.ai-glow {
+  transform-origin: center;
+  animation: ai-glow 2.2s ease-in-out infinite;
+}
+@keyframes ai-glow {
+  0%, 100% { opacity: 0.35; transform: scale(0.8); }
+  55% { opacity: 1; transform: scale(1.35); }
+}
+.ai-core {
+  transform-origin: center;
+  animation: ai-core 1.8s ease-in-out infinite;
+}
+@keyframes ai-core {
+  0%, 100% { transform: scale(1); }
+  20% { transform: scale(1.4); }
+}
+.ai-ring {
+  opacity: 1;
+  animation: ai-ring 1.8s ease-out infinite;
+}
+.ai-ring-2 { animation-delay: 0.3s; }
+@keyframes ai-ring {
+  0% { opacity: 0.15; }
+  25% { opacity: 1; }
+  70%, 100% { opacity: 0.15; }
+}
+.ai-hop {
+  transform-origin: center bottom;
+  animation: ai-hop 2.4s ease-in-out infinite;
+}
+@keyframes ai-hop {
+  0%, 60%, 100% { transform: translateY(0) scale(1, 1); }
+  68% { transform: translateY(0) scale(1.08, 0.9); }
+  78% { transform: translateY(-2.2px) scale(0.96, 1.05); }
+  88% { transform: translateY(0) scale(1.03, 0.97); }
+}
+.ai-smoke {
+  opacity: 0;
+  transform-origin: center;
+  animation: ai-smoke 2.4s ease-out infinite;
+}
+.ai-smoke-2 { animation-delay: 1.2s; }
+@keyframes ai-smoke {
+  0% { opacity: 0; transform: translate(0, 2px) scale(0.5); }
+  25% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(1.5px, -4px) scale(1.5); }
+}
+.ai-needle {
+  transform-box: view-box;
+  transform-origin: 12px 12px;
+  animation: ai-needle 3s ease-in-out infinite;
+}
+@keyframes ai-needle {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(55deg); }
+  40% { transform: rotate(-30deg); }
+  58% { transform: rotate(18deg); }
+  72% { transform: rotate(-6deg); }
+  82% { transform: rotate(0); }
+}
+.ai-beat {
+  transform-origin: center;
+  animation: ai-beat 1.3s ease-in-out infinite;
+}
+@keyframes ai-beat {
+  0%, 40%, 100% { transform: scale(1); }
+  10% { transform: scale(1.2); }
+  20% { transform: scale(1); }
+  30% { transform: scale(1.12); }
+}
+/* na barra de navegação, só a aba ativa anima sem parar; as outras animam ao passar o mouse */
+a[data-still]:not(:hover):not(:focus-visible) .ai-anim,
+a[data-still]:not(:hover):not(:focus-visible) .ai-anim * {
+  animation: none !important;
+}
+a[data-still]:not(:hover):not(:focus-visible) .ai-anim .ai-dot {
+  display: none;
+}
