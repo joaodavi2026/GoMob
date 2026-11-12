@@ -15,23 +15,16 @@ import { networkHref, useHighlights, type LineSummary } from "./highlights";
 const fmt = (n: number) => n.toLocaleString("pt-BR");
 const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-function greeting(h: number) {
-  if (h < 12) return "Bom dia";
-  if (h < 18) return "Boa tarde";
-  return "Boa noite";
-}
-
 export function HomeHeader() {
   const { data: me } = useMe();
-  const first = me?.name?.trim().split(/\s+/)[0];
+  const name = me?.name?.trim();
   return (
     <header className="flex items-center justify-between gap-3 pt-4">
       <div className="flex min-w-0 items-center gap-3">
         <UserMenu className="h-12 w-12" />
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-ink" suppressHydrationWarning>
-            {greeting(new Date().getHours())}
-            {first ? `, ${first}` : ""} 👋
+          <p className="truncate text-sm font-semibold text-ink">
+            Olá{name ? `, ${name}` : ""} 👋
           </p>
           <p className="flex items-center gap-1 text-xs text-muted">
             <MapPin className="h-3.5 w-3.5 text-primary" aria-hidden /> São Paulo, SP
