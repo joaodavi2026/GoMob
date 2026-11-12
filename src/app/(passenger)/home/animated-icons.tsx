@@ -19,10 +19,11 @@ const ROUTE = "M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15";
 export function RouteIcon({ className }: P) {
   return (
     <svg viewBox="0 0 24 24" className={`ai-anim ${className ?? ""}`} aria-hidden {...base}>
+      <path d={ROUTE} opacity={0.28} />
       <path d={ROUTE} pathLength={1} className="ai-draw" />
       <circle cx="6" cy="19" r="3" className="ai-pop ai-pop-start" />
       <circle cx="18" cy="5" r="3" className="ai-pop ai-pop-end" />
-      <circle r="1.7" fill="currentColor" stroke="none" className="ai-dot">
+      <circle r="2.1" fill="currentColor" stroke="none" className="ai-dot">
         <animateMotion dur="3.2s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.45;1" calcMode="linear" path={ROUTE} />
       </circle>
     </svg>
@@ -38,6 +39,7 @@ export function BusIcon({ className }: P) {
         <path d="M-6 13h4" className="ai-speed ai-speed-2" />
         <path d="M-4 16h2" className="ai-speed ai-speed-3" />
       </g>
+      <g className="ai-drive">
       <g className="ai-bus">
         <path d="M8 6v6" />
         <path d="M15 6v6" />
@@ -51,6 +53,7 @@ export function BusIcon({ className }: P) {
           <path d={`M${cx - 1.2} 18h2.4`} className="ai-wheel" strokeWidth={1.4} />
         </g>
       ))}
+      </g>
     </svg>
   );
 }
@@ -59,6 +62,11 @@ export function BusIcon({ className }: P) {
 export function TerminalIcon({ className }: P) {
   return (
     <svg viewBox="0 -3 24 27" className={`ai-anim ${className ?? ""}`} aria-hidden {...base}>
+      {/* sombra do terminal montado: o ícone nunca fica vazio enquanto se reconstrói */}
+      <g opacity={0.22}>
+        <path d="M6 18v-7M10 18v-7M14 18v-7M18 18v-7" />
+        <path d="M12 2 20 7H4z" />
+      </g>
       <path d="M3 22h18" />
       {[6, 10, 14, 18].map((x, i) => (
         <path key={x} d={`M${x} 18v-7`} className={`ai-col ai-col-${i + 1}`} />
@@ -82,10 +90,10 @@ export function HelpIcon({ className }: P) {
         <path d="m7 18 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9" />
         <path d="m2 13 6 6" />
       </g>
-      <g transform="translate(14 1)">
+      <g transform="translate(14 0) scale(1.5)">
         <path d={heart} fill="currentColor" stroke="none" className="ai-heart" />
       </g>
-      <g transform="translate(19 3)">
+      <g transform="translate(20 3) scale(1.2)">
         <path d={heart} fill="currentColor" stroke="none" className="ai-heart ai-heart-2" />
       </g>
     </svg>

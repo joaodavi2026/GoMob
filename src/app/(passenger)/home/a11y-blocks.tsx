@@ -67,9 +67,16 @@ export function BigActions() {
         <Link
           key={href}
           href={href}
-          className={cn("tap flex min-h-[112px] flex-col justify-between rounded-3xl p-4 shadow-soft", i === 0 ? "bg-primary text-white" : "bg-white text-ink")}
+          className={cn("tap flex min-h-[132px] flex-col justify-between gap-3 rounded-3xl p-4 shadow-soft", i === 0 ? "bg-primary text-white" : "bg-white text-ink")}
         >
-          <Icon className={cn("h-9 w-9", i === 0 ? "text-white" : "text-primary")} />
+          <span
+            className={cn(
+              "flex h-16 w-16 items-center justify-center rounded-2xl",
+              i === 0 ? "bg-white/20 text-white ring-1 ring-white/30" : "bg-primary-light text-primary",
+            )}
+          >
+            <Icon className="h-11 w-11" />
+          </span>
           <span className="text-[17px] font-bold leading-tight">{label}</span>
         </Link>
       ))}

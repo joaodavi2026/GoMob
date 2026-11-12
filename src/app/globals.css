@@ -227,6 +227,7 @@ html:is(.a11y-text-lg, .a11y-text-xl) :where(.text-\[34px\]) { font-size: 2.125r
 .ai-anim .ai-hand,
 .ai-anim .ai-heart,
 .ai-anim .ai-bus,
+.ai-anim .ai-drive,
 .ai-anim .ai-speed {
   transform-box: fill-box;
 }
@@ -268,7 +269,15 @@ html:is(.a11y-text-lg, .a11y-text-xl) :where(.text-\[34px\]) { font-size: 2.125r
   animation: ai-bounce 0.55s ease-in-out infinite;
 }
 @keyframes ai-bounce {
-  50% { transform: translateY(-0.9px); }
+  50% { transform: translateY(-1.2px); }
+}
+.ai-drive {
+  animation: ai-drive 2.6s ease-in-out infinite;
+}
+@keyframes ai-drive {
+  0%, 100% { transform: translateX(0); }
+  35% { transform: translateX(2.2px); }
+  70% { transform: translateX(-1px); }
 }
 .ai-wheel {
   transform-origin: center;
@@ -325,7 +334,7 @@ html:is(.a11y-text-lg, .a11y-text-xl) :where(.text-\[34px\]) { font-size: 2.125r
 }
 @keyframes ai-lift {
   0%, 100% { transform: rotate(0) translateY(0); }
-  45% { transform: rotate(-7deg) translateY(-1px); }
+  45% { transform: rotate(-11deg) translateY(-2px); }
 }
 .ai-heart {
   opacity: 0;
