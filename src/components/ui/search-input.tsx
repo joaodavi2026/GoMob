@@ -11,7 +11,7 @@ export type SearchInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>,
 };
 
 export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(function SearchInput(
-  { value, onValueChange, className, placeholder = "Search", ...props },
+  { value, onValueChange, className, placeholder = "Buscar", ...props },
   ref,
 ) {
   return (
@@ -32,7 +32,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(functi
         {...props}
       />
       {value && (
-        <button type="button" onClick={() => onValueChange("")} aria-label="Clear search" className="rounded-md p-1 text-muted hover:text-ink">
+        <button type="button" onClick={() => onValueChange("")} aria-label="Limpar busca" className="rounded-md p-1 text-muted hover:text-ink">
           <X className="h-4 w-4" aria-hidden />
         </button>
       )}

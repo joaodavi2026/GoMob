@@ -25,7 +25,7 @@ export async function listFavorites(repo: FavoriteRepo, userId: string, page: nu
 
 export async function createFavorite(repo: FavoriteRepo, userId: string, data: FavoriteCreateInput) {
   if ((await repo.count(userId)) >= MAX_FAVORITES_PER_USER) {
-    throw new ApiError(409, "LIMIT_REACHED", `You can save up to ${MAX_FAVORITES_PER_USER} favorites.`);
+    throw new ApiError(409, "LIMIT_REACHED", `Você pode salvar até ${MAX_FAVORITES_PER_USER} favoritos.`);
   }
   return repo.create(userId, data);
 }
@@ -33,7 +33,7 @@ export async function createFavorite(repo: FavoriteRepo, userId: string, data: F
 /** Retorna o favorito somente se pertencer ao usuário; 404 nos dois casos (não revela existência). */
 export async function getOwnedFavorite(repo: FavoriteRepo, userId: string, id: string) {
   const fav = await repo.findById(id);
-  if (!fav || fav.userId !== userId) throw new ApiError(404, "NOT_FOUND", "Favorite not found.");
+  if (!fav || fav.userId !== userId) throw new ApiError(404, "NOT_FOUND", "Favorito não encontrado.");
   return fav;
 }
 

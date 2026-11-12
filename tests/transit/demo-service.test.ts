@@ -100,7 +100,7 @@ describe("freshness / ids", () => {
     expect(classifyFreshness(new Date(T0 - 10 * 60_000).toISOString(), T0)).toBe("STALE");
     expect(classifyFreshness("lixo", T0)).toBe("UNAVAILABLE");
     expect(classifyFreshness(new Date(T0 + 3_600_000).toISOString(), T0)).toBe("UNAVAILABLE");
-    expect(formatAge(new Date(T0 - 120_000).toISOString(), T0)).toBe("2 minutes ago");
+    expect(formatAge(new Date(T0 - 120_000).toISOString(), T0)).toBe("há 2 minutos");
   });
 
   it("valida ids (injeção/formato)", () => {

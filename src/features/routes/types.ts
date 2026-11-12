@@ -3,10 +3,10 @@ import type { BusRouteOption, RiskResult } from "@/types/transit";
 export type SortKey = "fastest" | "fewer_transfers" | "less_walking" | "lower_risk";
 
 export const SORT_LABELS: Record<SortKey, string> = {
-  fastest: "Fastest",
-  fewer_transfers: "Fewer transfers",
-  less_walking: "Less walking",
-  lower_risk: "Lower estimated crowding risk",
+  fastest: "Mais rápida",
+  fewer_transfers: "Menos baldeações",
+  less_walking: "Menos caminhada",
+  lower_risk: "Menor risco estimado de lotação",
 };
 
 /** Rota com risco por linha (chave: código de exibição da linha). `risk` agrega as linhas. */

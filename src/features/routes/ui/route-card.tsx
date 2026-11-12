@@ -8,13 +8,13 @@ import { cn } from "@/lib/utils";
 import { busLineCodes } from "../risk";
 import type { RouteResult } from "../types";
 
-export type RouteTag = "Fastest" | "Fewer transfers" | "Lower estimated risk" | "Balanced";
+export type RouteTag = "Mais rápida" | "Menos baldeações" | "Menor risco estimado" | "Equilibrada";
 
-const SOURCE_LABEL: Record<RouteResult["source"], string> = { DEMO: "Demonstration route", GTFS: "GTFS schedule", GOOGLE: "Google Routes" };
+const SOURCE_LABEL: Record<RouteResult["source"], string> = { DEMO: "Rota de demonstração", GTFS: "Horário GTFS", GOOGLE: "Google Routes" };
 
 function time(iso: string) {
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "unknown" : d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  return Number.isNaN(d.getTime()) ? "desconhecido" : d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
 
 export function RouteCard({
@@ -81,21 +81,21 @@ export function RouteCard({
         <span className="absolute -right-2.5 -top-2.5 h-5 w-5 rounded-full bg-canvas" aria-hidden />
         <dl className="flex items-center gap-4 text-xs text-muted">
           <div className="flex items-center gap-1">
-            <dt><Footprints className="h-3.5 w-3.5" aria-label="Walking" /></dt>
+            <dt><Footprints className="h-3.5 w-3.5" aria-label="Caminhada" /></dt>
             <dd className="font-semibold text-ink">{route.walkMinutes} min</dd>
           </div>
           <div className="flex items-center gap-1">
-            <dt><Repeat className="h-3.5 w-3.5" aria-label="Transfers" /></dt>
-            <dd className="font-semibold text-ink">{route.transfers} transfer{route.transfers === 1 ? "" : "s"}</dd>
+            <dt><Repeat className="h-3.5 w-3.5" aria-label="Baldeações" /></dt>
+            <dd className="font-semibold text-ink">{route.transfers} {route.transfers === 1 ? "baldeação" : "baldeações"}</dd>
           </div>
           <div className="ml-auto">{route.risk ? <RiskBadge level={route.risk.level} /> : <RiskBadge level="INSUFFICIENT_DATA" />}</div>
         </dl>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted">
-          <Clock className="h-3 w-3" aria-hidden /> Data as of {time(route.dataTimestamp)} · {SOURCE_LABEL[route.source]}
-          {route.source === "DEMO" && <DemoBadge label="Demo" />}
+          <Clock className="h-3 w-3" aria-hidden /> Dados de {time(route.dataTimestamp)} · {SOURCE_LABEL[route.source]}
+          {route.source === "DEMO" && <DemoBadge label="Demonstração" />}
         </div>
         <Button className="mt-3 w-full" variant={selected ? "primary" : "dark"} onClick={onView} aria-pressed={selected}>
-          {selected ? "Viewing route" : "View route"}
+          {selected ? "Vendo rota" : "Ver rota"}
         </Button>
       </div>
     </Card>

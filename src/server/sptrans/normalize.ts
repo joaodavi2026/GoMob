@@ -71,7 +71,7 @@ export function normalizeStops(raw: unknown): TransitStop[] {
     const lat = num(r.py);
     const lng = num(r.px);
     if (cp === null || lat === null || lng === null || !isValidSaoPauloCoord(lat, lng)) continue;
-    out.push({ id: `sps-${cp}`, name: str(r.np) || `Stop ${cp}`, latitude: lat, longitude: lng, source: "SPTRANS" });
+    out.push({ id: `sps-${cp}`, name: str(r.np) || `Parada ${cp}`, latitude: lat, longitude: lng, source: "SPTRANS" });
   }
   return out;
 }

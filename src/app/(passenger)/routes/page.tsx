@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/primitives";
 import { RoutesView } from "@/features/routes/ui/routes-view";
 
-export const metadata: Metadata = { title: "Routes" };
+export const metadata: Metadata = { title: "Rotas" };
 
 export default function RoutesPage() {
   return (

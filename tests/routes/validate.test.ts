@@ -93,7 +93,7 @@ describe("Google Routes adapter", () => {
     for (const type of ["SUBWAY", "HEAVY_RAIL", "COMMUTER_TRAIN", "TRAM", "MONORAIL", "LIGHT_RAIL"]) {
       const { accepted, rejected } = parseGoogleRoutes({ routes: [gRoute([gWalk, gStep("BUS"), gStep(type, "Linha 1"), gWalk])] }, NOW.toISOString(), O, D);
       expect(accepted).toEqual([]);
-      expect(rejected[0].reason).toMatch(/Non-bus/);
+      expect(rejected[0].reason).toMatch(/não é ônibus/);
     }
   });
 

@@ -26,9 +26,9 @@ export default function AdminDemoPage() {
     onSuccess: (d, b) => {
       qc.setQueryData(["admin", "demo"], d);
       qc.invalidateQueries({ queryKey: ["admin", "overview"] });
-      toast.success("reset" in b ? "Demo reset to Scenario A." : `${d.state.title} is now active.`);
+      toast.success("reset" in b ? "Demonstração restaurada para o Cenário A." : `${d.state.title} agora está ativo.`);
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not change the scenario."),
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Não foi possível alterar o cenário."),
     onSettled: () => setPending(null),
   });
 
@@ -37,24 +37,24 @@ export default function AdminDemoPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <DemoBadge label="Demonstration data — hypothetical, not official" />
-        <span className="text-sm text-muted">Scenarios only affect demo providers. Real SPTrans records are never changed.</span>
+        <DemoBadge label="Dados de demonstração — hipotéticos, não oficiais" />
+        <span className="text-sm text-muted">Os cenários afetam apenas os provedores de demonstração. Os registros reais da SPTrans nunca são alterados.</span>
       </div>
 
       <Card className="p-5">
-        <p className="text-sm text-muted">Active scenario</p>
+        <p className="text-sm text-muted">Cenário ativo</p>
         {q.isError ? (
-          <ErrorState message="Could not load the demo state." onRetry={() => q.refetch()} />
+          <ErrorState message="Não foi possível carregar o estado da demonstração." onRetry={() => q.refetch()} />
         ) : !active ? (
           <Skeleton className="mt-2 h-10 w-64" />
         ) : (
           <>
             <p className="mt-1 text-xl font-bold">{active.title}</p>
             <p className="mt-1 text-sm text-muted">
-              {active.setAt ? `Set by ${active.setByName ?? active.setBy ?? "unknown"} on ${formatDateTime(active.setAt)}` : "Default scenario (never changed)"}
+              {active.setAt ? `Definido por ${active.setByName ?? active.setBy ?? "desconhecido"} em ${formatDateTime(active.setAt)}` : "Cenário padrão (nunca alterado)"}
             </p>
             {active.scenario === "D_RECOVERY" && active.recoveryStartedAt && (
-              <p className="mt-1 text-sm text-muted">Recovery started at {formatDateTime(active.recoveryStartedAt)}.</p>
+              <p className="mt-1 text-sm text-muted">Recuperação iniciada em {formatDateTime(active.recoveryStartedAt)}.</p>
             )}
           </>
         )}
@@ -70,13 +70,13 @@ export default function AdminDemoPage() {
                 <h2 className="font-semibold">{s.title}</h2>
                 {isActive && (
                   <Badge tone="low" className="ml-auto">
-                    <CheckCircle2 className="h-3 w-3" aria-hidden /> Active
+                    <CheckCircle2 className="h-3 w-3" aria-hidden /> Ativo
                   </Badge>
                 )}
               </div>
               <p className="text-sm text-muted">{s.description}</p>
               <Button className="mt-auto" variant={isActive ? "secondary" : "primary"} loading={pending === s.id} disabled={run.isPending} onClick={() => run.mutate({ scenario: s.id })}>
-                {isActive ? "Run again" : "Run scenario"}
+                {isActive ? "Executar novamente" : "Executar cenário"}
               </Button>
             </Card>
           );
@@ -86,9 +86,9 @@ export default function AdminDemoPage() {
       <div>
         <Button variant="secondary" loading={pending === "reset"} disabled={run.isPending} onClick={() => run.mutate({ reset: true })}>
           <RotateCcw className="h-4 w-4" aria-hidden />
-          Reset demo
+          Restaurar demonstração
         </Button>
-        <p className="mt-2 text-xs text-muted">Open screens pick up the change through polling. Each change is recorded in the audit log with who and when.</p>
+        <p className="mt-2 text-xs text-muted">As telas abertas recebem a alteração por atualização periódica. Cada alteração é registrada no log de auditoria com autor e horário.</p>
       </div>
     </div>
   );

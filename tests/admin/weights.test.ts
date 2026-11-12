@@ -30,7 +30,7 @@ describe("weights validation", () => {
   it("rejects sum != 1", () => {
     const r = validateWeights({ demand: 0.5, headway: 0.3, delay: 0.2, operations: 0.15 });
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toMatch(/sum to 1/);
+    if (!r.ok) expect(r.error).toMatch(/somar 1/);
   });
   it("rejects out-of-range, NaN and extra keys", () => {
     expect(validateWeights({ demand: 1.2, headway: -0.2, delay: 0, operations: 0 }).ok).toBe(false);

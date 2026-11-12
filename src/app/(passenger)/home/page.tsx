@@ -4,7 +4,7 @@ import { FareStrip, HomeHeader, HomeTitle, MapPreview, ModePills, NetworkHero, P
 import { SearchModule } from "./search-module";
 import { FavoriteJourneys, IntelligenceCard, LiveUpdates } from "./sections";
 
-export const metadata: Metadata = { title: "Home" };
+export const metadata: Metadata = { title: "Início" };
 
 /** Blocos com a classe a11y-hide-simple somem no "Modo simples" (Acessibilidade). */
 export default function HomePage() {

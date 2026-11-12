@@ -15,7 +15,7 @@ export const GET = handle(async (req: NextRequest) => {
   try {
     return ok(await listLines(linesDb, q));
   } catch {
-    throw new ApiError(503, "DB_UNAVAILABLE", "Database unavailable. Lines cannot be listed right now.");
+    throw new ApiError(503, "DB_UNAVAILABLE", "Banco de dados indisponível. Não é possível listar as linhas agora.");
   }
 });
 
@@ -28,8 +28,8 @@ export const PATCH = handle(async (req: NextRequest) => {
     line = await setLineActive(linesDb, body, session.userId);
   } catch (e) {
     if (e instanceof ZodError) throw e;
-    throw new ApiError(503, "DB_UNAVAILABLE", "Database unavailable. The change was not saved.");
+    throw new ApiError(503, "DB_UNAVAILABLE", "Banco de dados indisponível. A alteração não foi salva.");
   }
-  if (!line) throw new ApiError(404, "NOT_FOUND", "Line not found.");
+  if (!line) throw new ApiError(404, "NOT_FOUND", "Linha não encontrada.");
   return ok({ line });
 });

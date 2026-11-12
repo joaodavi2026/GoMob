@@ -196,13 +196,13 @@ function wireEvents(
       }
       if (top.layer.id === "veh") {
         map.setFilter("net-hover", ["==", ["get", "l"], -1]);
-        setTip({ x: e.point.x, y: e.point.y, html: `<b>${esc(String(top.properties.code))}</b> · bus ${esc(String(top.properties.p))}` });
+        setTip({ x: e.point.x, y: e.point.y, html: `<b>${esc(String(top.properties.code))}</b> · ônibus ${esc(String(top.properties.p))}` });
         return;
       }
       if (top.layer.id === "stops-all" || top.layer.id === "sel-stops") {
         const s = network.stops[Number(top.properties.i)];
         const n = props.current.stopLines[Number(top.properties.i)]?.length ?? 0;
-        setTip({ x: e.point.x, y: e.point.y, html: `<b>${esc(s?.[1] ?? "Stop")}</b><br/><span>${n} line${n === 1 ? "" : "s"}</span>` });
+        setTip({ x: e.point.x, y: e.point.y, html: `<b>${esc(s?.[1] ?? "Parada")}</b><br/><span>${n} linha${n === 1 ? "" : "s"}</span>` });
         return;
       }
       const idxs = [...new Set(feats.filter((f) => f.layer.id.startsWith("net")).map(lineOf))];
@@ -210,7 +210,7 @@ function wireEvents(
       if (selectedLine === null) map.setFilter("net-hover", ["==", ["get", "l"], li]);
       const l = network.lines[li];
       if (!l) return setTip(null);
-      const more = idxs.length > 1 ? `<br/><span>+${idxs.length - 1} more here · click to choose</span>` : "";
+      const more = idxs.length > 1 ? `<br/><span>+${idxs.length - 1} outras linhas aqui · toque para escolher</span>` : "";
       setTip({ x: e.point.x, y: e.point.y, html: `<b>${esc(l.code)}</b> ${esc(l.name)}${more}` });
     });
   });
@@ -235,14 +235,14 @@ function wireEvents(
       el.className = "gm-pop";
       el.innerHTML = `
         <div class="gm-pop-badge" style="background:${line?.color ?? "#ff6b00"};color:${line?.textColor ?? "#fff"}">${esc(String(pr.code))}</div>
-        <div class="gm-pop-title">${esc(line?.name ?? "Unknown line")}</div>
-        ${dir ? `<div class="gm-pop-sub">To ${esc(dir.headsign)}</div>` : ""}
+        <div class="gm-pop-title">${esc(line?.name ?? "Linha desconhecida")}</div>
+        ${dir ? `<div class="gm-pop-sub">Para ${esc(dir.headsign)}</div>` : ""}
         <div class="gm-pop-grid">
-          <span>Vehicle</span><b>${esc(String(pr.p))}</b>
+          <span>Veículo</span><b>${esc(String(pr.p))}</b>
           <span>Acessível</span><b>${Number(pr.a) ? "♿ Veículo cadastrado como acessível" : "Sem registro de acessibilidade"}</b>
-          <span>Last GPS</span><b>${age < 0 ? "—" : age < 60 ? `${age}s ago` : `${Math.round(age / 60)} min ago`}</b>
+          <span>Último GPS</span><b>${age < 0 ? "—" : age < 60 ? `há ${age}s` : `há ${Math.round(age / 60)} min`}</b>
         </div>
-        ${line ? `<button type="button" class="gm-pop-btn">Show this line</button>` : ""}`;
+        ${line ? `<button type="button" class="gm-pop-btn">Ver esta linha</button>` : ""}`;
       el.querySelector("button")?.addEventListener("click", () => {
         popupRef.current?.remove();
         if (li !== undefined) onSelectLine(li);
@@ -261,7 +261,7 @@ function wireEvents(
     }
     const el = document.createElement("div");
     el.className = "gm-pop";
-    el.innerHTML = `<div class="gm-pop-title">${idxs.length} lines here</div><div class="gm-pop-list"></div>`;
+    el.innerHTML = `<div class="gm-pop-title">${idxs.length} linhas aqui</div><div class="gm-pop-list"></div>`;
     const list = el.querySelector(".gm-pop-list")!;
     for (const li of idxs.slice(0, 12)) {
       const l = network.lines[li];
@@ -275,7 +275,7 @@ function wireEvents(
       });
       list.appendChild(b);
     }
-    if (idxs.length > 12) list.insertAdjacentHTML("beforeend", `<div class="gm-pop-sub">+${idxs.length - 12} more — zoom in</div>`);
+    if (idxs.length > 12) list.insertAdjacentHTML("beforeend", `<div class="gm-pop-sub">+${idxs.length - 12} mais — aproxime o mapa</div>`);
     popupRef.current = new ml.Popup({ closeButton: true, maxWidth: "300px", offset: 8 }).setLngLat(e.lngLat).setDOMContent(el).addTo(map);
   });
 }
@@ -336,7 +336,7 @@ export default function NetworkMap(p: NetworkMapProps) {
       wireEvents(map, ml, props, popupRef, setTip);
     })().catch(() => {
       setLoadingShapes(false);
-      setErr("The map could not be loaded. Check your connection and reload the page.");
+      setErr("Não foi possível carregar o mapa. Verifique sua conexão e recarregue a página.");
     });
     return () => {
       cancelled = true;
@@ -474,10 +474,10 @@ export default function NetworkMap(p: NetworkMapProps) {
 
   return (
     <div className="absolute inset-0">
-      <div ref={box} className="h-full w-full" aria-label={`Interactive map of ${p.network.counts.lines} São Paulo bus, metro and rail lines`} role="region" />
+      <div ref={box} className="h-full w-full" aria-label={`Mapa interativo das ${p.network.counts.lines} linhas de ônibus, metrô e trem de São Paulo`} role="region" />
       {loadingShapes && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-canvas/70">
-          <div className="rounded-xl bg-white px-4 py-3 text-sm font-medium text-ink shadow-soft">Drawing {p.network.counts.shapes.toLocaleString("en-US")} routes…</div>
+          <div className="rounded-xl bg-white px-4 py-3 text-sm font-medium text-ink shadow-soft">Desenhando {p.network.counts.shapes.toLocaleString("pt-BR")} trajetos…</div>
         </div>
       )}
       {err && (

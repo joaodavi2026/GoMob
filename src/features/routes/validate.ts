@@ -28,17 +28,17 @@ export type ValidationResult = { valid: true } | { valid: false; reason: string 
  */
 export function validateBusOnlyRoute(option: BusRouteOption, transferPoints?: TransferPoint[]): ValidationResult {
   const steps: RouteStep[] = option.steps;
-  if (!Array.isArray(steps) || steps.length === 0) return { valid: false, reason: "Route has no steps." };
+  if (!Array.isArray(steps) || steps.length === 0) return { valid: false, reason: "A rota não tem etapas." };
   const buses = steps.filter((s): s is Extract<RouteStep, { kind: "BUS" }> => s.kind === "BUS");
   for (const s of steps) {
-    if (s.kind !== "WALK" && s.kind !== "BUS") return { valid: false, reason: "Route contains a non-bus, non-walk step." };
+    if (s.kind !== "WALK" && s.kind !== "BUS") return { valid: false, reason: "A rota contém uma etapa que não é de ônibus nem de caminhada." };
   }
-  if (buses.length === 0) return { valid: false, reason: "Route has no bus step." };
+  if (buses.length === 0) return { valid: false, reason: "A rota não tem etapa de ônibus." };
   for (const b of buses) {
-    if (looksNonBus(b.lineCode, b.lineName)) return { valid: false, reason: `Line ${b.lineCode} is not a bus service.` };
-    if (!b.lineCode || !b.boardStop || !b.alightStop) return { valid: false, reason: "Bus step is missing line or stops." };
+    if (looksNonBus(b.lineCode, b.lineName)) return { valid: false, reason: `A linha ${b.lineCode} não é um serviço de ônibus.` };
+    if (!b.lineCode || !b.boardStop || !b.alightStop) return { valid: false, reason: "Etapa de ônibus sem linha ou paradas." };
   }
-  if (option.transfers !== buses.length - 1) return { valid: false, reason: "Transfer count does not match the bus steps." };
+  if (option.transfers !== buses.length - 1) return { valid: false, reason: "O número de baldeações não corresponde às etapas de ônibus." };
 
   for (let i = 0; i < steps.length - 1; i++) {
     const a = steps[i];
@@ -47,11 +47,11 @@ export function validateBusOnlyRoute(option: BusRouteOption, transferPoints?: Tr
     const n1 = steps[i + 1];
     let next: Extract<RouteStep, { kind: "BUS" }> | null = null;
     if (n1.kind === "BUS") {
-      if (n1.boardStop !== a.alightStop) return { valid: false, reason: "Consecutive bus steps do not connect at the same stop." };
+      if (n1.boardStop !== a.alightStop) return { valid: false, reason: "Etapas de ônibus consecutivas não se conectam na mesma parada." };
       next = n1;
     } else if (n1.kind === "WALK" && steps[i + 2]?.kind === "BUS") {
       const n2 = steps[i + 2] as Extract<RouteStep, { kind: "BUS" }>;
-      if (n1.from !== a.alightStop || n1.to !== n2.boardStop) return { valid: false, reason: "Transfer walk does not link alighting and boarding stops." };
+      if (n1.from !== a.alightStop || n1.to !== n2.boardStop) return { valid: false, reason: "A caminhada de baldeação não liga a parada de desembarque à de embarque." };
       next = n2;
     }
     if (next && transferPoints) {
@@ -59,7 +59,7 @@ export function validateBusOnlyRoute(option: BusRouteOption, transferPoints?: Tr
       const declared = transferPoints.some(
         (t) => t.stopName === stop && t.lineCodes.includes(a.lineCode) && t.lineCodes.includes(next!.lineCode),
       );
-      if (!declared) return { valid: false, reason: `No declared transfer point between ${a.lineCode} and ${next.lineCode} at ${stop}.` };
+      if (!declared) return { valid: false, reason: `Não há ponto de baldeação declarado entre ${a.lineCode} e ${next.lineCode} em ${stop}.` };
     }
   }
   return { valid: true };

@@ -25,9 +25,9 @@ function loadPrefs(): Prefs {
 }
 
 function formatDate(iso?: string) {
-  if (!iso) return "Not available";
+  if (!iso) return "Não disponível";
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "Not available" : d.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
+  return Number.isNaN(d.getTime()) ? "Não disponível" : d.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
 }
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
@@ -71,11 +71,11 @@ export function ProfileView() {
     mutationFn: (newName: string) => apiFetch<unknown>("/api/profile", { method: "PATCH", body: JSON.stringify({ name: newName }) }),
     onSuccess: () => {
       setEditing(false);
-      toast.success("Display name updated.");
+      toast.success("Nome de exibição atualizado.");
       qc.invalidateQueries({ queryKey: ["me"] });
       router.refresh();
     },
-    onError: () => toast.error("Could not update your name. Please try again."),
+    onError: () => toast.error("Não foi possível atualizar seu nome. Tente novamente."),
   });
 
   function startEdit() {
@@ -86,8 +86,8 @@ export function ProfileView() {
   function submitName(e: React.FormEvent) {
     e.preventDefault();
     const v = name.trim();
-    if (v.length < 2) return setNameError("Name must have at least 2 characters.");
-    if (v.length > 60) return setNameError("Name must have at most 60 characters.");
+    if (v.length < 2) return setNameError("O nome precisa ter pelo menos 2 caracteres.");
+    if (v.length > 60) return setNameError("O nome pode ter no máximo 60 caracteres.");
     setNameError(undefined);
     if (v === me.data?.name) return setEditing(false);
     save.mutate(v);
@@ -99,13 +99,13 @@ export function ProfileView() {
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <h1 className="pt-2 text-[30px] leading-tight tracking-tight">
-        <span className="font-light text-muted">Your</span> <span className="font-extrabold">profile</span>
+        <span className="font-light text-muted">Seu</span> <span className="font-extrabold">perfil</span>
       </h1>
 
       {me.isPending ? (
         <Skeleton className="h-64 w-full rounded-2xl" />
       ) : me.isError || !user ? (
-        <ErrorState message="We could not load your profile right now." onRetry={() => me.refetch()} />
+        <ErrorState message="Não foi possível carregar seu perfil agora." onRetry={() => me.refetch()} />
       ) : (
         <Card className="p-5">
           <div className="flex items-center gap-4">
@@ -115,12 +115,12 @@ export function ProfileView() {
             <div className="min-w-0 flex-1">
               {editing ? (
                 <form onSubmit={submitName} className="flex items-start gap-2">
-                  <Input label="Display name" value={name} onChange={(e) => setName(e.target.value)} error={nameError} maxLength={60} autoFocus />
+                  <Input label="Nome de exibição" value={name} onChange={(e) => setName(e.target.value)} error={nameError} maxLength={60} autoFocus />
                   <div className="mt-7 flex gap-1">
-                    <Button type="submit" size="icon" aria-label="Save name" loading={save.isPending}>
+                    <Button type="submit" size="icon" aria-label="Salvar nome" loading={save.isPending}>
                       {!save.isPending && <Check className="h-4 w-4" aria-hidden />}
                     </Button>
-                    <Button type="button" variant="secondary" size="icon" aria-label="Cancel editing" onClick={() => setEditing(false)}>
+                    <Button type="button" variant="secondary" size="icon" aria-label="Cancelar edição" onClick={() => setEditing(false)}>
                       <X className="h-4 w-4" aria-hidden />
                     </Button>
                   </div>
@@ -128,7 +128,7 @@ export function ProfileView() {
               ) : (
                 <div className="flex items-center gap-2">
                   <p className="truncate text-xl font-bold">{user.name}</p>
-                  <Button variant="ghost" size="icon" onClick={startEdit} aria-label="Edit display name">
+                  <Button variant="ghost" size="icon" onClick={startEdit} aria-label="Editar nome de exibição">
                     <Pencil className="h-4 w-4" aria-hidden />
                   </Button>
                 </div>
@@ -138,15 +138,15 @@ export function ProfileView() {
           </div>
 
           <dl className="mt-4">
-            <Row label="Email">{user.email}</Row>
-            <Row label="Role">
-              <Badge tone="primary">{user.role === "ADMIN" ? "Administrator" : "Passenger"}</Badge>
+            <Row label="E-mail">{user.email}</Row>
+            <Row label="Tipo de conta">
+              <Badge tone="primary">{user.role === "ADMIN" ? "Administrador" : "Passageiro"}</Badge>
             </Row>
-            <Row label="Member since">{formatDate(user.createdAt)}</Row>
-            <Row label="Favorite journeys">
+            <Row label="Membro desde">{formatDate(user.createdAt)}</Row>
+            <Row label="Viagens favoritas">
               <span className="inline-flex items-center gap-1.5">
                 <Heart className="h-4 w-4 text-primary" aria-hidden />
-                {favs.isPending ? "..." : favs.isError ? "Unavailable" : favCount}
+                {favs.isPending ? "..." : favs.isError ? "Indisponível" : favCount}
               </span>
             </Row>
           </dl>
@@ -154,11 +154,11 @@ export function ProfileView() {
       )}
 
       <Card className="p-5">
-        <h2 className="text-lg font-semibold">Preferences</h2>
-        <p className="mb-2 text-sm text-muted">Stored only on this device, for convenience.</p>
+        <h2 className="text-lg font-semibold">Preferências</h2>
+        <p className="mb-2 text-sm text-muted">Salvas apenas neste dispositivo, por conveniência.</p>
         {(
           [
-            ["autoLocate", "Use my location on Home", "Fill the origin with your current position when you open Home (asks for permission)."],
+            ["autoLocate", "Usar minha localização no Início", "Preenche a origem com sua posição atual ao abrir o Início (pede permissão)."],
           ] as const
         ).map(([key, title, desc]) => (
           <label key={key} className="flex cursor-pointer items-center justify-between gap-4 border-b border-border py-3 last:border-0">
@@ -180,14 +180,14 @@ export function ProfileView() {
       <Card className="p-5">
         <div className="flex items-center gap-2">
           <GraduationCap className="h-5 w-5 text-primary" aria-hidden />
-          <h2 className="text-lg font-semibold">About GoMob</h2>
+          <h2 className="text-lg font-semibold">Sobre o GoMob</h2>
         </div>
         <p className="mt-2 text-sm text-muted">
-          GoMob — Intelligent Urban Mobility. Go smarter. Ride better. This is an academic demonstration project that explores smart bus routes,
-          live vehicle positions and crowding-risk estimates for São Paulo.
+          GoMob — Mobilidade Urbana Inteligente. Este é um projeto acadêmico de demonstração que explora rotas inteligentes de ônibus,
+          posições de veículos ao vivo e estimativas de risco de lotação em São Paulo.
         </p>
         <p className="mt-2 text-sm text-muted">
-          Some figures may come from simulated demonstration data and are always labelled as such. Crowding risk is an estimate, not an official measurement.
+          Alguns números podem vir de dados de demonstração simulados e sempre são identificados como tal. O risco de lotação é uma estimativa, não uma medição oficial.
         </p>
       </Card>
     </div>

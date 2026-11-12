@@ -25,13 +25,13 @@ function PointSelect({ label, value, onChange }: { label: string; value: GeoPoin
       <span
         className={cn(
           "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-          label === "Origin" ? "bg-white text-primary shadow-soft" : "bg-night text-white",
+          label === "Origem" ? "bg-white text-primary shadow-soft" : "bg-night text-white",
         )}
       >
-        {label === "Origin" ? <MapPin className="h-[18px] w-[18px]" aria-hidden /> : <Flag className="h-[17px] w-[17px]" aria-hidden />}
+        {label === "Origem" ? <MapPin className="h-[18px] w-[18px]" aria-hidden /> : <Flag className="h-[17px] w-[17px]" aria-hidden />}
       </span>
       <span className="min-w-0 flex-1">
-      <span className="block text-[11px] font-medium text-muted">{label === "Origin" ? "From" : "To"}</span>
+      <span className="block text-[11px] font-medium text-muted">{label === "Origem" ? "De" : "Para"}</span>
       <select
         aria-label={label}
         className={select}
@@ -41,8 +41,8 @@ function PointSelect({ label, value, onChange }: { label: string; value: GeoPoin
           if (p) onChange(placeToPoint(p));
         }}
       >
-        {!value && <option value="">Select a known place</option>}
-        {custom && <option value="custom">{value.label ?? "Custom point"}</option>}
+        {!value && <option value="">Escolha um local conhecido</option>}
+        {custom && <option value="custom">{value.label ?? "Ponto personalizado"}</option>}
         {KNOWN_PLACES.map((p) => (
           <option key={p.id} value={p.id}>{p.label}</option>
         ))}
@@ -84,10 +84,10 @@ export function RoutesView() {
     const map = new Map<string, RouteTag[]>();
     const add = (id: string | undefined, t: RouteTag) => id && map.set(id, [...(map.get(id) ?? []), t]);
     if (data) {
-      add(data.recommendations.fastest?.routeId, "Fastest");
-      add(data.recommendations.fewerTransfers?.routeId, "Fewer transfers");
-      add(data.recommendations.lowerRisk?.routeId, "Lower estimated risk");
-      add(data.recommendations.balanced?.routeId, "Balanced");
+      add(data.recommendations.fastest?.routeId, "Mais rápida");
+      add(data.recommendations.fewerTransfers?.routeId, "Menos baldeações");
+      add(data.recommendations.lowerRisk?.routeId, "Menor risco estimado");
+      add(data.recommendations.balanced?.routeId, "Equilibrada");
     }
     return map;
   }, [data]);
@@ -97,17 +97,17 @@ export function RoutesView() {
       apiFetch("/api/favorites", {
         method: "POST",
         body: JSON.stringify({
-          originLabel: origin!.label ?? "Origin",
-          destinationLabel: destination!.label ?? "Destination",
+          originLabel: origin!.label ?? "Origem",
+          destinationLabel: destination!.label ?? "Destino",
           originLatitude: origin!.latitude,
           originLongitude: origin!.longitude,
           destinationLatitude: destination!.latitude,
           destinationLongitude: destination!.longitude,
-          nickname: `${origin!.label ?? "Origin"} to ${destination!.label ?? "Destination"}`.slice(0, 60),
+          nickname: `${origin!.label ?? "Origem"} para ${destination!.label ?? "Destino"}`.slice(0, 60),
         }),
       }),
-    onSuccess: () => toast.success("Saved to favorites."),
-    onError: (e) => toast.error((e as Error).message || "Could not save the favorite."),
+    onSuccess: () => toast.success("Salvo nos favoritos."),
+    onError: (e) => toast.error((e as Error).message || "Não foi possível salvar o favorito."),
   });
 
   const swap = () => {
@@ -118,35 +118,35 @@ export function RoutesView() {
 
   const recs = data?.recommendations;
   const recLines = [
-    recs?.fastest && ["Fastest", recs.fastest.reasons],
-    recs?.fewerTransfers && ["Fewer transfers", recs.fewerTransfers.reasons],
-    recs?.lowerRisk && ["Lower estimated risk", recs.lowerRisk.reasons],
-    recs?.balanced && ["Balanced", recs.balanced.reasons],
+    recs?.fastest && ["Mais rápida", recs.fastest.reasons],
+    recs?.fewerTransfers && ["Menos baldeações", recs.fewerTransfers.reasons],
+    recs?.lowerRisk && ["Menor risco estimado", recs.lowerRisk.reasons],
+    recs?.balanced && ["Equilibrada", recs.balanced.reasons],
   ].filter(Boolean) as [string, string[]][];
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5 pb-4 pt-2">
       <header>
         <h1 className="text-[30px] leading-tight tracking-tight">
-          <span className="font-light text-muted">Smart</span> <span className="font-extrabold">routes</span>
+          <span className="font-light text-muted">Rotas</span> <span className="font-extrabold">inteligentes</span>
         </h1>
-        <p className="mt-1 text-sm text-muted">Bus-only trips. Walking is allowed to reach stops and transfer.</p>
+        <p className="mt-1 text-sm text-muted">Viagens só de ônibus. A caminhada é permitida para chegar às paradas e fazer baldeações.</p>
       </header>
 
       <div className="rounded-[28px] bg-white p-2 shadow-soft">
         <div className="relative space-y-2">
-          <PointSelect label="Origin" value={origin} onChange={(p) => { setOrigin(p); setSelectedId(null); }} />
-          <PointSelect label="Destination" value={destination} onChange={(p) => { setDestination(p); setSelectedId(null); }} />
+          <PointSelect label="Origem" value={origin} onChange={(p) => { setOrigin(p); setSelectedId(null); }} />
+          <PointSelect label="Destino" value={destination} onChange={(p) => { setDestination(p); setSelectedId(null); }} />
           <button
             type="button"
             onClick={swap}
-            aria-label="Swap origin and destination"
+            aria-label="Inverter origem e destino"
             className="tap absolute right-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-ink shadow-soft ring-1 ring-border"
           >
             <ArrowUpDown className="h-[18px] w-[18px]" aria-hidden />
           </button>
         </div>
-        <div className="no-scrollbar mt-2 flex gap-2 overflow-x-auto px-1 pb-1" role="radiogroup" aria-label="Sort by">
+        <div className="no-scrollbar mt-2 flex gap-2 overflow-x-auto px-1 pb-1" role="radiogroup" aria-label="Ordenar por">
           {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
             <button
               key={k}
@@ -166,7 +166,7 @@ export function RoutesView() {
       </div>
 
       {(!origin || !destination) && (
-        <EmptyState title="Choose an origin and a destination" description="Pick two places to compare bus routes." />
+        <EmptyState title="Escolha uma origem e um destino" description="Escolha dois locais para comparar rotas de ônibus." />
       )}
 
       {search.isFetching && !data && (
@@ -177,16 +177,16 @@ export function RoutesView() {
       )}
 
       {search.isError && (
-        <ErrorState message="Route search is unavailable right now. Please try again in a moment." onRetry={() => search.refetch()} />
+        <ErrorState message="A busca de rotas está indisponível agora. Tente novamente em instantes." onRetry={() => search.refetch()} />
       )}
 
       {data && data.routes.length === 0 && (
         <EmptyState
-          title="No bus routes found."
+          title="Nenhuma rota de ônibus encontrada."
           description={
             data.isDemo
-              ? "The demonstration network only covers a limited set of validated bus trips in São Paulo. Try another origin or destination."
-              : "Try another origin or destination, or a different time."
+              ? "A rede de demonstração cobre apenas um conjunto limitado de viagens de ônibus validadas em São Paulo. Tente outra origem ou outro destino."
+              : "Tente outra origem ou outro destino, ou outro horário."
           }
         />
       )}
@@ -200,17 +200,17 @@ export function RoutesView() {
           )}
           {recLines.length > 0 && (
             <Card className="p-4">
-              <h2 className="text-sm font-semibold">How we recommend</h2>
+              <h2 className="text-sm font-semibold">Como recomendamos</h2>
               <ul className="mt-2 space-y-1 text-sm text-muted">
                 {recLines.map(([name, reasons]) => (
                   <li key={name}><strong className="text-ink">{name}:</strong> {reasons.join(" ")}</li>
                 ))}
-                {recs?.notes.lowerRisk && <li><strong className="text-ink">Lower estimated risk:</strong> {recs.notes.lowerRisk}</li>}
+                {recs?.notes.lowerRisk && <li><strong className="text-ink">Menor risco estimado:</strong> {recs.notes.lowerRisk}</li>}
               </ul>
             </Card>
           )}
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-            <ul className="space-y-3" aria-label="Route options">
+            <ul className="space-y-3" aria-label="Opções de rota">
               {data.routes.map((r) => (
                 <li key={r.id}>
                   <RouteCard
@@ -218,8 +218,8 @@ export function RoutesView() {
                     tags={tagsFor.get(r.id) ?? []}
                     selected={r.id === selectedId}
                     onView={() => setSelectedId(r.id)}
-                    origin={origin?.label ?? "Origin"}
-                    destination={destination?.label ?? "Destination"}
+                    origin={origin?.label ?? "Origem"}
+                    destination={destination?.label ?? "Destino"}
                   />
                 </li>
               ))}
@@ -236,7 +236,7 @@ export function RoutesView() {
                 />
               ) : (
                 <div className="hidden lg:block">
-                  <EmptyState title="Select a route" description="Choose View route on a card to see the path, steps and risk per line." />
+                  <EmptyState title="Escolha uma rota" description="Toque em Ver rota em um cartão para ver o trajeto, as etapas e o risco por linha." />
                 </div>
               )}
             </div>

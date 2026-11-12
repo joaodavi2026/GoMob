@@ -14,7 +14,7 @@ import { PageIntro, TableWrap, formatDateTime, td, th } from "@/components/admin
 
 type VehiclesData = { vehicles: TransitVehicle[]; state: IntegrationState };
 
-const FRESH_BADGE = { FRESH: { t: "Updated", tone: "low" }, STALE: { t: "Stale", tone: "moderate" }, UNAVAILABLE: { t: "Outdated", tone: "unknown" } } as const;
+const FRESH_BADGE = { FRESH: { t: "Atualizado", tone: "low" }, STALE: { t: "Desatualizado", tone: "moderate" }, UNAVAILABLE: { t: "Sem dados recentes", tone: "unknown" } } as const;
 
 export default function AdminVehiclesPage() {
   const [lineId, setLineId] = useState("");
@@ -41,13 +41,13 @@ export default function AdminVehiclesPage() {
   return (
     <div className="space-y-4">
       <PageIntro demo={anyDemo}>
-        <span>Only monitored lines are listed (up to 20 at once). Positions refresh every 20 seconds.</span>
+        <span>Apenas linhas monitoradas são listadas (até 20 por vez). As posições são atualizadas a cada 20 segundos.</span>
       </PageIntro>
 
       <label className="block">
-        <span className="sr-only">Filter by line</span>
+        <span className="sr-only">Filtrar por linha</span>
         <select className="h-11 w-full rounded-xl border border-border bg-white px-3 text-sm sm:w-72" value={lineId} onChange={(e) => setLineId(e.target.value)}>
-          <option value="">All monitored lines</option>
+          <option value="">Todas as linhas monitoradas</option>
           {(lines.data?.lines ?? []).map((l) => (
             <option key={l.id} value={l.id}>
               {l.displayCode} — {l.name}
@@ -57,27 +57,27 @@ export default function AdminVehiclesPage() {
       </label>
 
       {lines.isError ? (
-        <ErrorState message="Could not load lines." onRetry={() => lines.refetch()} />
+        <ErrorState message="Não foi possível carregar as linhas." onRetry={() => lines.refetch()} />
       ) : lines.isSuccess && ids.length === 0 ? (
-        <EmptyState title="No monitored lines" description="Enable monitoring in Bus Lines to see vehicles here." />
+        <EmptyState title="Nenhuma linha monitorada" description="Ative o monitoramento em Linhas para ver os veículos aqui." />
       ) : vehicles.isError ? (
-        <ErrorState message={vehicles.error instanceof Error ? vehicles.error.message : "Could not load vehicles."} onRetry={() => vehicles.refetch()} />
+        <ErrorState message={vehicles.error instanceof Error ? vehicles.error.message : "Não foi possível carregar os veículos."} onRetry={() => vehicles.refetch()} />
       ) : vehicles.isLoading || lines.isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : list.length === 0 ? (
-        <EmptyState title="No vehicles reported" description="The source returned no vehicles for the selection (state: unavailable or no observations)." />
+        <EmptyState title="Nenhum veículo informado" description="A fonte não retornou veículos para a seleção (estado: indisponível ou sem observações)." />
       ) : (
         <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
           <TableWrap>
             <table className="w-full min-w-[680px]">
               <thead className="border-b border-border bg-canvas">
                 <tr>
-                  <th className={th}>Vehicle</th>
-                  <th className={th}>Line</th>
-                  <th className={th}>Last position</th>
-                  <th className={th}>Time</th>
-                  <th className={th}>Source</th>
-                  <th className={th}>State</th>
+                  <th className={th}>Veículo</th>
+                  <th className={th}>Linha</th>
+                  <th className={th}>Última posição</th>
+                  <th className={th}>Horário</th>
+                  <th className={th}>Fonte</th>
+                  <th className={th}>Estado</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -96,7 +96,7 @@ export default function AdminVehiclesPage() {
                       </td>
                       <td className={td}>{formatDateTime(v.observedAt)}</td>
                       <td className={td}>
-                        <Badge tone={v.source === "DEMO" ? "primary" : "neutral"}>{v.source === "DEMO" ? "Demo" : "SPTrans"}</Badge>
+                        <Badge tone={v.source === "DEMO" ? "primary" : "neutral"}>{v.source === "DEMO" ? "Demonstração" : "SPTrans"}</Badge>
                       </td>
                       <td className={td}>
                         <Badge tone={f.tone}>{f.t}</Badge>
@@ -111,35 +111,35 @@ export default function AdminVehiclesPage() {
           {selected && (
             <Card className="h-fit p-5">
               <div className="flex items-start justify-between">
-                <h2 className="font-semibold">Vehicle {selected.id}</h2>
-                <button aria-label="Close details" onClick={() => setSelected(null)} className="rounded-lg p-1 hover:bg-canvas">
+                <h2 className="font-semibold">Veículo {selected.id}</h2>
+                <button aria-label="Fechar detalhes" onClick={() => setSelected(null)} className="rounded-lg p-1 hover:bg-canvas">
                   <X className="h-4 w-4" />
                 </button>
               </div>
               <dl className="mt-3 space-y-2 text-sm">
                 <div>
-                  <dt className="text-muted">Line</dt>
+                  <dt className="text-muted">Linha</dt>
                   <dd>{lineMap.get(selected.lineId) ? `${lineMap.get(selected.lineId)!.displayCode} — ${lineMap.get(selected.lineId)!.name}` : selected.lineId}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted">Coordinates</dt>
+                  <dt className="text-muted">Coordenadas</dt>
                   <dd className="tabular-nums">
                     {selected.latitude.toFixed(6)}, {selected.longitude.toFixed(6)}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-muted">Observed at</dt>
+                  <dt className="text-muted">Observado em</dt>
                   <dd>{formatDateTime(selected.observedAt)}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted">Source</dt>
-                  <dd>{selected.source === "DEMO" ? "Demonstration data (not a real vehicle position)" : "SPTrans Olho Vivo"}</dd>
+                  <dt className="text-muted">Fonte</dt>
+                  <dd>{selected.source === "DEMO" ? "Dados de demonstração (não é a posição real de um veículo)" : "SPTrans Olho Vivo"}</dd>
                 </div>
               </dl>
               <Link href={`/map?vehicle=${encodeURIComponent(selected.id)}`} className="mt-4 block">
                 <Button className="w-full">
                   <MapPin className="h-4 w-4" aria-hidden />
-                  Locate on map
+                  Localizar no mapa
                 </Button>
               </Link>
             </Card>

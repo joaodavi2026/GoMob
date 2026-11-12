@@ -44,7 +44,7 @@ describe("scenario transitions", () => {
 
   it("view is always flagged as demo data", () => {
     const v = toScenarioView({ scenario: "B_HIGH_RISK", setBy: "u", setAt: "t" }, "Ana");
-    expect(v).toMatchObject({ isDemo: true, setByName: "Ana", title: "Scenario B — High crowding risk" });
-    expect(scenarioTitle(null)).toBe("Unknown scenario");
+    expect(v).toMatchObject({ isDemo: true, setByName: "Ana", title: "Cenário B — Alto risco de lotação" });
+    expect(scenarioTitle(null)).toBe("Cenário desconhecido");
   });
 });

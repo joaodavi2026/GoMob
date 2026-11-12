@@ -38,7 +38,7 @@ export const isDemoLineId = (lineId: string) => lineId.startsWith("demo-");
 export async function getDemoRisk(lineKey: string, now: Date = new Date()): Promise<RiskResult> {
   const [weights, sc] = await Promise.all([loadWeights(), getScenario()]);
   const inputs = demoFactors(sc.scenario, lineKey, { recoveryStartedAt: sc.recoveryStartedAt, now }) ?? {};
-  const prefix = `${DEMO_LABEL}${sc.scenario === "C_UNAVAILABLE" ? " Scenario: data unavailable." : ""}`;
+  const prefix = `${DEMO_LABEL}${sc.scenario === "C_UNAVAILABLE" ? " Cenário: dados indisponíveis." : ""}`;
   return computeRisk(inputs, { weights, now, forceSource: "DEMO", explanationPrefix: prefix });
 }
 

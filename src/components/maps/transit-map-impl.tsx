@@ -100,7 +100,7 @@ export default function TransitMapImpl({
         }
       });
       mapRef.current = map;
-    })().catch(() => setGeoMsg("The map could not be loaded."));
+    })().catch(() => setGeoMsg("Não foi possível carregar o mapa."));
     const vm = markers.current;
     return () => {
       cancelled = true;
@@ -138,7 +138,7 @@ export default function TransitMapImpl({
       } else {
         m.marker.setLngLat([v.longitude, v.latitude]);
       }
-      m.el.setAttribute("aria-label", `Bus ${v.id}${stale ? ", last position is outdated" : ""}${selected ? ", selected" : ""}`);
+      m.el.setAttribute("aria-label", `Ônibus ${v.id}${stale ? ", última posição desatualizada" : ""}${selected ? ", selecionado" : ""}`);
       styleBusEl(m.el, { selected, stale });
     }
     markers.current.forEach((m, id) => {
@@ -207,7 +207,7 @@ export default function TransitMapImpl({
       const el = document.createElement("div");
       el.title = s.name;
       el.setAttribute("role", "img");
-      el.setAttribute("aria-label", `Stop: ${s.name}`);
+      el.setAttribute("aria-label", `Parada: ${s.name}`);
       Object.assign(el.style, { width: "10px", height: "10px", borderRadius: "9999px", background: "#fff", border: "2px solid #17212b" });
       stopMarkers.current.push(new ml.Marker({ element: el }).setLngLat([s.longitude, s.latitude]).addTo(map));
     }
@@ -223,7 +223,7 @@ export default function TransitMapImpl({
     if (pickedPoint) pickMarker.current = new ml.Marker({ color: "#ff6b00" }).setLngLat([pickedPoint.longitude, pickedPoint.latitude]).addTo(map);
     extraMarkers.current.forEach((m) => m.remove());
     extraMarkers.current = (extraPoints ?? []).map((p: GeoPoint) =>
-      new ml.Marker({ color: "#17212b" }).setLngLat([p.longitude, p.latitude]).setPopup(new ml.Popup({ offset: 24 }).setText(p.label ?? "Point")).addTo(map),
+      new ml.Marker({ color: "#17212b" }).setLngLat([p.longitude, p.latitude]).setPopup(new ml.Popup({ offset: 24 }).setText(p.label ?? "Ponto")).addTo(map),
     );
   }, [pickedPoint, extraPoints, ready]);
 
@@ -235,33 +235,33 @@ export default function TransitMapImpl({
     const ml = mlRef.current;
     const map = mapRef.current;
     if (!ml || !map) return;
-    if (!("geolocation" in navigator)) return setGeoMsg("Location is not available on this device.");
+    if (!("geolocation" in navigator)) return setGeoMsg("Localização indisponível neste dispositivo.");
     setGeoMsg(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const el = document.createElement("div");
         Object.assign(el.style, { width: "16px", height: "16px", borderRadius: "9999px", background: "#2563eb", border: "3px solid #fff", boxShadow: "0 0 0 4px rgba(37,99,235,.25)" });
-        el.setAttribute("aria-label", "Your location");
+        el.setAttribute("aria-label", "Sua localização");
         meMarker.current?.remove();
         meMarker.current = new ml.Marker({ element: el }).setLngLat([pos.coords.longitude, pos.coords.latitude]).addTo(map);
         map.flyTo({ center: [pos.coords.longitude, pos.coords.latitude], zoom: 15, duration: 600 });
       },
-      () => setGeoMsg("Location permission was not granted."),
+      () => setGeoMsg("A permissão de localização não foi concedida."),
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 60_000 },
     );
   }
 
   return (
     <div className={cn("relative overflow-hidden bg-canvas", className)}>
-      <div ref={container} className="h-full w-full" role="application" aria-label="Map of São Paulo" />
+      <div ref={container} className="h-full w-full" role="application" aria-label="Mapa de São Paulo" />
       <div className="absolute left-3 top-3 z-10 flex flex-col gap-2">
         {showReset && (
           <button type="button" onClick={resetView} className="flex h-10 items-center gap-1.5 rounded-xl border border-border bg-white px-3 text-sm font-medium shadow-soft hover:bg-canvas">
-            <Crosshair className="h-4 w-4" aria-hidden /> Reset view
+            <Crosshair className="h-4 w-4" aria-hidden /> Recentralizar
           </button>
         )}
         {showLocate && (
-          <button type="button" onClick={locate} aria-label="Show my location" className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white shadow-soft hover:bg-canvas">
+          <button type="button" onClick={locate} aria-label="Mostrar minha localização" className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white shadow-soft hover:bg-canvas">
             <LocateFixed className="h-4 w-4" aria-hidden />
           </button>
         )}

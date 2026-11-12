@@ -90,7 +90,7 @@ describe("missing data policy", () => {
     expect(r.level).toBe("INSUFFICIENT_DATA");
     expect(r.score).toBeNull();
     expect(r.confidence).toBeNull();
-    expect(r.explanation).toMatch(/never treated as low risk/);
+    expect(r.explanation).toMatch(/nunca são tratados como risco baixo/);
   });
   it("essential factor (headway) missing -> INSUFFICIENT_DATA even if others exist", () => {
     const r = computeRisk({ demand: f(90), delay: f(90), operations: f(90) }, { now: NOW });
@@ -109,11 +109,11 @@ describe("missing data policy", () => {
   it("explanation only cites calculated factors as basis and flags the rest as not available", () => {
     const r = computeRisk({ headway: f(90), operations: f(80) }, { now: NOW });
     expect(r.level).toBe("HIGH");
-    expect(r.explanation).toMatch(/irregular bus intervals/);
-    expect(r.explanation).not.toMatch(/operational delays/);
-    expect(r.explanation).not.toMatch(/historically high demand/);
-    expect(r.explanation).toMatch(/Based on 2 of 4 signals/);
-    expect(r.explanation).toMatch(/Not available: historical demand, operational delay/);
+    expect(r.explanation).toMatch(/intervalos irregulares entre os ônibus/);
+    expect(r.explanation).not.toMatch(/atrasos operacionais/);
+    expect(r.explanation).not.toMatch(/demanda historicamente alta/);
+    expect(r.explanation).toMatch(/Com base em 2 de 4 sinais/);
+    expect(r.explanation).toMatch(/Não disponível: demanda histórica, atraso operacional/);
   });
   it("fewer factors lower confidence versus full data", () => {
     const full = computeRisk({ demand: f(50), headway: f(50), delay: f(50), operations: f(50) }, { now: NOW });

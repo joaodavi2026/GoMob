@@ -34,7 +34,7 @@ export async function runRouteSearch(
   try {
     options = await deps.provider.searchRoutes(input.origin, input.destination);
   } catch {
-    throw new RouteProviderUnavailableError("Route provider unavailable.");
+    throw new RouteProviderUnavailableError("Provedor de rotas indisponível.");
   }
   const { accepted } = filterBusOnly(options);
   const now = deps.now?.() ?? new Date();

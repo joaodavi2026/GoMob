@@ -30,7 +30,7 @@ export function SectionHeader({ title, href, linkLabel }: { title: string; href?
       <h2 className="text-xl font-bold tracking-tight text-ink">{title}</h2>
       {href && (
         <Link href={href} className="inline-flex items-center gap-0.5 text-sm font-semibold text-muted hover:text-ink">
-          {linkLabel ?? "See all"} <ChevronRight className="h-4 w-4" aria-hidden />
+          {linkLabel ?? "Ver tudo"} <ChevronRight className="h-4 w-4" aria-hidden />
         </Link>
       )}
     </div>
@@ -39,7 +39,7 @@ export function SectionHeader({ title, href, linkLabel }: { title: string; href?
 
 function ListSkeleton({ rows = 3 }: { rows?: number }) {
   return (
-    <div className="space-y-2" role="status" aria-label="Loading">
+    <div className="space-y-2" role="status" aria-label="Carregando">
       {Array.from({ length: rows }).map((_, i) => (
         <Skeleton key={i} className="h-16 w-full rounded-3xl" />
       ))}
@@ -47,7 +47,7 @@ function ListSkeleton({ rows = 3 }: { rows?: number }) {
   );
 }
 
-const unavailable = "Live data is temporarily unavailable.";
+const unavailable = "Os dados ao vivo estão temporariamente indisponíveis.";
 
 export function FavoriteJourneys() {
   const router = useRouter();
@@ -57,17 +57,17 @@ export function FavoriteJourneys() {
   return (
     <section aria-labelledby="fav-h" className="mt-8">
       <div id="fav-h">
-        <SectionHeader title="Your favorite journeys" href="/favorites" />
+        <SectionHeader title="Viagens favoritas" href="/favorites" />
       </div>
       {q.isPending ? (
         <ListSkeleton />
       ) : q.isError ? (
-        <EmptyState icon={<Heart className="h-6 w-6" aria-hidden />} title="Favorites are offline" description="Saved journeys need the database. Search a route to plan a trip meanwhile." />
+        <EmptyState icon={<Heart className="h-6 w-6" aria-hidden />} title="Favoritos indisponíveis" description="As viagens salvas precisam do banco de dados. Enquanto isso, busque uma rota para planejar sua viagem." />
       ) : favs.length === 0 ? (
         <EmptyState
           icon={<Heart className="h-8 w-8" aria-hidden />}
-          title="No favorite journeys yet"
-          description="Search a route and save it to jump back to it in one tap."
+          title="Nenhuma viagem favorita ainda"
+          description="Busque uma rota e salve-a para voltar a ela com um toque."
         />
       ) : (
         <ul className="grid gap-2 sm:grid-cols-2">
@@ -114,14 +114,14 @@ export function ExploreLines() {
   return (
     <section aria-labelledby="lines-h">
       <div id="lines-h">
-        <SectionHeader title="Explore bus lines" href="/map" linkLabel="Open map" />
+        <SectionHeader title="Explorar linhas de ônibus" href="/map" linkLabel="Abrir mapa" />
       </div>
       {q.isPending ? (
         <ListSkeleton />
       ) : q.isError ? (
         <ErrorState message={unavailable} onRetry={() => q.refetch()} />
       ) : lines.length === 0 ? (
-        <EmptyState title="No bus lines available" description="Bus lines will appear here as soon as the data source responds." />
+        <EmptyState title="Nenhuma linha de ônibus disponível" description="As linhas de ônibus aparecerão aqui assim que a fonte de dados responder." />
       ) : (
         <ul className="space-y-2">
           {lines.slice(0, 5).map((l) => (
@@ -129,7 +129,7 @@ export function ExploreLines() {
               <BusCard
                 code={l.displayCode}
                 name={l.name}
-                meta={`Direction ${l.direction}`}
+                meta={`Sentido ${l.direction}`}
                 isDemo={l.source === "DEMO"}
                 onClick={() => router.push(`/map?lineId=${encodeURIComponent(l.id)}`)}
               />
@@ -147,14 +147,14 @@ export function LiveUpdates() {
   return (
     <section aria-labelledby="alerts-h" id="updates" className="mt-8 scroll-mt-4">
       <div id="alerts-h">
-        <SectionHeader title="Live bus updates" />
+        <SectionHeader title="Avisos ao vivo" />
       </div>
       {q.isPending ? (
         <ListSkeleton rows={2} />
       ) : q.isError ? (
         <ErrorState message={unavailable} onRetry={() => q.refetch()} />
       ) : alerts.length === 0 ? (
-        <EmptyState icon={<BellRing className="h-8 w-8" aria-hidden />} title="No active alerts" description="Everything looks calm right now." />
+        <EmptyState icon={<BellRing className="h-8 w-8" aria-hidden />} title="Nenhum aviso ativo" description="Tudo tranquilo por enquanto." />
       ) : (
         <ul className="space-y-2">
           {alerts.slice(0, 4).map((a) => (
@@ -166,8 +166,8 @@ export function LiveUpdates() {
                     <p className="text-sm font-semibold">{a.title}</p>
                     <p className="mt-0.5 text-sm text-muted">{a.description}</p>
                     <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted">
-                      <span>{timeAgo(a.createdAt).replace("Last updated", "Posted")}</span>
-                      {a.isDemo && <DemoBadge label="Demo" />}
+                      <span>{timeAgo(a.createdAt).replace("Atualizado", "Publicado")}</span>
+                      {a.isDemo && <DemoBadge label="Demonstração" />}
                     </div>
                   </div>
                 </div>
@@ -196,33 +196,33 @@ export function IntelligenceCard() {
   return (
     <section aria-labelledby="intel-h" className="mt-8">
       <div id="intel-h">
-        <SectionHeader title="GoMob Intelligence" href="/predict" linkLabel="Predict" />
+        <SectionHeader title="Inteligência GoMob" href="/predict" linkLabel="Previsão" />
       </div>
       {loading ? (
         <Skeleton className="h-36 w-full rounded-2xl" />
       ) : failed ? (
-        <ErrorState message="Crowding insights are temporarily unavailable." onRetry={() => (lines.isError ? lines.refetch() : risk.refetch())} />
+        <ErrorState message="As análises de lotação estão temporariamente indisponíveis." onRetry={() => (lines.isError ? lines.refetch() : risk.refetch())} />
       ) : !first || !risk.data ? (
-        <EmptyState icon={<Brain className="h-8 w-8" aria-hidden />} title="No insights yet" description="Insufficient data to estimate crowding risk." />
+        <EmptyState icon={<Brain className="h-8 w-8" aria-hidden />} title="Ainda sem análises" description="Dados insuficientes para estimar o risco de lotação." />
       ) : (
         <Card className="p-4">
           <div className="flex items-center justify-between gap-2">
             <p className="truncate text-sm font-semibold">
-              Line {first.displayCode} · {first.name}
+              Linha {first.displayCode} · {first.name}
             </p>
-            <Badge tone="neutral">{risk.data.risk.source === "DEMO" ? "Demo estimate" : risk.data.risk.source === "OFFICIAL" ? "Official data" : "Derived estimate"}</Badge>
+            <Badge tone="neutral">{risk.data.risk.source === "DEMO" ? "Estimativa de demonstração" : risk.data.risk.source === "OFFICIAL" ? "Dados oficiais" : "Estimativa derivada"}</Badge>
           </div>
           <RiskIndicator className="mt-3" level={risk.data.risk.level} score={risk.data.risk.score} />
           <p className="mt-3 text-sm text-muted">{risk.data.risk.explanation}</p>
           <p className="mt-2 text-xs text-muted">
-            {risk.data.risk.confidence != null ? `Confidence ${Math.round(risk.data.risk.confidence * 100)}% · ` : ""}
+            {risk.data.risk.confidence != null ? `Confiança ${Math.round(risk.data.risk.confidence * 100)}% · ` : ""}
             {timeAgo(risk.data.risk.calculatedAt)}
           </p>
           <Link
             href="/predict"
             className="tap mt-4 inline-flex h-11 items-center rounded-full bg-night px-5 text-sm font-semibold text-white"
           >
-            Predict a future trip
+            Prever uma viagem futura
           </Link>
         </Card>
       )}

@@ -97,8 +97,8 @@ export class DemoRouteProvider implements RouteProvider {
   private toOption(c: Candidate, origin: GeoPoint, destination: GeoPoint, stamp: string): BusRouteOption {
     const steps: RouteStep[] = [];
     const path: [number, number][] = [[origin.longitude, origin.latitude]];
-    const originLabel = origin.label ?? "Origin";
-    const destLabel = destination.label ?? "Destination";
+    const originLabel = origin.label ?? "Origem";
+    const destLabel = destination.label ?? "Destino";
     const walkIn = walkMinutes(c.walkIn);
     const walkOut = walkMinutes(c.walkOut);
     steps.push({ kind: "WALK", minutes: walkIn, from: originLabel, to: c.boardStop.name });

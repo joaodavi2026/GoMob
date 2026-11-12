@@ -103,7 +103,7 @@ function Panel({ placement, ...p }: OverlayBase & { placement: "center" | "right
               </p>
             )}
           </div>
-          <Button variant="ghost" size="icon" onClick={p.onClose} aria-label="Close" className="-mr-2 -mt-1 shrink-0">
+          <Button variant="ghost" size="icon" onClick={p.onClose} aria-label="Fechar" className="-mr-2 -mt-1 shrink-0">
             <X className="h-5 w-5" aria-hidden />
           </Button>
         </div>
@@ -134,8 +134,8 @@ export function ConfirmDialog({
   onConfirm,
   title,
   description,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
+  confirmLabel = "Confirmar",
+  cancelLabel = "Cancelar",
   destructive,
   loading,
 }: {

@@ -29,9 +29,9 @@ export function handle<A extends unknown[]>(fn: (...args: A) => Promise<Response
       return await fn(...args);
     } catch (e) {
       if (e instanceof ApiError) return fail(e.status, e.code, e.message);
-      if (e instanceof ZodError) return fail(400, "VALIDATION", "Invalid request.", e.flatten());
+      if (e instanceof ZodError) return fail(400, "VALIDATION", "Requisição inválida.", e.flatten());
       console.error("[api]", e instanceof Error ? e.message : "unknown error");
-      return fail(500, "INTERNAL", "Something went wrong. Please try again.");
+      return fail(500, "INTERNAL", "Algo deu errado. Tente novamente.");
     }
   };
 }
@@ -40,7 +40,7 @@ export function handle<A extends unknown[]>(fn: (...args: A) => Promise<Response
 export async function apiFetch<T>(input: string, init?: RequestInit): Promise<T> {
   const res = await fetch(input, { ...init, headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) } });
   const body = (await res.json().catch(() => null)) as ApiSuccess<T> | ApiFailure | null;
-  if (!body) throw new Error("Connection problem. Please try again.");
+  if (!body) throw new Error("Problema de conexão. Tente novamente.");
   if (!body.ok) throw new Error(body.error.message);
   return body.data;
 }

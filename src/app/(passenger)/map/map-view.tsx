@@ -49,15 +49,15 @@ export function MapView() {
     });
   }
 
-  if (linesQ.isError) return <ErrorState message="Lines could not be loaded. Please try again." onRetry={() => linesQ.refetch()} />;
+  if (linesQ.isError) return <ErrorState message="Não foi possível carregar as linhas. Tente novamente." onRetry={() => linesQ.refetch()} />;
 
   return (
     <div className="flex flex-col gap-3">
       <div>
         <h1 className="text-[30px] leading-tight tracking-tight">
-          <span className="font-light text-muted">Live</span> <span className="font-extrabold">buses</span>
+          <span className="font-light text-muted">Ônibus</span> <span className="font-extrabold">ao vivo</span>
         </h1>
-        <div className="no-scrollbar -mx-5 mt-3 flex items-center gap-2 overflow-x-auto px-5" aria-label="Line filter" role="group">
+        <div className="no-scrollbar -mx-5 mt-3 flex items-center gap-2 overflow-x-auto px-5" aria-label="Filtro de linhas" role="group">
           {linesQ.isLoading && Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-9 w-24 rounded-full" />)}
           {lines.map((l) => {
             const on = selectedIds.includes(l.id);
@@ -83,30 +83,30 @@ export function MapView() {
       <div className="flex flex-wrap items-center gap-2 rounded-3xl bg-white p-2 pl-3 text-sm shadow-soft">
         <LiveStatus state={status} label={STATUS_LABEL[status]} />
         <span className="text-muted" aria-live="polite">
-          {vehiclesQ.dataUpdatedAt ? timeAgo(new Date(vehiclesQ.dataUpdatedAt).toISOString(), now) : "Not updated yet"}
+          {vehiclesQ.dataUpdatedAt ? timeAgo(new Date(vehiclesQ.dataUpdatedAt).toISOString(), now) : "Ainda não atualizado"}
         </span>
         {isDemo && <DemoBadge />}
         <Button variant="ghost" size="sm" onClick={() => vehiclesQ.refetch()} disabled={vehiclesQ.isFetching || !selectedIds.length}>
-          <RefreshCw className={cn("h-4 w-4", vehiclesQ.isFetching && "animate-spin")} aria-hidden /> Refresh
+          <RefreshCw className={cn("h-4 w-4", vehiclesQ.isFetching && "animate-spin")} aria-hidden /> Atualizar
         </Button>
         <Button variant={pickMode ? "primary" : "secondary"} size="sm" onClick={() => setPickMode((p) => !p)} aria-pressed={pickMode}>
-          <MapPin className="h-4 w-4" aria-hidden /> {pickMode ? "Tap the map" : "Pick a point"}
+          <MapPin className="h-4 w-4" aria-hidden /> {pickMode ? "Toque no mapa" : "Escolher um ponto"}
         </Button>
       </div>
 
       {fallback && (
         <p role="status" className="rounded-2xl bg-primary-light px-4 py-2.5 text-xs text-primary-pressed">
-          Live data is temporarily unavailable. Showing explicitly identified demonstration data instead.
+          Os dados ao vivo estão temporariamente indisponíveis. Exibindo dados de demonstração, claramente identificados.
         </p>
       )}
       {(status === "STALE" || status === "UNAVAILABLE") && !fallback && (
         <p role="status" className="rounded-xl bg-risk-moderate/10 px-3 py-2 text-sm">
-          {status === "STALE" ? "Some positions are outdated and are shown dimmed; they are not confirmed current locations." : "Live data is temporarily unavailable."}
+          {status === "STALE" ? "Algumas posições estão desatualizadas e aparecem esmaecidas; não são localizações atuais confirmadas." : "Os dados ao vivo estão temporariamente indisponíveis."}
         </p>
       )}
       {picked && (
         <p className="text-sm text-muted">
-          Selected point: {picked.latitude.toFixed(5)}, {picked.longitude.toFixed(5)}
+          Ponto selecionado: {picked.latitude.toFixed(5)}, {picked.longitude.toFixed(5)}
         </p>
       )}
 
@@ -124,7 +124,7 @@ export function MapView() {
         >
           {!vehiclesQ.isLoading && selectedIds.length > 0 && vehicles.length === 0 && status !== "UPDATING" && (
             <p className="absolute inset-x-3 bottom-3 z-10 rounded-xl bg-white/95 p-3 text-center text-sm shadow-soft">
-              No vehicle positions available for the selected lines right now.
+              Nenhuma posição de veículo disponível para as linhas selecionadas no momento.
             </p>
           )}
           {selectedVehicle && (

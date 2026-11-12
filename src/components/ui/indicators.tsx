@@ -3,17 +3,17 @@ import type { IntegrationState, RiskLevel } from "@/types/transit";
 import { cn } from "@/lib/utils";
 
 const riskMeta: Record<RiskLevel, { label: string; bar: string; text: string; width: string }> = {
-  LOW: { label: "Low", bar: "bg-risk-low", text: "text-risk-low", width: "w-1/3" },
-  MODERATE: { label: "Moderate", bar: "bg-risk-moderate", text: "text-risk-moderate", width: "w-2/3" },
-  HIGH: { label: "High", bar: "bg-risk-high", text: "text-risk-high", width: "w-full" },
-  INSUFFICIENT_DATA: { label: "Insufficient data", bar: "bg-risk-unknown", text: "text-muted", width: "w-0" },
+  LOW: { label: "Baixo", bar: "bg-risk-low", text: "text-risk-low", width: "w-1/3" },
+  MODERATE: { label: "Moderado", bar: "bg-risk-moderate", text: "text-risk-moderate", width: "w-2/3" },
+  HIGH: { label: "Alto", bar: "bg-risk-high", text: "text-risk-high", width: "w-full" },
+  INSUFFICIENT_DATA: { label: "Dados insuficientes", bar: "bg-risk-unknown", text: "text-muted", width: "w-0" },
 };
 
 /** Crowding-risk meter. Always shows text next to colour (colour is never the only signal). */
 export function RiskIndicator({ level, score, compact, className }: { level: RiskLevel; score?: number | null; compact?: boolean; className?: string }) {
   const m = riskMeta[level];
   return (
-    <div className={cn("min-w-0", className)} role="img" aria-label={`Crowding risk: ${m.label}${score != null ? `, score ${Math.round(score)} of 100` : ""}`}>
+    <div className={cn("min-w-0", className)} role="img" aria-label={`Risco de lotação: ${m.label}${score != null ? `, pontuação ${Math.round(score)} de 100` : ""}`}>
       <div className="flex items-baseline justify-between gap-2">
         <span className={cn("text-sm font-semibold", m.text)}>{m.label}</span>
         {score != null && level !== "INSUFFICIENT_DATA" && !compact && <span className="text-xs text-muted">{Math.round(score)}/100</span>}
@@ -30,7 +30,7 @@ export function EtaIndicator({ minutes, label = "min", className }: { minutes: n
   if (minutes == null) {
     return (
       <span className={cn("inline-flex items-center gap-1 text-sm text-muted", className)}>
-        <Clock className="h-4 w-4" aria-hidden /> ETA unavailable
+        <Clock className="h-4 w-4" aria-hidden /> Previsão indisponível
       </span>
     );
   }
@@ -43,11 +43,11 @@ export function EtaIndicator({ minutes, label = "min", className }: { minutes: n
 }
 
 const liveMeta: Record<IntegrationState, { label: string; dot: string; text: string }> = {
-  CONNECTED: { label: "Live data", dot: "bg-risk-low", text: "text-ink" },
-  UPDATING: { label: "Updating", dot: "bg-risk-moderate animate-pulse", text: "text-ink" },
-  STALE: { label: "Data outdated", dot: "bg-risk-moderate", text: "text-ink" },
-  UNAVAILABLE: { label: "Live data unavailable", dot: "bg-risk-unknown", text: "text-muted" },
-  DEMO: { label: "Demo data", dot: "bg-primary", text: "text-ink" },
+  CONNECTED: { label: "Dados ao vivo", dot: "bg-risk-low", text: "text-ink" },
+  UPDATING: { label: "Atualizando", dot: "bg-risk-moderate animate-pulse", text: "text-ink" },
+  STALE: { label: "Dados desatualizados", dot: "bg-risk-moderate", text: "text-ink" },
+  UNAVAILABLE: { label: "Dados ao vivo indisponíveis", dot: "bg-risk-unknown", text: "text-muted" },
+  DEMO: { label: "Dados de demonstração", dot: "bg-primary", text: "text-ink" },
 };
 
 /** Compact connection status pill. */
@@ -64,13 +64,13 @@ export function LiveStatus({ state, label, className, hideLabelOnMobile }: { sta
 
 /** "Last updated 2 minutes ago" helper text. */
 export function timeAgo(iso: string | null | undefined, now = Date.now()): string {
-  if (!iso) return "Not updated yet";
+  if (!iso) return "Ainda não atualizado";
   const diff = Math.max(0, Math.round((now - new Date(iso).getTime()) / 1000));
-  if (diff < 60) return "Last updated just now";
+  if (diff < 60) return "Atualizado agora mesmo";
   const m = Math.round(diff / 60);
-  if (m < 60) return `Last updated ${m} ${m === 1 ? "minute" : "minutes"} ago`;
+  if (m < 60) return `Atualizado há ${m} min`;
   const h = Math.round(m / 60);
-  if (h < 24) return `Last updated ${h} ${h === 1 ? "hour" : "hours"} ago`;
+  if (h < 24) return `Atualizado há ${h} h`;
   const d = Math.round(h / 24);
-  return `Last updated ${d} ${d === 1 ? "day" : "days"} ago`;
+  return `Atualizado há ${d} ${d === 1 ? "dia" : "dias"}`;
 }

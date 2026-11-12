@@ -4,13 +4,13 @@ export type NavItem = { href: string; label: string; icon: LucideIcon; mobile: b
 
 /** `mobile`: aparece na cápsula de navegação inferior (o perfil fica no avatar). */
 export const NAV_ITEMS: NavItem[] = [
-  { href: "/home", label: "Home", icon: Home, mobile: true },
-  { href: "/network", label: "Explore", icon: Compass, mobile: true },
-  { href: "/routes", label: "Routes", icon: Route, mobile: true },
-  { href: "/map", label: "Live", icon: Radio, mobile: true },
-  { href: "/favorites", label: "Saved", icon: Heart, mobile: true },
+  { href: "/home", label: "Início", icon: Home, mobile: true },
+  { href: "/network", label: "Explorar", icon: Compass, mobile: true },
+  { href: "/routes", label: "Rotas", icon: Route, mobile: true },
+  { href: "/map", label: "Ao vivo", icon: Radio, mobile: true },
+  { href: "/favorites", label: "Salvos", icon: Heart, mobile: true },
   { href: "/accessibility", label: "Acessibilidade", icon: Accessibility, mobile: false },
-  { href: "/profile", label: "Profile", icon: User, mobile: false },
+  { href: "/profile", label: "Perfil", icon: User, mobile: false },
 ];
 
 /** Telas que desenham o próprio cabeçalho no mobile. */

@@ -27,7 +27,7 @@ describe("overview aggregations", () => {
   it("buckets observations oldest -> newest and ignores out-of-window", () => {
     const b = observationBuckets([ago(1), ago(2), ago(15), ago(59), ago(61), ago(-5)], now);
     expect(b).toHaveLength(6);
-    expect(b[5]).toEqual({ label: "now", count: 2 });
+    expect(b[5]).toEqual({ label: "agora", count: 2 });
     expect(b[4].count).toBe(1);
     expect(b[0].count).toBe(1);
     expect(b.reduce((a, x) => a + x.count, 0)).toBe(4);

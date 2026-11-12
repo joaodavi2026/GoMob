@@ -11,7 +11,7 @@ export function Tabs({
   value,
   onChange,
   className,
-  label = "Sections",
+  label = "Seções",
 }: {
   items: TabItem[];
   value: string;

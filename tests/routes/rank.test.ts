@@ -109,7 +109,7 @@ describe("recommend", () => {
     const b = r("b", { durationMinutes: 30, transfers: 0, walkMinutes: 5, risk: risk(null) });
     expect(recommend([a, b]).balanced?.routeId).toBe("a");
     expect(recommend([b, a]).balanced?.routeId).toBe("a");
-    expect(recommend([a, b]).balanced?.reasons.join(" ")).toMatch(/never as an advantage/);
+    expect(recommend([a, b]).balanced?.reasons.join(" ")).toMatch(/nunca uma vantagem/);
   });
 
   it("balanced: a moderately slower but low-risk route can beat a fast high-risk one", () => {
@@ -122,7 +122,7 @@ describe("recommend", () => {
     const a = r("a", { durationMinutes: 20, transfers: 1, walkMinutes: 5, risk: risk(null) });
     const b = r("b", { durationMinutes: 40, transfers: 0, walkMinutes: 5, risk: risk(null) });
     const rec = recommend([a, b]);
-    expect(rec.balanced?.reasons.join(" ")).toMatch(/Risk was left out/);
+    expect(rec.balanced?.reasons.join(" ")).toMatch(/O risco ficou de fora/);
     expect(rec.balanced?.routeId).toBe("a"); // tempo pesa 40% contra 20% de transferências
   });
 

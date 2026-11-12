@@ -28,7 +28,7 @@ export default function AdminPredictionsPage() {
 
   const run = useMutation({
     mutationFn: () => apiFetch<{ prediction: Prediction }>(`/api/predict?${new URLSearchParams({ lineId, date, time })}`),
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not compute the prediction."),
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Não foi possível calcular a previsão."),
   });
 
   const p = run.data?.prediction;
@@ -37,10 +37,10 @@ export default function AdminPredictionsPage() {
   return (
     <div className="space-y-4">
       <PageIntro>
-        <span>Run a risk prediction for a line, date and time. The result is a hypothetical estimate based on available signals.</span>
+        <span>Execute uma previsão de risco para uma linha, data e horário. O resultado é uma estimativa hipotética baseada nos sinais disponíveis.</span>
       </PageIntro>
 
-      <Section title="Prediction inputs">
+      <Section title="Parâmetros da previsão">
         <form
           className="flex flex-wrap items-end gap-3"
           onSubmit={(e) => {
@@ -49,9 +49,9 @@ export default function AdminPredictionsPage() {
           }}
         >
           <label className="text-sm">
-            <span className="mb-1 block text-muted">Line</span>
+            <span className="mb-1 block text-muted">Linha</span>
             <select className={`${input} w-64 max-w-full`} value={lineId} onChange={(e) => setLineId(e.target.value)} required>
-              <option value="">Select a line</option>
+              <option value="">Selecione uma linha</option>
               {(lines.data?.lines ?? []).map((l) => (
                 <option key={l.id} value={l.id}>
                   {l.displayCode} — {l.name}
@@ -60,47 +60,47 @@ export default function AdminPredictionsPage() {
             </select>
           </label>
           <label className="text-sm">
-            <span className="mb-1 block text-muted">Date</span>
+            <span className="mb-1 block text-muted">Data</span>
             <input type="date" className={input} value={date} onChange={(e) => setDate(e.target.value)} required />
           </label>
           <label className="text-sm">
-            <span className="mb-1 block text-muted">Time</span>
+            <span className="mb-1 block text-muted">Horário</span>
             <input type="time" className={input} value={time} onChange={(e) => setTime(e.target.value)} required />
           </label>
           <Button type="submit" loading={run.isPending} disabled={!lineId}>
-            Run prediction
+            Executar previsão
           </Button>
         </form>
       </Section>
 
       {!p ? (
-        <EmptyState title="No prediction yet" description="Choose a line and run a prediction to see the result, data quality and limitations." />
+        <EmptyState title="Nenhuma previsão ainda" description="Escolha uma linha e execute uma previsão para ver o resultado, a qualidade dos dados e as limitações." />
       ) : (
         <Card className="space-y-4 p-5">
           <div className="flex flex-wrap items-center gap-2">
             <RiskBadge level={p.risk.level} />
             {p.isDemo && <DemoBadge />}
-            <Badge tone="neutral">Score {p.risk.score != null ? Math.round(p.risk.score) : "—"}</Badge>
-            <Badge tone="neutral">Confidence {p.risk.confidence != null ? `${Math.round(p.risk.confidence * 100)}%` : "—"}</Badge>
+            <Badge tone="neutral">Pontuação {p.risk.score != null ? Math.round(p.risk.score) : "—"}</Badge>
+            <Badge tone="neutral">Confiança {p.risk.confidence != null ? `${Math.round(p.risk.confidence * 100)}%` : "—"}</Badge>
           </div>
           <p className="text-sm">{p.risk.explanation}</p>
           <dl className="grid gap-3 text-sm sm:grid-cols-4">
             {(
               [
-                ["Demand", p.risk.factors.demand],
-                ["Headway", p.risk.factors.headway],
-                ["Delay", p.risk.factors.delay],
-                ["Operations", p.risk.factors.operations],
+                ["Demanda", p.risk.factors.demand],
+                ["Intervalo", p.risk.factors.headway],
+                ["Atraso", p.risk.factors.delay],
+                ["Operação", p.risk.factors.operations],
               ] as const
             ).map(([k, v]) => (
               <div key={k} className="rounded-xl bg-canvas p-3">
                 <dt className="text-muted">{k}</dt>
-                <dd className="text-lg font-semibold tabular-nums">{v == null ? "n/a" : Math.round(v)}</dd>
+                <dd className="text-lg font-semibold tabular-nums">{v == null ? "n/d" : Math.round(v)}</dd>
               </div>
             ))}
           </dl>
           <p className="text-xs text-muted">
-            Calculated at {formatDateTime(p.risk.calculatedAt)} · Data quality: {p.dataQuality ?? "n/a"} · Historical source: {p.historicalSource ?? "n/a"}
+            Calculado em {formatDateTime(p.risk.calculatedAt)} · Qualidade dos dados: {p.dataQuality ?? "n/d"} · Fonte histórica: {p.historicalSource ?? "n/d"}
           </p>
           {p.limitations && p.limitations.length > 0 && (
             <ul className="list-disc space-y-1 pl-5 text-sm text-muted">

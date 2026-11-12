@@ -8,12 +8,12 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-white px-6 text-center">
       <AlertTriangle className="h-10 w-10 text-risk-high" aria-hidden />
-      <h1 className="text-2xl font-bold text-ink">Something went wrong</h1>
-      <p className="max-w-sm text-muted">We could not load this page. Please try again.</p>
+      <h1 className="text-2xl font-bold text-ink">Algo deu errado</h1>
+      <p className="max-w-sm text-muted">Não foi possível carregar esta página. Tente novamente.</p>
       <div className="mt-2 flex gap-2">
-        <Button onClick={reset}>Try again</Button>
+        <Button onClick={reset}>Tentar novamente</Button>
         <Link href="/home" className="inline-flex h-11 items-center rounded-xl border border-border px-5 text-sm font-semibold text-ink hover:bg-canvas">
-          Go home
+          Ir para o início
         </Link>
       </div>
     </main>

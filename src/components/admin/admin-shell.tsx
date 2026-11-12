@@ -12,14 +12,14 @@ import { apiFetch } from "@/lib/api";
 import type { ScenarioView } from "@/features/admin/scenario";
 
 const NAV = [
-  { href: "/admin", label: "Overview", title: "Overview", icon: LayoutDashboard, exact: true },
-  { href: "/admin/lines", label: "Bus Lines", title: "Bus Lines", icon: Bus },
-  { href: "/admin/vehicles", label: "Live Vehicles", title: "Live Vehicles", icon: Radio },
-  { href: "/admin/intelligence", label: "Intelligence", title: "Intelligence", icon: Gauge },
-  { href: "/admin/predictions", label: "Predictions", title: "Predictions", icon: Sparkles },
-  { href: "/admin/sources", label: "Data Sources", title: "Data Sources", icon: Database },
-  { href: "/admin/demo", label: "Demo Control", title: "Demo Control Center", icon: FlaskConical },
-  { href: "/admin/settings", label: "System Settings", title: "System Settings", icon: Settings },
+  { href: "/admin", label: "Visão geral", title: "Visão geral", icon: LayoutDashboard, exact: true },
+  { href: "/admin/lines", label: "Linhas", title: "Linhas de ônibus", icon: Bus },
+  { href: "/admin/vehicles", label: "Veículos", title: "Veículos ao vivo", icon: Radio },
+  { href: "/admin/intelligence", label: "Inteligência", title: "Inteligência", icon: Gauge },
+  { href: "/admin/predictions", label: "Previsões", title: "Previsões", icon: Sparkles },
+  { href: "/admin/sources", label: "Fontes de dados", title: "Fontes de dados", icon: Database },
+  { href: "/admin/demo", label: "Demonstração", title: "Central de demonstração", icon: FlaskConical },
+  { href: "/admin/settings", label: "Configurações", title: "Configurações do sistema", icon: Settings },
 ] as const;
 
 function isActive(pathname: string, item: (typeof NAV)[number]) {
@@ -55,7 +55,7 @@ export function AdminShell({ user, mode, children }: { user: { name: string }; m
     .join("") || "A";
 
   const nav = (
-    <nav aria-label="Admin navigation" className="flex flex-col gap-1">
+    <nav aria-label="Navegação do painel administrativo" className="flex flex-col gap-1">
       {NAV.map((item) => {
         const active = isActive(pathname, item);
         const Icon = item.icon;
@@ -81,19 +81,19 @@ export function AdminShell({ user, mode, children }: { user: { name: string }; m
     <div className="rounded-xl border border-border bg-canvas p-3 text-xs">
       <div className="flex items-center gap-2 font-semibold text-ink">
         <Activity className="h-4 w-4 text-primary" aria-hidden />
-        Operating mode
+        Modo de operação
       </div>
       <div className="mt-2 flex items-center gap-2">
-        <Badge tone={mode === "LIVE" ? "low" : "primary"}>{mode === "LIVE" ? "LIVE MODE" : "DEMO MODE"}</Badge>
+        <Badge tone={mode === "LIVE" ? "low" : "primary"}>{mode === "LIVE" ? "MODO AO VIVO" : "MODO DEMONSTRAÇÃO"}</Badge>
       </div>
-      {mode === "DEMO" && <p className="mt-2 text-muted">Deterministic demonstration data. Not official.</p>}
+      {mode === "DEMO" && <p className="mt-2 text-muted">Dados de demonstração determinísticos. Não oficiais.</p>}
     </div>
   );
 
   return (
     <div className="min-h-dvh bg-canvas text-ink">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col gap-6 border-r border-border bg-white p-4 lg:flex">
-        <Link href="/admin" aria-label="GoMob admin home" className="px-1">
+        <Link href="/admin" aria-label="Início do painel administrativo GoMob" className="px-1">
           <Logo className="h-16 w-auto" priority />
         </Link>
         {nav}
@@ -101,12 +101,12 @@ export function AdminShell({ user, mode, children }: { user: { name: string }; m
       </aside>
 
       {open && (
-        <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Admin menu">
-          <button aria-label="Close menu" className="absolute inset-0 bg-ink/40" onClick={() => setOpen(false)} />
+        <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu do painel administrativo">
+          <button aria-label="Fechar menu" className="absolute inset-0 bg-ink/40" onClick={() => setOpen(false)} />
           <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col gap-6 bg-white p-4 shadow-soft">
             <div className="flex items-center justify-between">
               <Logo className="h-14 w-auto" />
-              <button onClick={() => setOpen(false)} aria-label="Close menu" className="flex h-10 w-10 items-center justify-center rounded-xl hover:bg-canvas">
+              <button onClick={() => setOpen(false)} aria-label="Fechar menu" className="flex h-10 w-10 items-center justify-center rounded-xl hover:bg-canvas">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -118,13 +118,13 @@ export function AdminShell({ user, mode, children }: { user: { name: string }; m
 
       <div className="lg:pl-64">
         <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-white/90 px-4 backdrop-blur lg:px-8">
-          <button onClick={() => setOpen(true)} aria-label="Open menu" className="flex h-10 w-10 items-center justify-center rounded-xl hover:bg-canvas lg:hidden">
+          <button onClick={() => setOpen(true)} aria-label="Abrir menu" className="flex h-10 w-10 items-center justify-center rounded-xl hover:bg-canvas lg:hidden">
             <Menu className="h-5 w-5" />
           </button>
           <h1 className="min-w-0 flex-1 truncate text-lg font-bold">{current.title}</h1>
           <div className="hidden items-center gap-2 sm:flex">
-            <Badge tone={mode === "LIVE" ? "low" : "primary"}>{mode === "LIVE" ? "LIVE" : "DEMO"}</Badge>
-            {mode === "DEMO" && scenario.data && <Badge tone="neutral">Scenario {scenario.data.state.title.replace("Scenario ", "").split(" — ")[0]}</Badge>}
+            <Badge tone={mode === "LIVE" ? "low" : "primary"}>{mode === "LIVE" ? "AO VIVO" : "DEMONSTRAÇÃO"}</Badge>
+            {mode === "DEMO" && scenario.data && <Badge tone="neutral">Cenário {scenario.data.state.title.replace("Cenário ", "").split(" — ")[0]}</Badge>}
           </div>
           <div className="flex items-center gap-2">
             <span aria-hidden className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
@@ -133,10 +133,10 @@ export function AdminShell({ user, mode, children }: { user: { name: string }; m
             <span className="hidden max-w-32 truncate text-sm font-medium md:inline">{user.name}</span>
             <Link
               href="/home"
-              aria-label="Back to the app"
+              aria-label="Voltar ao app"
               className="flex h-10 items-center gap-1.5 rounded-xl px-3 text-sm font-medium text-muted hover:bg-canvas hover:text-ink"
             >
-              <Smartphone className="h-5 w-5" aria-hidden /> <span className="hidden sm:inline">Back to app</span>
+              <Smartphone className="h-5 w-5" aria-hidden /> <span className="hidden sm:inline">Voltar ao app</span>
             </Link>
           </div>
         </header>

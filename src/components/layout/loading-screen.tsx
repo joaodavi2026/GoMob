@@ -1,7 +1,7 @@
 import { Logo } from "@/components/ui/logo";
 
 /** Full-screen branded loading state. */
-export function LoadingScreen({ label = "Loading GoMob" }: { label?: string }) {
+export function LoadingScreen({ label = "Carregando GoMob" }: { label?: string }) {
   return (
     <div role="status" aria-live="polite" className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-white px-6">
       <Logo priority className="h-40 w-40 animate-pulse" />

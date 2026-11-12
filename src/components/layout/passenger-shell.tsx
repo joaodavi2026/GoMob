@@ -20,25 +20,25 @@ function isActive(pathname: string, href: string) {
 function SourceIndicator() {
   const { data, isError, isPending } = useSystemStatus();
   let state: IntegrationState = "UNAVAILABLE";
-  let label = "Status unavailable";
+  let label = "Status indisponível";
   if (isPending) {
     state = "UPDATING";
-    label = "Checking data";
+    label = "Verificando dados";
   } else if (data) {
     if (data.mode === "DEMO") {
       state = "DEMO";
-      label = "Demo data";
+      label = "Dados de demonstração";
     } else {
       const states = data.integrations.map((i) => i.state);
       if (states.includes("UNAVAILABLE")) {
         state = "UNAVAILABLE";
-        label = "Live data unavailable";
+        label = "Dados ao vivo indisponíveis";
       } else if (states.includes("STALE")) {
         state = "STALE";
-        label = "Live data outdated";
+        label = "Dados ao vivo desatualizados";
       } else {
         state = "CONNECTED";
-        label = "Live SPTrans data";
+        label = "Dados ao vivo SPTrans";
       }
     }
   } else if (isError) {
@@ -56,22 +56,22 @@ export function UserMenu({ className }: { className?: string }) {
     <Dropdown
       header={
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold">{me?.name ?? "GoMob user"}</p>
+          <p className="truncate text-sm font-semibold">{me?.name ?? "Usuário GoMob"}</p>
           {me?.email && <p className="truncate text-xs text-muted">{me.email}</p>}
         </div>
       }
       items={[
-        { key: "profile", label: "Profile", icon: <UserIcon className="h-4 w-4" aria-hidden />, onSelect: () => router.push("/profile") },
+        { key: "profile", label: "Perfil", icon: <UserIcon className="h-4 w-4" aria-hidden />, onSelect: () => router.push("/profile") },
         { key: "a11y", label: "Acessibilidade", icon: <Accessibility className="h-4 w-4" aria-hidden />, onSelect: () => router.push("/accessibility") },
         ...(me?.role === "ADMIN"
-          ? [{ key: "admin", label: "Admin panel", icon: <ShieldCheck className="h-4 w-4" aria-hidden />, onSelect: () => router.push("/admin") }]
+          ? [{ key: "admin", label: "Painel administrativo", icon: <ShieldCheck className="h-4 w-4" aria-hidden />, onSelect: () => router.push("/admin") }]
           : []),
       ]}
       trigger={(p) => (
         <button
           type="button"
           {...p}
-          aria-label="Open profile menu"
+          aria-label="Abrir menu do perfil"
           className={cn(
             "tap flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-pressed text-sm font-bold text-white ring-[3px] ring-white shadow-soft",
             className,
@@ -87,7 +87,7 @@ export function UserMenu({ className }: { className?: string }) {
 /** Cápsula de navegação flutuante (mobile). O item ativo vira uma pílula laranja com rótulo. */
 function FloatingNav({ pathname }: { pathname: string }) {
   return (
-    <nav aria-label="Primary" className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(14px,env(safe-area-inset-bottom))] lg:hidden">
+    <nav aria-label="Principal" className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(14px,env(safe-area-inset-bottom))] lg:hidden">
       <ul className="pointer-events-auto mx-auto flex max-w-[420px] items-center justify-between rounded-full bg-night/95 p-1.5 shadow-float ring-1 ring-white/5 backdrop-blur-md">
         {NAV_ITEMS.filter((n) => n.mobile).map(({ href, label, icon: Icon }) => {
           const active = isActive(pathname, href);
@@ -122,12 +122,12 @@ export function PassengerShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh bg-canvas">
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[200] focus:rounded-lg focus:bg-white focus:px-3 focus:py-2">
-        Skip to content
+        Pular para o conteúdo
       </a>
 
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-border bg-white lg:flex" aria-label="Primary">
-        <Link href="/home" className="flex items-center justify-center px-4 pt-5" aria-label="GoMob home">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-border bg-white lg:flex" aria-label="Principal">
+        <Link href="/home" className="flex items-center justify-center px-4 pt-5" aria-label="Início do GoMob">
           <Logo priority className="h-28 w-28" />
         </Link>
         <nav className="mt-4 flex flex-col gap-1 px-3">
@@ -149,14 +149,14 @@ export function PassengerShell({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
-        <p className="mt-auto px-5 pb-5 text-xs text-muted">Academic demonstration project</p>
+        <p className="mt-auto px-5 pb-5 text-xs text-muted">Projeto acadêmico de demonstração</p>
       </aside>
 
       <div className="lg:pl-60">
         <header className={cn("sticky top-0 z-30 bg-canvas/85 backdrop-blur-md lg:border-b lg:border-border lg:bg-white/90", bleed && "hidden lg:block")}>
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-5 sm:px-6 lg:h-14">
             <div className="flex min-w-0 items-center gap-2.5 lg:invisible">
-              <Link href="/home" aria-label="GoMob home" className="tap flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white shadow-soft">
+              <Link href="/home" aria-label="Início do GoMob" className="tap flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white shadow-soft">
                 <Logo variant="mark" priority className="h-7 w-7" />
               </Link>
               <span className="hidden truncate text-xl font-extrabold tracking-tight text-ink min-[420px]:inline">

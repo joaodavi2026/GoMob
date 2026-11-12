@@ -3,10 +3,10 @@ import { DemoBadge } from "@/components/ui/primitives";
 import type { RiskResult } from "@/types/transit";
 
 const FACTORS: { key: keyof RiskResult["factors"]; label: string }[] = [
-  { key: "demand", label: "Historical demand" },
-  { key: "headway", label: "Headway irregularity" },
-  { key: "delay", label: "Operational delay" },
-  { key: "operations", label: "Operational irregularity" },
+  { key: "demand", label: "Demanda histórica" },
+  { key: "headway", label: "Irregularidade dos intervalos" },
+  { key: "delay", label: "Atraso operacional" },
+  { key: "operations", label: "Irregularidade operacional" },
 ];
 
 function Bar({ value }: { value: number }) {
@@ -27,11 +27,11 @@ export function RiskPanel({ risk, compact = false }: { risk: RiskResult; compact
       <div className="flex flex-wrap items-center gap-2">
         <RiskBadge level={risk.level} />
         {risk.source === "DEMO" && <DemoBadge />}
-        {risk.score !== null && <span className="text-xs text-muted">Index {risk.score}/100 (not an occupancy percentage)</span>}
-        {risk.confidence !== null && <span className="text-xs text-muted">Data confidence {Math.round(risk.confidence * 100)}%</span>}
+        {risk.score !== null && <span className="text-xs text-muted">Índice {risk.score}/100 (não é percentual de ocupação)</span>}
+        {risk.confidence !== null && <span className="text-xs text-muted">Confiança dos dados {Math.round(risk.confidence * 100)}%</span>}
       </div>
       <details className="group rounded-xl border border-border bg-canvas px-3 py-2 text-sm">
-        <summary className="cursor-pointer font-medium text-primary-pressed">Why this risk?</summary>
+        <summary className="cursor-pointer font-medium text-primary-pressed">Por que este risco?</summary>
         <p className="mt-2 text-muted">{risk.explanation}</p>
         {!compact && calculated.length > 0 && (
           <ul className="mt-3 space-y-2">
@@ -47,9 +47,9 @@ export function RiskPanel({ risk, compact = false }: { risk: RiskResult; compact
           </ul>
         )}
         {!compact && missing.length > 0 && (
-          <p className="mt-2 text-xs text-muted">Not available: {missing.map((m) => m.label.toLowerCase()).join(", ")}.</p>
+          <p className="mt-2 text-xs text-muted">Não disponível: {missing.map((m) => m.label.toLowerCase()).join(", ")}.</p>
         )}
-        <p className="mt-2 text-xs text-muted">Calculated {new Date(risk.calculatedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}.</p>
+        <p className="mt-2 text-xs text-muted">Calculado às {new Date(risk.calculatedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}.</p>
       </details>
     </div>
   );

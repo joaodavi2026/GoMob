@@ -9,9 +9,9 @@ export type PredictResponse = Prediction & { line: { id: string; displayCode: st
 
 export async function getPrediction(q: PredictQuery): Promise<PredictResponse> {
   const line = await getLine(q.lineId);
-  if (!line) throw new ApiError(404, "LINE_NOT_FOUND", "Bus line not found.");
+  if (!line) throw new ApiError(404, "LINE_NOT_FOUND", "Linha de ônibus não encontrada.");
   const target = parseTarget({ date: q.date, weekday: q.weekday, time: q.time });
-  if (!target) throw new ApiError(400, "VALIDATION", "Invalid date or time.");
+  if (!target) throw new ApiError(400, "VALIDATION", "Data ou horário inválido.");
 
   const [history, weights, sc] = await Promise.all([loadHistory(line.id), loadWeights(), getScenario()]);
   let mode: "DEMO" | "LIVE" = "DEMO";

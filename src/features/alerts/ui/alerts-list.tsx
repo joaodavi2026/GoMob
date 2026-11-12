@@ -17,17 +17,17 @@ const ICONS: Record<AlertType, React.ReactNode> = {
 
 function timeLabel(iso: string) {
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "" : d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  return Number.isNaN(d.getTime()) ? "" : d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
 
 /** Lista apresentacional de alertas (sem fetch). */
 export function AlertsListView({ alerts, compact = false, limit }: { alerts: GomobAlert[]; compact?: boolean; limit?: number }) {
   const items = limit ? alerts.slice(0, limit) : alerts;
   if (items.length === 0) {
-    return <EmptyState icon={<BellOff className="h-8 w-8" aria-hidden />} title="No alerts right now" description="Alerts appear here when data is outdated, a source fails, or estimated risk changes." />;
+    return <EmptyState icon={<BellOff className="h-8 w-8" aria-hidden />} title="Nenhum alerta no momento" description="Os alertas aparecem aqui quando os dados estão desatualizados, uma fonte falha ou o risco estimado muda." />;
   }
   return (
-    <ul className="space-y-2" aria-label="Alerts">
+    <ul className="space-y-2" aria-label="Alertas">
       {items.map((a) => (
         <li key={a.id}>
           <Card className={compact ? "p-3" : "p-4"}>
@@ -40,7 +40,7 @@ export function AlertsListView({ alerts, compact = false, limit }: { alerts: Gom
                 </div>
                 {!compact && <p className="mt-1 text-sm text-muted">{a.description}</p>}
                 <p className="mt-1 flex items-center gap-2 text-xs text-muted">
-                  <Badge>Estimated, not official</Badge>
+                  <Badge>Estimado, não oficial</Badge>
                   <span>{timeLabel(a.createdAt)}</span>
                 </p>
               </div>
@@ -60,6 +60,6 @@ export function AlertsList({ lineId, compact, limit, pollMs = 60_000 }: { lineId
     refetchInterval: pollMs,
   });
   if (q.isPending) return <Skeleton className="h-16 w-full" />;
-  if (q.isError) return <ErrorState message="Alerts could not be loaded." onRetry={() => q.refetch()} />;
+  if (q.isError) return <ErrorState message="Não foi possível carregar os alertas." onRetry={() => q.refetch()} />;
   return <AlertsListView alerts={q.data.alerts} compact={compact} limit={limit} />;
 }

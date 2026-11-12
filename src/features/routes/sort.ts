@@ -27,12 +27,12 @@ export function sortRoutes(routes: RouteResult[], key: SortKey): SortOutcome {
         return {
           routes: list.sort(byFastest),
           applied: "fastest",
-          notice: "Not enough comparable risk data to sort by estimated crowding risk. Showing fastest first instead.",
+          notice: "Não há dados de risco comparáveis suficientes para ordenar por risco estimado de lotação. Mostrando as mais rápidas primeiro.",
         };
       }
       const usable = list.filter((r) => hasUsableRisk(r.risk)).sort((a, b) => a.risk!.score! - b.risk!.score! || byFastest(a, b));
       const rest = list.filter((r) => !hasUsableRisk(r.risk)).sort(byFastest);
-      return { routes: [...usable, ...rest], applied: "lower_risk", notice: rest.length ? "Routes without a usable risk estimate are listed last." : undefined };
+      return { routes: [...usable, ...rest], applied: "lower_risk", notice: rest.length ? "Rotas sem estimativa de risco utilizável aparecem por último." : undefined };
     }
   }
 }

@@ -24,13 +24,13 @@ export function recommend(routes: RouteResult[]): Recommendations {
   const known = routes.filter((r) => r.durationMinutes !== null);
   if (known.length) {
     const f = [...known].sort((a, b) => dur(a) - dur(b) || a.transfers - b.transfers)[0];
-    out.fastest = { routeId: f.id, reasons: [`Shortest known duration: ${f.durationMinutes} min.`] };
-  } else notes.fastest = "No route has a known duration.";
+    out.fastest = { routeId: f.id, reasons: [`Menor duração conhecida: ${f.durationMinutes} min.`] };
+  } else notes.fastest = "Nenhuma rota tem duração conhecida.";
 
   const ft = [...routes].sort((a, b) => a.transfers - b.transfers || dur(a) - dur(b))[0];
   out.fewerTransfers = {
     routeId: ft.id,
-    reasons: [ft.transfers === 0 ? "Direct route with no transfers." : `Fewest transfers: ${ft.transfers}.`],
+    reasons: [ft.transfers === 0 ? "Rota direta, sem baldeações." : `Menos baldeações: ${ft.transfers}.`],
   };
 
   const withRisk = routes.filter((r) => hasUsableRisk(r.risk));
@@ -40,11 +40,11 @@ export function recommend(routes: RouteResult[]): Recommendations {
     if (gap >= MIN_RISK_GAP) {
       out.lowerRisk = {
         routeId: sorted[0].id,
-        reasons: [`Lowest estimated risk score (${sorted[0].risk!.score}) among ${withRisk.length} routes with comparable data.`],
+        reasons: [`Menor pontuação de risco estimado (${sorted[0].risk!.score}) entre ${withRisk.length} rotas com dados comparáveis.`],
       };
-    } else notes.lowerRisk = "Risk estimates are too close to call one route lower-risk.";
+    } else notes.lowerRisk = "As estimativas de risco são próximas demais para apontar uma rota de menor risco.";
   } else {
-    notes.lowerRisk = "Not enough comparable risk data to recommend a lower-risk route.";
+    notes.lowerRisk = "Não há dados de risco comparáveis suficientes para recomendar uma rota de menor risco.";
   }
 
   // Balanced: cada critério vira um custo 0..1 em escala absoluta e transparente (não relativa ao conjunto):
@@ -65,11 +65,11 @@ export function recommend(routes: RouteResult[]): Recommendations {
   };
   const best = [...routes].sort((a, b) => cost(a) - cost(b) || dur(a) - dur(b))[0];
   const reasons = [
-    `Weighted score: time ${BALANCED_WEIGHTS.time * 100}%, transfers ${BALANCED_WEIGHTS.transfers * 100}%, walking ${BALANCED_WEIGHTS.walk * 100}%` +
-      (useRisk ? `, estimated risk ${BALANCED_WEIGHTS.risk * 100}%.` : "."),
+    `Pontuação ponderada: tempo ${BALANCED_WEIGHTS.time * 100}%, baldeações ${BALANCED_WEIGHTS.transfers * 100}%, caminhada ${BALANCED_WEIGHTS.walk * 100}%` +
+      (useRisk ? `, risco estimado ${BALANCED_WEIGHTS.risk * 100}%.` : "."),
   ];
-  if (!useRisk) reasons.push("Risk was left out because no route has usable risk data.");
-  else if (routes.some((r) => !hasUsableRisk(r.risk))) reasons.push("Routes without risk data were scored as worst on risk, never as an advantage.");
+  if (!useRisk) reasons.push("O risco ficou de fora porque nenhuma rota tem dados de risco utilizáveis.");
+  else if (routes.some((r) => !hasUsableRisk(r.risk))) reasons.push("Rotas sem dados de risco receberam a pior nota de risco, nunca uma vantagem.");
   out.balanced = { routeId: best.id, reasons } satisfies Recommendation;
   return out;
 }

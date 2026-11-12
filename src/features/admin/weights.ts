@@ -11,10 +11,10 @@ export const WEIGHT_TOLERANCE = 1e-6;
 export const DEFAULT_WEIGHTS: Weights = { demand: 0.35, headway: 0.3, delay: 0.2, operations: 0.15 };
 
 export const FACTOR_DEFINITIONS: { key: WeightKey; code: string; label: string; description: string }[] = [
-  { key: "demand", code: "D", label: "Historical Demand", description: "Historical demand indicator, using only the granularity actually available. Daily aggregates do not show hourly peaks." },
-  { key: "headway", code: "I", label: "Headway Irregularity", description: "Irregularity between buses compared with expected intervals, when a reliable reference exists." },
-  { key: "delay", code: "A", label: "Delay Indicator", description: "Operational delay, calculated only when valid time references exist." },
-  { key: "operations", code: "O", label: "Operational Irregularity", description: "Uneven vehicle distribution (spacing, bunching) inferred from operational signals." },
+  { key: "demand", code: "D", label: "Demanda histórica", description: "Indicador de demanda histórica, usando apenas a granularidade realmente disponível. Agregados diários não mostram picos por hora." },
+  { key: "headway", code: "I", label: "Irregularidade de intervalo", description: "Irregularidade entre ônibus em comparação com os intervalos esperados, quando existe uma referência confiável." },
+  { key: "delay", code: "A", label: "Indicador de atraso", description: "Atraso operacional, calculado apenas quando existem referências de horário válidas." },
+  { key: "operations", code: "O", label: "Irregularidade operacional", description: "Distribuição irregular dos veículos (espaçamento, comboios) inferida a partir de sinais operacionais." },
 ];
 
 export function sumWeights(w: Weights): number {
@@ -28,7 +28,7 @@ export const weightsSchema = z
   .superRefine((w, ctx) => {
     const sum = sumWeights(w);
     if (Math.abs(sum - 1) > WEIGHT_TOLERANCE) {
-      ctx.addIssue({ code: "custom", message: `Weights must sum to 1 (current sum: ${sum.toFixed(4)}).`, path: [] });
+      ctx.addIssue({ code: "custom", message: `Os pesos devem somar 1 (soma atual: ${sum.toFixed(4)}).`, path: [] });
     }
   });
 
@@ -37,7 +37,7 @@ export type WeightsValidation = { ok: true; weights: Weights } | { ok: false; er
 export function validateWeights(input: unknown): WeightsValidation {
   const parsed = weightsSchema.safeParse(input);
   if (parsed.success) return { ok: true, weights: parsed.data };
-  return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid weights." };
+  return { ok: false, error: parsed.error.issues[0]?.message ?? "Pesos inválidos." };
 }
 
 /** Lê pesos persistidos; valor inválido/ausente cai nos padrões. */
@@ -85,7 +85,7 @@ export async function saveWeights(
   actorId: string,
   mode: "LIVE" | "DEMO",
 ): Promise<{ weights: Weights; changed: ReturnType<typeof diffWeights> }> {
-  if (mode !== "DEMO") throw new WeightsError("NOT_DEMO_MODE", "Weights can only be adjusted in DEMO MODE.");
+  if (mode !== "DEMO") throw new WeightsError("NOT_DEMO_MODE", "Os pesos só podem ser ajustados no MODO DEMONSTRAÇÃO.");
   const v = validateWeights(input);
   if (!v.ok) throw new WeightsError("INVALID", v.error);
   const before = await loadWeights(db);

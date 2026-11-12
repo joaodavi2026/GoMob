@@ -122,7 +122,7 @@ export function Combobox({
   placeholder,
   leading,
   filter = true,
-  emptyText = "No results found.",
+  emptyText = "Nenhum resultado encontrado.",
   loading,
   className,
   bare,
@@ -208,7 +208,7 @@ export function Combobox({
             "absolute z-40 mt-1 max-h-64 overflow-y-auto rounded-2xl border border-border bg-white p-1 shadow-float",
             bare ? "-left-10 right-0 top-full" : "w-full",
           )}>
-          {loading && <li className="px-3 py-2 text-sm text-muted">Searching...</li>}
+          {loading && <li className="px-3 py-2 text-sm text-muted">Buscando...</li>}
           {!loading && shown.length === 0 && <li className="px-3 py-2 text-sm text-muted">{emptyText}</li>}
           {shown.map((o, i) => (
             <li

@@ -6,7 +6,7 @@ type Four = Record<FactorKey, number>;
 const A_NORMAL: Four = { demand: 35, headway: 22, delay: 18, operations: 20 };
 const B_HIGH: Four = { demand: 82, headway: 86, delay: 72, operations: 78 };
 
-export const DEMO_LABEL = "Demonstration scenario (simulated data, not real operations).";
+export const DEMO_LABEL = "Cenário de demonstração (dados simulados, não é a operação real).";
 export const RECOVERY_MINUTES = 10;
 
 /** Hash determinístico -> [-1, 1]. */

@@ -48,7 +48,7 @@ export function FavoritesView() {
     mutationFn: (v: { id: string; nickname: string }) =>
       apiFetch(`/api/favorites/${v.id}`, { method: "PATCH", body: JSON.stringify({ nickname: v.nickname }) }),
     onSuccess: () => {
-      toast.success("Journey updated.");
+      toast.success("Viagem atualizada.");
       setEditing(null);
       qc.invalidateQueries({ queryKey: ["favorites"] });
     },
@@ -58,7 +58,7 @@ export function FavoritesView() {
   const remove = useMutation({
     mutationFn: (id: string) => apiFetch(`/api/favorites/${id}`, { method: "DELETE" }),
     onSuccess: () => {
-      toast.success("Journey removed.");
+      toast.success("Viagem removida.");
       setRemoving(null);
       qc.invalidateQueries({ queryKey: ["favorites"] });
     },
@@ -68,25 +68,25 @@ export function FavoritesView() {
   return (
     <div className="mx-auto w-full max-w-3xl pb-4 pt-2 md:py-10">
       <h1 className="text-[30px] leading-tight tracking-tight">
-        <span className="font-light text-muted">Saved</span> <span className="font-extrabold">journeys</span>
+        <span className="font-light text-muted">Viagens</span> <span className="font-extrabold">salvas</span>
       </h1>
-      <p className="mt-1 text-sm text-muted">Saved routes, ready to search again.</p>
+      <p className="mt-1 text-sm text-muted">Rotas salvas, prontas para buscar de novo.</p>
 
       <div className="mt-6 space-y-3">
         {list.isLoading && [0, 1, 2].map((i) => <Skeleton key={i} className="h-24 w-full" />)}
         {list.isError && (
           <EmptyState
             icon={<Star className="h-6 w-6" aria-hidden />}
-            title="Favorites are offline"
-            description="Saved journeys need the database. Connect DATABASE_URL to keep your routes here."
-            action={{ label: "Try again", onClick: () => list.refetch() }}
+            title="Favoritos indisponíveis"
+            description="As viagens salvas precisam do banco de dados. Configure DATABASE_URL para guardar suas rotas aqui."
+            action={{ label: "Tentar novamente", onClick: () => list.refetch() }}
           />
         )}
         {list.data?.length === 0 && (
           <EmptyState
             icon={<Star className="h-8 w-8" aria-hidden />}
-            title="No saved journeys yet"
-            description="Find a route and tap “Save route” to keep it here."
+            title="Nenhuma viagem salva ainda"
+            description="Encontre uma rota e toque em “Salvar rota” para guardá-la aqui."
           />
         )}
         {list.data?.map((f) => (
@@ -101,22 +101,22 @@ export function FavoritesView() {
                 </p>
               </div>
               <div className="flex shrink-0 gap-1">
-                <Button variant="ghost" size="icon" aria-label={`Edit ${f.nickname}`} onClick={() => { setEditing(f); setNickname(f.nickname); }}>
+                <Button variant="ghost" size="icon" aria-label={`Editar ${f.nickname}`} onClick={() => { setEditing(f); setNickname(f.nickname); }}>
                   <Pencil className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" aria-label={`Remove ${f.nickname}`} onClick={() => setRemoving(f)}>
+                <Button variant="ghost" size="icon" aria-label={`Remover ${f.nickname}`} onClick={() => setRemoving(f)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             </div>
             <Link href={searchHref(f)} className="tap mt-3 flex h-11 items-center justify-center gap-2 rounded-2xl bg-night text-sm font-semibold text-white">
-              <Search className="h-4 w-4" aria-hidden /> Search again
+              <Search className="h-4 w-4" aria-hidden /> Buscar de novo
             </Link>
           </Card>
         ))}
       </div>
 
-      <Modal open={!!editing} onClose={() => setEditing(null)} title="Edit journey">
+      <Modal open={!!editing} onClose={() => setEditing(null)} title="Editar viagem">
         <form
           className="space-y-4"
           onSubmit={(e) => {
@@ -124,10 +124,10 @@ export function FavoritesView() {
             if (editing && nickname.trim()) rename.mutate({ id: editing.id, nickname: nickname.trim() });
           }}
         >
-          <Input label="Name" value={nickname} maxLength={60} onChange={(e) => setNickname(e.target.value)} />
+          <Input label="Nome" value={nickname} maxLength={60} onChange={(e) => setNickname(e.target.value)} />
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="secondary" onClick={() => setEditing(null)}>Cancel</Button>
-            <Button type="submit" loading={rename.isPending} disabled={!nickname.trim()}>Save</Button>
+            <Button type="button" variant="secondary" onClick={() => setEditing(null)}>Cancelar</Button>
+            <Button type="submit" loading={rename.isPending} disabled={!nickname.trim()}>Salvar</Button>
           </div>
         </form>
       </Modal>
@@ -136,9 +136,9 @@ export function FavoritesView() {
         open={!!removing}
         onClose={() => setRemoving(null)}
         onConfirm={() => removing && remove.mutate(removing.id)}
-        title="Remove this journey?"
-        description={removing ? `“${removing.nickname}” will be deleted from your favorites.` : undefined}
-        confirmLabel="Remove"
+        title="Remover esta viagem?"
+        description={removing ? `“${removing.nickname}” será removida dos seus favoritos.` : undefined}
+        confirmLabel="Remover"
         destructive
         loading={remove.isPending}
       />

@@ -11,7 +11,7 @@ export type LineListQuery = z.infer<typeof lineListQuerySchema>;
 
 export const lineToggleSchema = z
   .object({ id: z.string().min(1).max(64).optional(), externalCode: z.string().min(1).max(32).optional(), active: z.boolean() })
-  .refine((v) => Boolean(v.id) !== Boolean(v.externalCode), { message: "Provide exactly one of id or externalCode." });
+  .refine((v) => Boolean(v.id) !== Boolean(v.externalCode), { message: "Informe exatamente um entre id ou externalCode." });
 export type LineToggle = z.infer<typeof lineToggleSchema>;
 
 /** Monta o filtro Prisma para listagem (pura, testável). */

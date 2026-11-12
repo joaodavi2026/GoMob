@@ -8,6 +8,6 @@ export const predictQuerySchema = z
     time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
     direction: z.enum(["1", "2"]).optional(),
   })
-  .refine((v) => v.date !== undefined || v.weekday !== undefined, { message: "Provide a date or a weekday.", path: ["date"] });
+  .refine((v) => v.date !== undefined || v.weekday !== undefined, { message: "Informe uma data ou um dia da semana.", path: ["date"] });
 
 export type PredictQuery = z.infer<typeof predictQuerySchema>;

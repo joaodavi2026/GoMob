@@ -35,7 +35,7 @@ export const POST = handle(async (req: NextRequest) => {
     await applyScenarioCommand({ setScenario, resetScenario }, body, session.userId);
   } catch (e) {
     if (e instanceof ZodError) throw e;
-    throw new ApiError(503, "DB_UNAVAILABLE", "Database unavailable. The scenario was not saved.");
+    throw new ApiError(503, "DB_UNAVAILABLE", "Banco de dados indisponível. O cenário não foi salvo.");
   }
   return ok(await view());
 });
@@ -45,7 +45,7 @@ export const DELETE = handle(async () => {
   try {
     await resetScenario(session.userId);
   } catch {
-    throw new ApiError(503, "DB_UNAVAILABLE", "Database unavailable. The demo was not reset.");
+    throw new ApiError(503, "DB_UNAVAILABLE", "Banco de dados indisponível. A demonstração não foi restaurada.");
   }
   return ok(await view());
 });

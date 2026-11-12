@@ -48,21 +48,21 @@ export function SearchModule() {
 
   function locate() {
     if (!("geolocation" in navigator)) {
-      toast.error("Location is not supported on this device.");
+      toast.error("Este dispositivo não oferece localização.");
       return;
     }
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setLocating(false);
-        const p: PickedPoint = { latitude: pos.coords.latitude, longitude: pos.coords.longitude, label: "My location" };
+        const p: PickedPoint = { latitude: pos.coords.latitude, longitude: pos.coords.longitude, label: "Minha localização" };
         setOrigin(p);
         setOq(p.label);
         setError(null);
       },
       (err) => {
         setLocating(false);
-        toast.error(err.code === err.PERMISSION_DENIED ? "Location permission denied. Pick a starting point from the list." : "Could not get your location. Pick a place from the list.");
+        toast.error(err.code === err.PERMISSION_DENIED ? "Permissão de localização negada. Escolha um ponto de partida na lista." : "Não foi possível obter sua localização. Escolha um lugar na lista.");
       },
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 60_000 },
     );
@@ -71,11 +71,11 @@ export function SearchModule() {
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!origin || !dest) {
-      setError("Choose both an origin and a destination from the suggestions.");
+      setError("Escolha uma origem e um destino entre as sugestões.");
       return;
     }
     if (Math.abs(origin.latitude - dest.latitude) < 1e-5 && Math.abs(origin.longitude - dest.longitude) < 1e-5) {
-      setError("Origin and destination are the same place.");
+      setError("Origem e destino são o mesmo lugar.");
       return;
     }
     router.push(routesHref(origin, dest));
@@ -90,11 +90,11 @@ export function SearchModule() {
             <MapPin className="h-[18px] w-[18px]" aria-hidden />
           </span>
           <div className="min-w-0 flex-1 pr-12">
-            <p className="text-[11px] font-medium text-muted">From</p>
+            <p className="text-[11px] font-medium text-muted">De</p>
             <Combobox
               bare
-              label="Origin"
-              placeholder="Where are you starting?"
+              label="Origem"
+              placeholder="De onde você sai?"
               options={OPTIONS}
               query={oq}
               onQueryChange={(q) => {
@@ -106,7 +106,7 @@ export function SearchModule() {
                 setOq(o.label);
                 setError(null);
               }}
-              emptyText="No known place matches. Try another name."
+              emptyText="Nenhum lugar conhecido encontrado. Tente outro nome."
             />
           </div>
         </div>
@@ -115,11 +115,11 @@ export function SearchModule() {
             <Flag className="h-[17px] w-[17px]" aria-hidden />
           </span>
           <div className="min-w-0 flex-1 pr-12">
-            <p className="text-[11px] font-medium text-muted">To</p>
+            <p className="text-[11px] font-medium text-muted">Para</p>
             <Combobox
               bare
-              label="Destination"
-              placeholder="Where to?"
+              label="Destino"
+              placeholder="Para onde?"
               options={OPTIONS}
               query={dq}
               onQueryChange={(q) => {
@@ -131,14 +131,14 @@ export function SearchModule() {
                 setDq(o.label);
                 setError(null);
               }}
-              emptyText="No known place matches. Try another name."
+              emptyText="Nenhum lugar conhecido encontrado. Tente outro nome."
             />
           </div>
         </div>
         <button
           type="button"
           onClick={swap}
-          aria-label="Swap origin and destination"
+          aria-label="Inverter origem e destino"
           className="tap absolute right-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-ink shadow-soft ring-1 ring-border"
         >
           <ArrowUpDown className="h-[18px] w-[18px]" aria-hidden />
@@ -153,7 +153,7 @@ export function SearchModule() {
           className="tap flex shrink-0 items-center gap-1.5 rounded-full bg-primary-light px-3 py-2 text-xs font-semibold text-primary-pressed disabled:opacity-60"
         >
           <LocateFixed className="h-3.5 w-3.5" aria-hidden />
-          {locating ? "Locating..." : "My location"}
+          {locating ? "Localizando..." : "Minha localização"}
         </button>
         {KNOWN_PLACES.slice(0, 8).map((p) => (
           <button
@@ -185,7 +185,7 @@ export function SearchModule() {
 
       <Button type="submit" size="lg" className="mt-2 w-full rounded-[22px]">
         <Search className="h-5 w-5" aria-hidden />
-        Search routes
+        Buscar rotas
       </Button>
     </form>
   );

@@ -19,7 +19,7 @@ export function Section({ title, subtitle, action, children, className }: { titl
 export function PageIntro({ children, demo }: { children?: React.ReactNode; demo?: boolean }) {
   return (
     <div className="mb-5 flex flex-wrap items-center gap-2 text-sm text-muted">
-      {demo && <DemoBadge label="Demonstration mode — not official data" />}
+      {demo && <DemoBadge label="Modo demonstração — dados não oficiais" />}
       {children}
     </div>
   );
@@ -50,5 +50,5 @@ export const td = "px-4 py-3 text-sm";
 export function formatDateTime(iso: string | null | undefined): string {
   if (!iso) return "—";
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString("en-GB", { dateStyle: "short", timeStyle: "medium" });
+  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "medium" });
 }

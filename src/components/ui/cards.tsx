@@ -61,7 +61,7 @@ export function BusCard({
         {(meta || isDemo) && (
           <span className="mt-0.5 flex items-center gap-2 text-xs text-muted">
             {meta}
-            {isDemo && <Badge tone="primary" className="px-1.5 py-0 text-[10px]">Demo</Badge>}
+            {isDemo && <Badge tone="primary" className="px-1.5 py-0 text-[10px]">Demonstração</Badge>}
           </span>
         )}
       </span>
@@ -104,10 +104,10 @@ export function RouteCard({
         <EtaIndicator minutes={route.durationMinutes} />
         <div className="flex flex-wrap justify-end gap-1.5">
           {badges}
-          {route.source === "DEMO" && <DemoBadge label="Demo" />}
+          {route.source === "DEMO" && <DemoBadge label="Demonstração" />}
         </div>
       </div>
-      <ol className="mt-3 flex flex-wrap items-center gap-1.5 text-sm" aria-label="Route steps">
+      <ol className="mt-3 flex flex-wrap items-center gap-1.5 text-sm" aria-label="Etapas da rota">
         {route.steps.map((s, i) => (
           <li key={i} className="inline-flex items-center gap-1.5">
             {i > 0 && <ChevronRight className="h-3.5 w-3.5 text-muted" aria-hidden />}
@@ -127,7 +127,7 @@ export function RouteCard({
       <div className="mt-3 flex items-center justify-between gap-4 text-xs text-muted">
         <span className="inline-flex items-center gap-1">
           <ArrowRightLeft className="h-3.5 w-3.5" aria-hidden />
-          {route.transfers === 0 ? "Direct" : `${route.transfers} ${route.transfers === 1 ? "transfer" : "transfers"}`} · {route.walkMinutes} min walking
+          {route.transfers === 0 ? "Direta" : `${route.transfers} ${route.transfers === 1 ? "baldeação" : "baldeações"}`} · {route.walkMinutes} min de caminhada
         </span>
         {route.risk && <RiskIndicator level={route.risk.level} score={route.risk.score} compact className="w-28" />}
       </div>

@@ -35,7 +35,7 @@ export function observationBuckets(observedAts: (Date | string)[], now: Date, bu
     if (!Number.isFinite(age) || age < 0 || age >= size * buckets) continue;
     counts[buckets - 1 - Math.floor(age / size)] += 1;
   }
-  return counts.map((count, i) => ({ label: i === buckets - 1 ? "now" : `-${(buckets - 1 - i) * bucketMinutes}m`, count }));
+  return counts.map((count, i) => ({ label: i === buckets - 1 ? "agora" : `-${(buckets - 1 - i) * bucketMinutes}m`, count }));
 }
 
 export type ApiStatusLevel = "OK" | "DEGRADED" | "DOWN" | "DEMO";

@@ -38,10 +38,10 @@ export const MIN_WEIGHT_COVERAGE = 0.45;
 export const DEFAULT_ESSENTIAL: FactorKey[] = ["headway"];
 
 export const FACTOR_LABEL: Record<FactorKey, string> = {
-  demand: "historical demand",
-  headway: "headway irregularity",
-  delay: "operational delay",
-  operations: "operational irregularity",
+  demand: "demanda histórica",
+  headway: "irregularidade dos intervalos",
+  delay: "atraso operacional",
+  operations: "irregularidade operacional",
 };
 
 const EPS = 1e-9;
@@ -64,7 +64,7 @@ export function classifyScore(score: number): Exclude<RiskLevel, "INSUFFICIENT_D
 }
 
 export function levelLabel(level: RiskLevel): string {
-  return { LOW: "Low risk", MODERATE: "Moderate risk", HIGH: "High risk", INSUFFICIENT_DATA: "Insufficient data" }[level];
+  return { LOW: "Risco baixo", MODERATE: "Risco moderado", HIGH: "Risco alto", INSUFFICIENT_DATA: "Dados insuficientes" }[level];
 }
 
 function validValue(o: FactorObservation | null | undefined): number | null {
@@ -118,13 +118,13 @@ function phrase(key: FactorKey, v: number): string | null {
   if (v < 60) return null;
   switch (key) {
     case "demand":
-      return "historically high demand for this period";
+      return "demanda historicamente alta neste período";
     case "headway":
-      return "irregular bus intervals";
+      return "intervalos irregulares entre os ônibus";
     case "delay":
-      return "operational delays";
+      return "atrasos operacionais";
     case "operations":
-      return "uneven spacing or bunching of buses";
+      return "espaçamento desigual ou ônibus agrupados";
   }
 }
 
@@ -132,17 +132,17 @@ function phrase(key: FactorKey, v: number): string | null {
 export function buildExplanation(level: RiskLevel, factors: RiskResult["factors"], missing: FactorKey[], prefix?: string): string {
   const used = FACTOR_KEYS.filter((k) => factors[k] !== null);
   const lead = prefix ? `${prefix} ` : "";
-  const miss = missing.length ? ` Not available: ${missing.map((k) => FACTOR_LABEL[k]).join(", ")}.` : "";
+  const miss = missing.length ? ` Não disponível: ${missing.map((k) => FACTOR_LABEL[k]).join(", ")}.` : "";
   if (level === "INSUFFICIENT_DATA") {
-    return `${lead}Not enough data to estimate crowding risk, so no level is shown. Missing data is never treated as low risk.${miss}`;
+    return `${lead}Não há dados suficientes para estimar o risco de lotação, por isso nenhum nível é exibido. Dados ausentes nunca são tratados como risco baixo.${miss}`;
   }
   const high = used.map((k) => phrase(k, factors[k] as number)).filter((p): p is string => !!p);
   let body: string;
-  if (level === "LOW") body = "Lower risk estimated: the signals calculated do not show strong irregularity.";
-  else if (high.length) body = `${level === "HIGH" ? "Higher" : "Moderate"} risk estimated due to ${high.join(" and ")}.`;
-  else body = "Moderate risk estimated from several mid-level signals.";
-  const basis = `Based on ${used.length} of 4 signals (${used.map((k) => FACTOR_LABEL[k]).join(", ")}).`;
-  return `${lead}${body} ${basis}${miss} This is an estimate, not a passenger count.`;
+  if (level === "LOW") body = "Risco baixo estimado: os sinais calculados não mostram irregularidade forte.";
+  else if (high.length) body = `Risco ${level === "HIGH" ? "alto" : "moderado"} estimado devido a ${high.join(" e ")}.`;
+  else body = "Risco moderado estimado a partir de vários sinais de nível intermediário.";
+  const basis = `Com base em ${used.length} de 4 sinais (${used.map((k) => FACTOR_LABEL[k]).join(", ")}).`;
+  return `${lead}${body} ${basis}${miss} Isto é uma estimativa, não uma contagem de passageiros.`;
 }
 
 export function computeRisk(inputs: RiskInputs, options: ComputeOptions = {}): RiskResult {

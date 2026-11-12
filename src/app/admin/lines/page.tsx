@@ -39,11 +39,11 @@ export default function AdminLinesPage() {
   const toggle = useMutation({
     mutationFn: (v: { id: string; active: boolean }) => apiFetch<{ line: AdminLine }>("/api/admin/lines", { method: "PATCH", body: JSON.stringify(v) }),
     onSuccess: (r) => {
-      toast.success(`${r.line.displayCode} monitoring ${r.line.active ? "enabled" : "disabled"}.`);
+      toast.success(`Monitoramento da linha ${r.line.displayCode} ${r.line.active ? "ativado" : "desativado"}.`);
       qc.invalidateQueries({ queryKey: ["admin", "lines"] });
       qc.invalidateQueries({ queryKey: ["admin", "overview"] });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update the line."),
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Não foi possível atualizar a linha."),
   });
 
   const totalPages = q.data ? Math.max(1, Math.ceil(q.data.total / q.data.pageSize)) : 1;
@@ -52,38 +52,38 @@ export default function AdminLinesPage() {
   return (
     <div className="space-y-4">
       <PageIntro>
-        <span>Enabling or disabling monitoring only changes GoMob&apos;s internal configuration. It never alters SPTrans data.</span>
+        <span>Ativar ou desativar o monitoramento altera apenas a configuração interna do GoMob. Os dados da SPTrans nunca são alterados.</span>
       </PageIntro>
 
       <div className="flex flex-wrap gap-3">
         <label className="relative min-w-52 flex-1">
-          <span className="sr-only">Search lines</span>
+          <span className="sr-only">Buscar linhas</span>
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by code or name"
+            placeholder="Buscar por código ou nome"
             className="h-11 w-full rounded-xl border border-border bg-white pl-9 pr-3 text-sm"
           />
         </label>
-        <select aria-label="Filter by status" className={sel} value={active} onChange={(e) => { setActive(e.target.value as typeof active); setPage(1); }}>
-          <option value="">All statuses</option>
-          <option value="true">Monitored</option>
-          <option value="false">Not monitored</option>
+        <select aria-label="Filtrar por status" className={sel} value={active} onChange={(e) => { setActive(e.target.value as typeof active); setPage(1); }}>
+          <option value="">Todos os status</option>
+          <option value="true">Monitoradas</option>
+          <option value="false">Não monitoradas</option>
         </select>
-        <select aria-label="Filter by source" className={sel} value={source} onChange={(e) => { setSource(e.target.value as typeof source); setPage(1); }}>
-          <option value="">All sources</option>
+        <select aria-label="Filtrar por fonte" className={sel} value={source} onChange={(e) => { setSource(e.target.value as typeof source); setPage(1); }}>
+          <option value="">Todas as fontes</option>
           <option value="SPTRANS">SPTrans</option>
-          <option value="DEMO">Demo</option>
+          <option value="DEMO">Demonstração</option>
         </select>
       </div>
 
       {q.isError ? (
-        <ErrorState message={q.error instanceof Error ? q.error.message : "Could not load lines."} onRetry={() => q.refetch()} />
+        <ErrorState message={q.error instanceof Error ? q.error.message : "Não foi possível carregar as linhas."} onRetry={() => q.refetch()} />
       ) : q.isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : q.data && q.data.lines.length === 0 ? (
-        <EmptyState title="No lines found" description="Adjust the filters, or sync lines first (seed or SPTrans sync)." />
+        <EmptyState title="Nenhuma linha encontrada" description="Ajuste os filtros ou sincronize as linhas primeiro (seed ou sincronização SPTrans)." />
       ) : (
         q.data && (
           <>
@@ -91,14 +91,14 @@ export default function AdminLinesPage() {
               <table className="w-full min-w-[720px]">
                 <thead className="border-b border-border bg-canvas">
                   <tr>
-                    <th className={th}>Code</th>
-                    <th className={th}>Name</th>
-                    <th className={th}>Direction</th>
-                    <th className={th}>Source</th>
+                    <th className={th}>Código</th>
+                    <th className={th}>Nome</th>
+                    <th className={th}>Sentido</th>
+                    <th className={th}>Fonte</th>
                     <th className={th}>Status</th>
-                    <th className={th}>Last sync</th>
+                    <th className={th}>Última sincronização</th>
                     <th className={th}>
-                      <span className="sr-only">Actions</span>
+                      <span className="sr-only">Ações</span>
                     </th>
                   </tr>
                 </thead>
@@ -107,12 +107,12 @@ export default function AdminLinesPage() {
                     <tr key={l.id}>
                       <td className={`${td} font-semibold`}>{l.displayCode}</td>
                       <td className={td}>{l.name}</td>
-                      <td className={td}>{`Direction ${l.direction}`}</td>
+                      <td className={td}>{`Sentido ${l.direction}`}</td>
                       <td className={td}>
-                        <Badge tone={l.source === "DEMO" ? "primary" : "neutral"}>{l.source === "DEMO" ? "Demo" : "SPTrans"}</Badge>
+                        <Badge tone={l.source === "DEMO" ? "primary" : "neutral"}>{l.source === "DEMO" ? "Demonstração" : "SPTrans"}</Badge>
                       </td>
                       <td className={td}>
-                        <Badge tone={l.active ? "low" : "neutral"}>{l.active ? "Monitored" : "Not monitored"}</Badge>
+                        <Badge tone={l.active ? "low" : "neutral"}>{l.active ? "Monitorada" : "Não monitorada"}</Badge>
                       </td>
                       <td className={td}>{formatDateTime(l.lastSyncedAt)}</td>
                       <td className={`${td} text-right`}>
@@ -122,7 +122,7 @@ export default function AdminLinesPage() {
                           loading={toggle.isPending && toggle.variables?.id === l.id}
                           onClick={() => toggle.mutate({ id: l.id, active: !l.active })}
                         >
-                          {l.active ? "Disable" : "Enable"}
+                          {l.active ? "Desativar" : "Ativar"}
                         </Button>
                       </td>
                     </tr>
@@ -132,14 +132,14 @@ export default function AdminLinesPage() {
             </TableWrap>
             <div className="flex items-center justify-between text-sm text-muted">
               <span>
-                {q.data.total} line{q.data.total === 1 ? "" : "s"} · page {q.data.page} of {totalPages}
+                {q.data.total} linha{q.data.total === 1 ? "" : "s"} · página {q.data.page} de {totalPages}
               </span>
               <div className="flex gap-2">
                 <Button size="sm" variant="secondary" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-                  Previous
+                  Anterior
                 </Button>
                 <Button size="sm" variant="secondary" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
-                  Next
+                  Próxima
                 </Button>
               </div>
             </div>

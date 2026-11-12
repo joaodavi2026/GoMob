@@ -16,7 +16,7 @@ export const GET = handle(async () => {
     defaults: DEFAULT_WEIGHTS,
     mode,
     editable: mode === "DEMO",
-    disclaimer: "Weights are academic-demonstration hypotheses, not scientifically validated parameters. Adjusting them is not AI training.",
+    disclaimer: "Os pesos são hipóteses de demonstração acadêmica, não parâmetros cientificamente validados. Ajustá-los não é treinamento de IA.",
   });
 });
 
@@ -29,6 +29,6 @@ export const PUT = handle(async (req: NextRequest) => {
     return ok({ weights: result.weights, changed: result.changed });
   } catch (e) {
     if (e instanceof WeightsError) throw new ApiError(e.code === "NOT_DEMO_MODE" ? 403 : 400, e.code, e.message);
-    throw new ApiError(503, "DB_UNAVAILABLE", "Database unavailable. The change was not saved.");
+    throw new ApiError(503, "DB_UNAVAILABLE", "Banco de dados indisponível. A alteração não foi salva.");
   }
 });

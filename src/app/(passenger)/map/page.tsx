@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { Skeleton } from "@/components/ui";
 import { MapView } from "./map-view";
 
-export const metadata = { title: "Map | GoMob" };
+export const metadata = { title: "Ônibus ao vivo" };
 
 export default function MapPage() {
   return (

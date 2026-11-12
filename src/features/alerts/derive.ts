@@ -24,6 +24,7 @@ export type LineSignals = {
 };
 
 const ORDER = { INSUFFICIENT_DATA: -1, LOW: 0, MODERATE: 1, HIGH: 2 } as const;
+const LEVEL_PT: Record<RiskResult["level"], string> = { INSUFFICIENT_DATA: "dados insuficientes", LOW: "baixo", MODERATE: "moderado", HIGH: "alto" };
 const bucket = (now: Date, minutes = 10) => Math.floor(now.getTime() / (minutes * 60_000));
 
 /**
@@ -47,16 +48,16 @@ export function deriveLineAlerts(s: LineSignals, now: Date = new Date()): GomobA
     isDemo: s.isDemo,
   });
   if (s.vehiclesState === "UNAVAILABLE") {
-    out.push(mk("API_FAILURE", `Live data unavailable for ${s.lineLabel}`, "Bus positions could not be retrieved right now. Estimates for this line may be missing or outdated."));
+    out.push(mk("API_FAILURE", `Dados ao vivo indisponíveis para ${s.lineLabel}`, "Não foi possível obter as posições dos ônibus agora. As estimativas desta linha podem estar ausentes ou desatualizadas."));
   } else if (s.vehiclesState === "STALE") {
-    out.push(mk("STALE_DATA", `Outdated data for ${s.lineLabel}`, "Bus positions for this line were not updated recently and may not reflect the current situation."));
+    out.push(mk("STALE_DATA", `Dados desatualizados para ${s.lineLabel}`, "As posições dos ônibus desta linha não foram atualizadas recentemente e podem não refletir a situação atual."));
   }
   const f = s.risk.factors;
   if (f.headway !== null && f.headway >= 70) {
-    out.push(mk("HIGH_INTERVALS", `Irregular intervals observed on ${s.lineLabel}`, "Buses are unevenly spaced along the line based on observed positions. This is an estimate, not an official notice."));
+    out.push(mk("HIGH_INTERVALS", `Intervalos irregulares observados na linha ${s.lineLabel}`, "Os ônibus estão espaçados de forma desigual ao longo da linha, segundo as posições observadas. Isto é uma estimativa, não um aviso oficial."));
   }
   if (f.delay !== null && f.delay >= 60) {
-    out.push(mk("DELAY_INFERRED", `Possible delays on ${s.lineLabel}`, "Delays were inferred against a valid time reference. This is an estimate, not an official notice."));
+    out.push(mk("DELAY_INFERRED", `Possíveis atrasos na linha ${s.lineLabel}`, "Os atrasos foram inferidos a partir de uma referência de horário válida. Isto é uma estimativa, não um aviso oficial."));
   }
   const prev = s.previous;
   if (prev && prev.level !== "INSUFFICIENT_DATA" && s.risk.level !== "INSUFFICIENT_DATA" && prev.level !== s.risk.level) {
@@ -64,8 +65,8 @@ export function deriveLineAlerts(s: LineSignals, now: Date = new Date()): GomobA
     out.push(
       mk(
         "RISK_CHANGE",
-        `Estimated risk ${up ? "increased" : "decreased"} on ${s.lineLabel}`,
-        `The estimated crowding risk changed from ${prev.level.toLowerCase()} to ${s.risk.level.toLowerCase()}. This is an estimate, not a passenger count.`,
+        `O risco estimado ${up ? "aumentou" : "diminuiu"} na linha ${s.lineLabel}`,
+        `O risco estimado de lotação mudou de ${LEVEL_PT[prev.level]} para ${LEVEL_PT[s.risk.level]}. Isto é uma estimativa, não uma contagem de passageiros.`,
       ),
     );
   }
@@ -83,9 +84,9 @@ export function deriveSystemAlerts(
   for (const i of integrations) {
     if (!i.configured) continue;
     if (i.state === "UNAVAILABLE") {
-      out.push({ id: `API_FAILURE:${i.key}:${b}`, lineId: null, type: "API_FAILURE", title: `${i.label} is temporarily unavailable`, description: "Data from this source could not be retrieved. Information shown may be outdated.", createdAt: now.toISOString(), isDemo });
+      out.push({ id: `API_FAILURE:${i.key}:${b}`, lineId: null, type: "API_FAILURE", title: `${i.label} está temporariamente indisponível`, description: "Não foi possível obter dados desta fonte. As informações exibidas podem estar desatualizadas.", createdAt: now.toISOString(), isDemo });
     } else if (i.state === "STALE") {
-      out.push({ id: `STALE_DATA:${i.key}:${b}`, lineId: null, type: "STALE_DATA", title: `${i.label} data is outdated`, description: "The latest data from this source is older than expected.", createdAt: now.toISOString(), isDemo });
+      out.push({ id: `STALE_DATA:${i.key}:${b}`, lineId: null, type: "STALE_DATA", title: `Os dados de ${i.label} estão desatualizados`, description: "Os dados mais recentes desta fonte são mais antigos do que o esperado.", createdAt: now.toISOString(), isDemo });
     }
   }
   return out;

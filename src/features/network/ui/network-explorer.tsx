@@ -67,7 +67,7 @@ export function NetworkExplorer() {
     return (
       <Shell>
         <div className="flex h-full items-center justify-center p-6 text-center text-sm text-muted">
-          The GTFS network could not be loaded. Run <code className="mx-1 rounded bg-white px-1">npx tsx scripts/build-gtfs.ts</code> and reload.
+          Não foi possível carregar a rede GTFS. Execute <code className="mx-1 rounded bg-white px-1">npx tsx scripts/build-gtfs.ts</code> e recarregue a página.
         </div>
       </Shell>
     );
@@ -75,7 +75,7 @@ export function NetworkExplorer() {
     return (
       <Shell>
         <div className="flex h-full items-center justify-center">
-          <div className="rounded-xl bg-white px-4 py-3 text-sm font-medium text-ink shadow-soft">Loading the São Paulo network…</div>
+          <div className="rounded-xl bg-white px-4 py-3 text-sm font-medium text-ink shadow-soft">Carregando a rede de São Paulo…</div>
         </div>
       </Shell>
     );
@@ -185,7 +185,7 @@ function Explorer({ network }: { network: Network }) {
 
   const liveTotal = vehicles.length;
   const liveLabel =
-    !showLive ? "Off" : fleetQ.isPending ? "…" : fleet?.state === "LIVE" ? liveTotal.toLocaleString("en-US") : "Offline";
+    !showLive ? "Desligado" : fleetQ.isPending ? "…" : fleet?.state === "LIVE" ? liveTotal.toLocaleString("pt-BR") : "Indisponível";
 
   return (
     <Shell>
@@ -211,7 +211,7 @@ function Explorer({ network }: { network: Network }) {
       {/* Voltar (mobile) */}
       <Link
         href="/home"
-        aria-label="Back to home"
+        aria-label="Voltar para o início"
         className="tap absolute left-4 top-[max(16px,env(safe-area-inset-top))] z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white text-ink shadow-float lg:hidden"
       >
         <ArrowLeft className="h-5 w-5" aria-hidden />
@@ -221,18 +221,18 @@ function Explorer({ network }: { network: Network }) {
       <div
         className="absolute left-[72px] top-[max(16px,env(safe-area-inset-top))] z-10 flex gap-1.5 lg:left-auto lg:right-[52px] lg:top-2.5"
         role="group"
-        aria-label="Map layers"
+        aria-label="Camadas do mapa"
       >
-        <LayerToggle on={showLive} onClick={() => setShowLive((v) => !v)} icon={<Radio className="h-4 w-4" aria-hidden />} label="Live buses" />
-        <LayerToggle on={heatmap} disabled={!showLive} onClick={() => setHeatmap((v) => !v)} icon={<Flame className="h-4 w-4" aria-hidden />} label="Heatmap" />
-        <LayerToggle on={showStops} onClick={() => setShowStops((v) => !v)} icon={<MapPin className="h-4 w-4" aria-hidden />} label="Stops" />
-        <LayerToggle on={dark} onClick={() => setDark((v) => !v)} icon={<Moon className="h-4 w-4" aria-hidden />} label="Dark" />
+        <LayerToggle on={showLive} onClick={() => setShowLive((v) => !v)} icon={<Radio className="h-4 w-4" aria-hidden />} label="Ônibus ao vivo" />
+        <LayerToggle on={heatmap} disabled={!showLive} onClick={() => setHeatmap((v) => !v)} icon={<Flame className="h-4 w-4" aria-hidden />} label="Mapa de calor" />
+        <LayerToggle on={showStops} onClick={() => setShowStops((v) => !v)} icon={<MapPin className="h-4 w-4" aria-hidden />} label="Paradas" />
+        <LayerToggle on={dark} onClick={() => setDark((v) => !v)} icon={<Moon className="h-4 w-4" aria-hidden />} label="Escuro" />
       </div>
 
       {/* Legenda das regiões */}
       <div className="absolute bottom-8 right-2.5 z-10 hidden rounded-xl bg-white/95 p-2.5 shadow-soft backdrop-blur md:block">
         <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">
-          <Layers className="h-3.5 w-3.5" aria-hidden /> SPTrans regions
+          <Layers className="h-3.5 w-3.5" aria-hidden /> Regiões SPTrans
         </p>
         <div className="grid grid-cols-2 gap-x-3 gap-y-1">
           {REGIONS.map((r) => {
@@ -255,7 +255,7 @@ function Explorer({ network }: { network: Network }) {
 
       {/* Painel */}
       <section
-        aria-label="Network explorer"
+        aria-label="Explorador da rede"
         className={cn(
           "absolute z-20 flex flex-col overflow-hidden bg-white shadow-[0_-8px_40px_rgb(18_21_27/0.18)] transition-[max-height] duration-300",
           "inset-x-0 bottom-0 rounded-t-[28px] pb-[calc(92px+env(safe-area-inset-bottom))] lg:inset-x-auto lg:bottom-3 lg:left-3 lg:top-3 lg:w-[400px] lg:rounded-3xl lg:pb-0",
@@ -270,9 +270,9 @@ function Explorer({ network }: { network: Network }) {
           aria-expanded={panelOpen}
         >
           <div className="min-w-0">
-            <h1 className="truncate text-lg font-bold tracking-tight">São Paulo network</h1>
+            <h1 className="truncate text-lg font-bold tracking-tight">Rede de São Paulo</h1>
             <p className="truncate text-xs text-muted">
-              {network.counts.lines.toLocaleString("en-US")} lines · {network.counts.stops.toLocaleString("en-US")} stops · live buses: {liveLabel}
+              {network.counts.lines.toLocaleString("pt-BR")} linhas · {network.counts.stops.toLocaleString("pt-BR")} paradas · ônibus ao vivo: {liveLabel}
             </p>
           </div>
           {panelOpen ? <ChevronDown className="h-5 w-5 shrink-0 text-muted" aria-hidden /> : <ChevronUp className="h-5 w-5 shrink-0 text-muted" aria-hidden />}
@@ -299,16 +299,16 @@ function Explorer({ network }: { network: Network }) {
           ) : (
             <div className="flex flex-col gap-3 p-4">
               <div className="grid grid-cols-3 gap-2">
-                <Stat label="Lines" value={network.counts.lines.toLocaleString("en-US")} />
-                <Stat label="Stops" value={network.counts.stops.toLocaleString("en-US")} />
-                <Stat label={accessibleOnly ? "Acessíveis" : "Buses now"} value={liveLabel} accent={fleet?.state === "LIVE" && showLive} />
+                <Stat label="Linhas" value={network.counts.lines.toLocaleString("pt-BR")} />
+                <Stat label="Paradas" value={network.counts.stops.toLocaleString("pt-BR")} />
+                <Stat label={accessibleOnly ? "Acessíveis" : "Ônibus agora"} value={liveLabel} accent={fleet?.state === "LIVE" && showLive} />
               </div>
 
               {showLive && fleet?.state === "UNAVAILABLE" && <LiveNotice reason={fleet.reason} />}
 
-              <SearchInput value={query} onValueChange={setQuery} aria-label="Search lines or stops" placeholder="Line number, destination or stop" />
+              <SearchInput value={query} onValueChange={setQuery} aria-label="Buscar linhas ou paradas" placeholder="Número da linha, destino ou parada" />
 
-              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Modes">
+              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Modos">
                 {MODES.map((m) => (
                   <Chip key={m.type} on={modes.includes(m.type)} onClick={() => toggleMode(m.type)}>
                     <ModeIcon type={m.type} className="h-3.5 w-3.5" />
@@ -317,7 +317,7 @@ function Explorer({ network }: { network: Network }) {
                   </Chip>
                 ))}
               </div>
-              <div className="flex flex-wrap gap-1.5 md:hidden" role="group" aria-label="Regions">
+              <div className="flex flex-wrap gap-1.5 md:hidden" role="group" aria-label="Regiões">
                 {REGIONS.map((r) => (
                   <Chip key={r.color} on={regions.includes(r.color)} onClick={() => toggleRegion(r.color)}>
                     <span className="h-2.5 w-2.5 rounded-full" style={{ background: r.color }} />
@@ -327,20 +327,20 @@ function Explorer({ network }: { network: Network }) {
               </div>
               {regions.length > 0 && (
                 <button type="button" className="self-start text-xs font-medium text-primary hover:underline" onClick={() => setRegions([])}>
-                  Clear region filter ({regions.map((c) => regionLabel(c)).join(", ")})
+                  Limpar filtro de região ({regions.map((c) => regionLabel(c)).join(", ")})
                 </button>
               )}
 
               {stopResults.length > 0 && (
                 <div>
-                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted">Stops</p>
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted">Paradas</p>
                   <ul className="flex flex-col">
                     {stopResults.map((si) => (
                       <li key={si}>
                         <button type="button" onClick={() => selectStop(si)} className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm hover:bg-canvas">
                           <MapPin className="h-4 w-4 shrink-0 text-muted" aria-hidden />
                           <span className="min-w-0 flex-1 truncate">{network.stops[si][1]}</span>
-                          <span className="text-xs text-muted">{stopLines[si]?.length ?? 0} lines</span>
+                          <span className="text-xs text-muted">{stopLines[si]?.length ?? 0} linhas</span>
                         </button>
                       </li>
                     ))}
@@ -350,8 +350,8 @@ function Explorer({ network }: { network: Network }) {
 
               <div>
                 <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted">
-                  {results.length.toLocaleString("en-US")} line{results.length === 1 ? "" : "s"}
-                  {results.length > 150 && " · showing 150"}
+                  {results.length.toLocaleString("pt-BR")} linha{results.length === 1 ? "" : "s"}
+                  {results.length > 150 && " · mostrando 150"}
                 </p>
                 <ul className="flex flex-col">
                   {results.slice(0, 150).map((li) => {
@@ -363,7 +363,7 @@ function Explorer({ network }: { network: Network }) {
                           <LineBadge line={l} className="min-w-[64px]" />
                           <span className="min-w-0 flex-1 truncate text-sm">{l.name}</span>
                           {live > 0 && (
-                            <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-risk-low" title={`${live} buses live`}>
+                            <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-risk-low" title={`${live} ônibus ao vivo`}>
                               <span className="h-1.5 w-1.5 rounded-full bg-risk-low" /> {live}
                             </span>
                           )}
@@ -372,10 +372,10 @@ function Explorer({ network }: { network: Network }) {
                     );
                   })}
                 </ul>
-                {results.length === 0 && <p className="py-6 text-center text-sm text-muted">No lines match these filters.</p>}
+                {results.length === 0 && <p className="py-6 text-center text-sm text-muted">Nenhuma linha com esses filtros.</p>}
               </div>
               <p className="pb-1 text-[11px] text-muted">
-                Source: {network.agency.name} GTFS · built {new Date(network.generatedAt).toLocaleDateString("pt-BR")}. Live positions: Olho Vivo API.
+                Fonte: GTFS {network.agency.name} · gerado em {new Date(network.generatedAt).toLocaleDateString("pt-BR")}. Posições ao vivo: API Olho Vivo.
               </p>
             </div>
           )}
@@ -434,16 +434,16 @@ function Stat({ label, value, accent }: { label: string; value: string; accent?:
 
 function LiveNotice({ reason }: { reason: "NOT_CONFIGURED" | "AUTH" | "RATE_LIMIT" | "ERROR" }) {
   const msg = {
-    NOT_CONFIGURED: "Add SPTRANS_API_TOKEN to .env.local to show live buses.",
-    AUTH: "SPTrans rejected the Olho Vivo token. New tokens can take a few hours to activate; the map retries automatically.",
-    RATE_LIMIT: "SPTrans is rate-limiting requests. Retrying shortly.",
-    ERROR: "Could not reach SPTrans right now. Retrying shortly.",
+    NOT_CONFIGURED: "Adicione SPTRANS_API_TOKEN ao .env.local para mostrar os ônibus ao vivo.",
+    AUTH: "A SPTrans recusou o token do Olho Vivo. Tokens novos podem levar algumas horas para serem ativados; o mapa tenta de novo automaticamente.",
+    RATE_LIMIT: "A SPTrans está limitando as requisições. Tentando de novo em instantes.",
+    ERROR: "Não foi possível acessar a SPTrans agora. Tentando de novo em instantes.",
   }[reason];
   return (
     <div className="flex gap-2 rounded-xl border border-risk-moderate/30 bg-risk-moderate/10 px-3 py-2 text-xs text-ink">
       <Radio className="mt-0.5 h-4 w-4 shrink-0 text-risk-moderate" aria-hidden />
       <span>
-        <b>Live positions offline.</b> {msg}
+        <b>Posições ao vivo indisponíveis.</b> {msg}
       </span>
     </div>
   );
@@ -504,7 +504,7 @@ function LineDetail({
   return (
     <div className="flex flex-col gap-3 p-4">
       <div className="flex items-start gap-2">
-        <button type="button" onClick={onBack} className="-ml-1 rounded-lg p-1 text-muted hover:bg-canvas hover:text-ink" aria-label="Back to all lines">
+        <button type="button" onClick={onBack} className="-ml-1 rounded-lg p-1 text-muted hover:bg-canvas hover:text-ink" aria-label="Voltar para todas as linhas">
           <ArrowLeft className="h-5 w-5" aria-hidden />
         </button>
         <div className="min-w-0 flex-1">
@@ -512,19 +512,19 @@ function LineDetail({
             <LineBadge line={line} className="px-2 py-1 text-sm" />
             <span className="flex items-center gap-1 text-xs text-muted">
               <ModeIcon type={line.type} className="h-3.5 w-3.5" /> {modeLabel(line.type)}
-              {region && <> · {region} region</>}
+              {region && <> · Região {region}</>}
             </span>
           </div>
           <h2 className="mt-1.5 text-base font-bold leading-snug">{line.name}</h2>
           <SpeakButton text={spoken} label="Ouvir linha" className="mt-2" />
         </div>
-        <button type="button" onClick={onBack} className="rounded-lg p-1 text-muted hover:bg-canvas hover:text-ink" aria-label="Close line">
+        <button type="button" onClick={onBack} className="rounded-lg p-1 text-muted hover:bg-canvas hover:text-ink" aria-label="Fechar linha">
           <X className="h-5 w-5" aria-hidden />
         </button>
       </div>
 
       {line.dirs.length > 1 && (
-        <div className="grid grid-cols-2 gap-1 rounded-xl bg-canvas p-1" role="tablist" aria-label="Direction">
+        <div className="grid grid-cols-2 gap-1 rounded-xl bg-canvas p-1" role="tablist" aria-label="Sentido">
           {line.dirs.map((x) => (
             <button
               key={x.d}
@@ -536,50 +536,50 @@ function LineDetail({
                 "truncate rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
                 x.d === activeDir && dir !== null ? "bg-white text-ink shadow-sm" : "text-muted hover:text-ink",
               )}
-              title={`To ${x.headsign}`}
+              title={`Para ${x.headsign}`}
             >
               → {x.headsign}
             </button>
           ))}
         </div>
       )}
-      {line.dirs.length > 1 && dir === null && <p className="-mt-1.5 text-[11px] text-muted">Showing both directions. Pick one to isolate it on the map.</p>}
+      {line.dirs.length > 1 && dir === null && <p className="-mt-1.5 text-[11px] text-muted">Mostrando os dois sentidos. Escolha um para destacá-lo no mapa.</p>}
 
       {line.dirs.length === 0 ? (
-        <p className="rounded-xl bg-canvas p-3 text-sm text-muted">The GTFS feed has no itinerary for this line.</p>
+        <p className="rounded-xl bg-canvas p-3 text-sm text-muted">O feed GTFS não tem itinerário para esta linha.</p>
       ) : (
         <>
           <div className="grid grid-cols-2 gap-2">
-            <Kpi icon={<Ticket className="h-4 w-4" aria-hidden />} label="Fare" value={line.fare !== null ? brl(line.fare) : "—"} />
-            <Kpi icon={<Clock className="h-4 w-4" aria-hidden />} label="Best interval" value={d?.minHeadway ? `every ${d.minHeadway} min` : "—"} />
-            <Kpi icon={<Clock className="h-4 w-4" aria-hidden />} label="Hours" value={d?.first ? `${d.first}–${d.last}` : "—"} sub={daysLabel(d?.days ?? null)} />
-            <Kpi icon={<Bus className="h-4 w-4" aria-hidden />} label="Trip time" value={d?.trip ? `~${d.trip} min` : "—"} sub={`${d?.stops.length ?? 0} stops`} />
+            <Kpi icon={<Ticket className="h-4 w-4" aria-hidden />} label="Tarifa" value={line.fare !== null ? brl(line.fare) : "—"} />
+            <Kpi icon={<Clock className="h-4 w-4" aria-hidden />} label="Melhor intervalo" value={d?.minHeadway ? `a cada ${d.minHeadway} min` : "—"} />
+            <Kpi icon={<Clock className="h-4 w-4" aria-hidden />} label="Horário" value={d?.first ? `${d.first}–${d.last}` : "—"} sub={daysLabel(d?.days ?? null)} />
+            <Kpi icon={<Bus className="h-4 w-4" aria-hidden />} label="Tempo de viagem" value={d?.trip ? `~${d.trip} min` : "—"} sub={`${d?.stops.length ?? 0} paradas`} />
           </div>
 
           <div className="rounded-xl border border-border p-3">
             <div className="flex items-center justify-between">
               <p className="flex items-center gap-1.5 text-sm font-semibold">
-                <Radio className={cn("h-4 w-4", live.length ? "text-risk-low" : "text-muted")} aria-hidden /> Live now
+                <Radio className={cn("h-4 w-4", live.length ? "text-risk-low" : "text-muted")} aria-hidden /> Ao vivo agora
               </p>
               {liveState === "LIVE" ? (
                 <p className="text-xs text-muted">
-                  <b className="text-ink">{live.length}</b> buses · {liveDir} this way
+                  <b className="text-ink">{live.length}</b> ônibus · {liveDir} neste sentido
                   {accessible > 0 && (
                     <>
                       {" "}
-                      · <Accessibility className="inline h-3 w-3" aria-label="accessible" /> {accessible}
+                      · <Accessibility className="inline h-3 w-3" aria-label="acessíveis" /> {accessible}
                     </>
                   )}
                 </p>
               ) : (
-                <p className="text-xs text-muted">{liveState === null ? "Live layer off" : "Unavailable"}</p>
+                <p className="text-xs text-muted">{liveState === null ? "Camada ao vivo desligada" : "Indisponível"}</p>
               )}
             </div>
           </div>
 
           <div>
-            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Buses per hour (scheduled)</p>
-            <div className="flex h-20 items-end gap-[3px]" role="img" aria-label="Scheduled departures per hour">
+            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Ônibus por hora (programado)</p>
+            <div className="flex h-20 items-end gap-[3px]" role="img" aria-label="Partidas programadas por hora">
               {perHour.map((n, h) => (
                 <div key={h} className="flex h-full flex-1 flex-col items-center justify-end" title={`${String(h).padStart(2, "0")}h: ${n}/h`}>
                   <div
@@ -600,7 +600,7 @@ function LineDetail({
 
           <div>
             <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">
-              Stops {d ? `→ ${d.headsign}` : ""}
+              Paradas {d ? `→ ${d.headsign}` : ""}
             </p>
             <ol className="relative">
               {d?.stops.map((si, k) => {
@@ -616,7 +616,7 @@ function LineDetail({
                         style={{ borderColor: line.color, marginLeft: k === 0 || last ? 4 : 6 }}
                       />
                       <span className={cn("min-w-0 flex-1 truncate text-sm", (k === 0 || last) && "font-semibold")}>{s[1]}</span>
-                      {transfers > 0 && <span className="shrink-0 text-[11px] text-muted">+{transfers} lines</span>}
+                      {transfers > 0 && <span className="shrink-0 text-[11px] text-muted">+{transfers} linhas</span>}
                     </button>
                   </li>
                 );
@@ -662,18 +662,18 @@ function StopDetail({
   return (
     <div className="flex flex-col gap-3 p-4">
       <div className="flex items-start gap-2">
-        <button type="button" onClick={onBack} className="-ml-1 rounded-lg p-1 text-muted hover:bg-canvas hover:text-ink" aria-label="Back">
+        <button type="button" onClick={onBack} className="-ml-1 rounded-lg p-1 text-muted hover:bg-canvas hover:text-ink" aria-label="Voltar">
           <ArrowLeft className="h-5 w-5" aria-hidden />
         </button>
         <div className="min-w-0">
           <p className="flex items-center gap-1 text-xs text-muted">
-            <MapPin className="h-3.5 w-3.5" aria-hidden /> Stop {s[0]}
+            <MapPin className="h-3.5 w-3.5" aria-hidden /> Parada {s[0]}
           </p>
           <h2 className="text-base font-bold leading-snug">{s[1]}</h2>
         </div>
       </div>
       <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
-        {sorted.length} line{sorted.length === 1 ? "" : "s"} stop here
+        {sorted.length} linha{sorted.length === 1 ? " passa" : "s passam"} aqui
       </p>
       <ul className="flex flex-col">
         {sorted.map((li) => {
@@ -684,7 +684,7 @@ function StopDetail({
               <button type="button" onClick={() => onLine(li)} className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left hover:bg-canvas">
                 <LineBadge line={l} className="min-w-[64px]" />
                 <span className="min-w-0 flex-1 truncate text-sm">{l.name}</span>
-                {live > 0 && <span className="text-xs font-medium text-risk-low">{live} live</span>}
+                {live > 0 && <span className="text-xs font-medium text-risk-low">{live} ao vivo</span>}
               </button>
             </li>
           );

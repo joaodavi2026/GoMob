@@ -271,7 +271,7 @@ export async function getSystemStatus(): Promise<SystemStatus> {
       },
       {
         key: "map-tiles",
-        label: "Map tiles (MapLibre)",
+        label: "Mapa (MapLibre)",
         configured: !!process.env.NEXT_PUBLIC_MAP_STYLE_URL,
         state: process.env.NEXT_PUBLIC_MAP_STYLE_URL ? "CONNECTED" : "UNAVAILABLE",
         lastQueryAt: null,

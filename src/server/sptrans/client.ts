@@ -76,23 +76,23 @@ export function createSptransClient(opts: SptransClientOptions = {}) {
     try {
       return await f(url, { ...init, signal: ctrl.signal, cache: "no-store" });
     } catch (e) {
-      if (e instanceof Error && e.name === "AbortError") throw new SptransError("TIMEOUT", "SPTrans request timed out.");
-      throw new SptransError("NETWORK", "Could not reach SPTrans.");
+      if (e instanceof Error && e.name === "AbortError") throw new SptransError("TIMEOUT", "A SPTrans demorou demais para responder.");
+      throw new SptransError("NETWORK", "Não foi possível conectar à SPTrans.");
     } finally {
       clearTimeout(timer);
     }
   }
 
   async function login(): Promise<void> {
-    if (!token) throw new SptransError("NOT_CONFIGURED", "SPTrans token is not configured.");
-    if (now() < authBlockedUntil) throw new SptransError("AUTH", "SPTrans authentication recently failed.");
+    if (!token) throw new SptransError("NOT_CONFIGURED", "O token da SPTrans não está configurado.");
+    if (now() < authBlockedUntil) throw new SptransError("AUTH", "A autenticação na SPTrans falhou recentemente.");
     const res = await timedFetch(`${baseUrl}/Login/Autenticar?token=${encodeURIComponent(token)}`, { method: "POST" });
-    if (res.status === 429) throw new SptransError("RATE_LIMIT", "SPTrans rate limit.", 429);
-    if (!res.ok) throw new SptransError("HTTP", `SPTrans login failed (${res.status}).`, res.status);
+    if (res.status === 429) throw new SptransError("RATE_LIMIT", "Limite de requisições da SPTrans atingido.", 429);
+    if (!res.ok) throw new SptransError("HTTP", `Falha no login da SPTrans (${res.status}).`, res.status);
     const text = (await res.text()).trim().toLowerCase();
     if (text !== "true") {
       authBlockedUntil = now() + authBackoffMs;
-      throw new SptransError("AUTH", "SPTrans rejected the credentials.");
+      throw new SptransError("AUTH", "A SPTrans recusou as credenciais.");
     }
     cookies.clear();
     storeCookies(res);
@@ -123,13 +123,13 @@ export function createSptransClient(opts: SptransClientOptions = {}) {
     let reauthed = false;
     let lastErr: SptransError | null = null;
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      if (now() < rateLimitedUntil) throw new SptransError("RATE_LIMIT", "SPTrans rate limit; backing off.", 429);
+      if (now() < rateLimitedUntil) throw new SptransError("RATE_LIMIT", "Limite de requisições da SPTrans atingido; aguardando para tentar novamente.", 429);
       try {
         await ensureAuth();
         const res = await timedFetch(`${baseUrl}${path}`, { method: "GET", headers: { Cookie: cookieHeader() } });
         if (res.status === 429) {
           rateLimitedUntil = now() + retryAfterMs(res);
-          throw new SptransError("RATE_LIMIT", "SPTrans rate limit.", 429);
+          throw new SptransError("RATE_LIMIT", "Limite de requisições da SPTrans atingido.", 429);
         }
         if (res.status === 401 || res.status === 403) {
           invalidateAuth();
@@ -138,15 +138,15 @@ export function createSptransClient(opts: SptransClientOptions = {}) {
             attempt--; // reautenticação não consome retry
             continue;
           }
-          throw new SptransError("AUTH", "SPTrans session rejected.", res.status);
+          throw new SptransError("AUTH", "A sessão da SPTrans foi recusada.", res.status);
         }
-        if (res.status >= 500) throw new SptransError("HTTP", `SPTrans error (${res.status}).`, res.status);
-        if (!res.ok) throw new SptransError("HTTP", `SPTrans request failed (${res.status}).`, res.status);
+        if (res.status >= 500) throw new SptransError("HTTP", `Erro da SPTrans (${res.status}).`, res.status);
+        if (!res.ok) throw new SptransError("HTTP", `A requisição à SPTrans falhou (${res.status}).`, res.status);
         let body: unknown;
         try {
           body = await res.json();
         } catch {
-          throw new SptransError("BAD_RESPONSE", "SPTrans returned an unreadable response.");
+          throw new SptransError("BAD_RESPONSE", "A SPTrans retornou uma resposta ilegível.");
         }
         if (body && typeof body === "object" && !Array.isArray(body) && typeof (body as { Message?: unknown }).Message === "string") {
           // Resposta de "Authorization has been denied for this request." etc.
@@ -156,23 +156,23 @@ export function createSptransClient(opts: SptransClientOptions = {}) {
             attempt--;
             continue;
           }
-          throw new SptransError("AUTH", "SPTrans session rejected.");
+          throw new SptransError("AUTH", "A sessão da SPTrans foi recusada.");
         }
         return body;
       } catch (e) {
-        const err = e instanceof SptransError ? e : new SptransError("NETWORK", "Unexpected SPTrans failure.");
+        const err = e instanceof SptransError ? e : new SptransError("NETWORK", "Falha inesperada na SPTrans.");
         lastErr = err;
         const retryable = err.kind === "TIMEOUT" || err.kind === "NETWORK" || (err.kind === "HTTP" && (err.status ?? 0) >= 500);
         if (!retryable || attempt >= maxRetries) throw err;
         await sleep(300 * 2 ** attempt);
       }
     }
-    throw lastErr ?? new SptransError("NETWORK", "SPTrans unavailable.");
+    throw lastErr ?? new SptransError("NETWORK", "SPTrans indisponível.");
   }
 
   /** GET com cache (TTL = intervalo mínimo), deduplicação de chamadas concorrentes e registro de saúde. */
   async function get(path: string, ttlMs: number, staleOnError = false): Promise<unknown> {
-    if (!token) throw new SptransError("NOT_CONFIGURED", "SPTrans token is not configured.");
+    if (!token) throw new SptransError("NOT_CONFIGURED", "O token da SPTrans não está configurado.");
     const t = now();
     const hit = cache.get(path);
     if (hit && hit.expiresAt > t) return hit.value;

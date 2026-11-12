@@ -44,7 +44,7 @@ describe("buildPrediction", () => {
     expect(p.risk.level).toBe("HIGH"); // 08h é o pico (100)
     expect(p.risk.source).toBe("DERIVED");
     expect(p.risk.confidence!).toBeLessThanOrEqual(0.6);
-    expect(p.limitations.join(" ")).toMatch(/cannot be known in advance/);
+    expect(p.limitations.join(" ")).toMatch(/não podem ser conhecidos com antecedência/);
   });
 
   it("off-peak hour from the same history is lower", () => {
@@ -57,7 +57,7 @@ describe("buildPrediction", () => {
     expect(p.risk.level).toBe("INSUFFICIENT_DATA");
     expect(p.risk.score).toBeNull();
     expect(p.isDemo).toBe(false);
-    expect(p.limitations.join(" ")).toMatch(/day-level aggregated/);
+    expect(p.limitations.join(" ")).toMatch(/agregados por dia/);
     expect(p.historicalSource.kind).toBe("NONE");
   });
 
@@ -73,8 +73,8 @@ describe("buildPrediction", () => {
     expect(p.risk.source).toBe("DEMO");
     expect(p.historicalSource.kind).toBe("DEMO_SCENARIO");
     expect(p.dataQuality.level).toBe("DEMO");
-    expect(p.limitations.join(" ")).toMatch(/not a validated forecast/);
-    expect(p.risk.explanation).toMatch(/not a validated forecast/);
+    expect(p.limitations.join(" ")).toMatch(/não é uma previsão validada/);
+    expect(p.risk.explanation).toMatch(/não é uma previsão validada/);
     expect(p.risk.confidence!).toBeLessThanOrEqual(0.4);
   });
 
@@ -93,6 +93,6 @@ describe("buildPrediction", () => {
 
   it("flags dates in the past", () => {
     const p = buildPrediction({ ...common, target: parseTarget({ date: "2026-10-12", time: "08:00" })!, history: hourly, mode: "LIVE", todaySp: "2026-10-21" });
-    expect(p.limitations.join(" ")).toMatch(/in the past/);
+    expect(p.limitations.join(" ")).toMatch(/no passado/);
   });
 });

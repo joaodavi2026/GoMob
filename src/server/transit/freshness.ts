@@ -16,12 +16,12 @@ export function shouldDiscard(observedAt: string, now: number = Date.now()): boo
 
 export function formatAge(observedAt: string, now: number = Date.now()): string {
   const t = Date.parse(observedAt);
-  if (!Number.isFinite(t)) return "unknown";
+  if (!Number.isFinite(t)) return "em horário desconhecido";
   const s = Math.max(0, Math.round((now - t) / 1000));
-  if (s < 10) return "just now";
-  if (s < 60) return `${s} seconds ago`;
+  if (s < 10) return "agora mesmo";
+  if (s < 60) return `há ${s} segundos`;
   const m = Math.round(s / 60);
-  if (m < 60) return `${m} minute${m === 1 ? "" : "s"} ago`;
+  if (m < 60) return `há ${m} minuto${m === 1 ? "" : "s"}`;
   const h = Math.round(m / 60);
-  return `${h} hour${h === 1 ? "" : "s"} ago`;
+  return `há ${h} hora${h === 1 ? "" : "s"}`;
 }

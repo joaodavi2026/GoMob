@@ -84,11 +84,11 @@ export function useNow(ms = 10_000) {
 export type UiStatus = "CONNECTED" | "UPDATING" | "UNAVAILABLE" | "STALE" | "DEMO";
 
 export const STATUS_LABEL: Record<UiStatus, string> = {
-  CONNECTED: "Connected",
-  UPDATING: "Updating",
-  UNAVAILABLE: "Temporarily unavailable",
-  STALE: "Stale data",
-  DEMO: "Demo mode",
+  CONNECTED: "Conectado",
+  UPDATING: "Atualizando",
+  UNAVAILABLE: "Temporariamente indisponível",
+  STALE: "Dados desatualizados",
+  DEMO: "Modo demonstração",
 };
 
 /** Deriva o estado exibido a partir da consulta (nunca esconde falhas/dados antigos). */

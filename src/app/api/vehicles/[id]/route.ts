@@ -9,6 +9,6 @@ export const GET = handle(async (_req: Request, ctx: { params: Promise<{ id: str
   await requireUser();
   const id = VehicleIdSchema.parse((await ctx.params).id);
   const vehicle = await getVehicle(id);
-  if (!vehicle) return fail(404, "NOT_FOUND", "Vehicle not found or its last position is too old.");
+  if (!vehicle) return fail(404, "NOT_FOUND", "Veículo não encontrado ou sua última posição está desatualizada.");
   return ok({ vehicle }, { headers: { "Cache-Control": "private, no-store" } });
 });

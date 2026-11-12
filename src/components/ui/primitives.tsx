@@ -58,7 +58,7 @@ export function EmptyState({
   );
 }
 
-export function ErrorState({ message = "Something went wrong.", onRetry }: { message?: string; onRetry?: () => void }) {
+export function ErrorState({ message = "Algo deu errado.", onRetry }: { message?: string; onRetry?: () => void }) {
   return (
     <div role="alert" className="flex flex-col items-center gap-2.5 rounded-3xl bg-white px-6 py-7 text-center shadow-soft">
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-risk-moderate/10 text-risk-moderate">
@@ -67,13 +67,13 @@ export function ErrorState({ message = "Something went wrong.", onRetry }: { mes
       <p className="max-w-xs text-sm text-muted">{message}</p>
       {onRetry && (
         <Button variant="secondary" size="sm" onClick={onRetry}>
-          Try again
+          Tentar novamente
         </Button>
       )}
     </div>
   );
 }
 
-export function DemoBadge({ label = "Academic demonstration data" }: { label?: string }) {
+export function DemoBadge({ label = "Dados de demonstração acadêmica" }: { label?: string }) {
   return <Badge tone="primary">{label}</Badge>;
 }

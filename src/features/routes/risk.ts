@@ -28,7 +28,7 @@ export function aggregateRouteRisk(option: BusRouteOption, lineRisks: Record<str
       factors: { demand: null, headway: null, delay: null, operations: null },
       source,
       calculatedAt,
-      explanation: `Route risk is not shown because there is no usable estimate for: ${missing.join(", ") || "any line"}.`,
+      explanation: `O risco da rota não é exibido porque não há estimativa utilizável para: ${missing.join(", ") || "nenhuma linha"}.`,
     };
   }
   const worst = usable.reduce((a, b) => ((b.r as RiskResult).score! > (a.r as RiskResult).score! ? b : a));
@@ -41,6 +41,6 @@ export function aggregateRouteRisk(option: BusRouteOption, lineRisks: Record<str
     factors: w.factors,
     source,
     calculatedAt,
-    explanation: `Highest estimated risk among the route's lines: ${worst.c} (${levelLabel(w.level)}). ${w.explanation}`,
+    explanation: `Maior risco estimado entre as linhas da rota: ${worst.c} (${levelLabel(w.level)}). ${w.explanation}`,
   };
 }

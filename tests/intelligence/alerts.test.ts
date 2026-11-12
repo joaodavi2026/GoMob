@@ -41,7 +41,7 @@ describe("derived alerts", () => {
   });
   it("risk change only between two calculated levels", () => {
     const up = deriveLineAlerts(base({ risk: risk({ level: "HIGH", score: 80 }), previous: { level: "LOW", score: 20 } }), NOW);
-    expect(up.find((a) => a.type === "RISK_CHANGE")?.title).toMatch(/increased/);
+    expect(up.find((a) => a.type === "RISK_CHANGE")?.title).toMatch(/aumentou/);
     const unknown = deriveLineAlerts(base({ risk: risk({ level: "HIGH", score: 80 }), previous: { level: "INSUFFICIENT_DATA", score: null } }), NOW);
     expect(unknown.map((a) => a.type)).not.toContain("RISK_CHANGE");
   });

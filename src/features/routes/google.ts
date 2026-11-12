@@ -73,26 +73,26 @@ export function parseGoogleRoutes(json: unknown, stamp: string, origin: GeoPoint
     const steps: RouteStep[] = [];
     let reason: string | null = null;
     const rawSteps = (r.legs ?? []).flatMap((l) => l.steps ?? []);
-    if (rawSteps.length === 0) reason = "No steps.";
-    let lastPoint = origin.label ?? "Origin";
+    if (rawSteps.length === 0) reason = "Sem etapas.";
+    let lastPoint = origin.label ?? "Origem";
     for (const s of rawSteps) {
       if (reason) break;
       const minutes = Math.max(1, Math.round(secs(s.staticDuration) / 60));
       if (s.travelMode === "WALK") {
-        steps.push({ kind: "WALK", minutes, from: lastPoint, to: s.navigationInstruction?.instructions ?? "Next point" });
+        steps.push({ kind: "WALK", minutes, from: lastPoint, to: s.navigationInstruction?.instructions ?? "Próximo ponto" });
       } else if (s.travelMode === "TRANSIT") {
         const line = s.transitDetails?.transitLine;
         if (!isBusVehicleType(line?.vehicle?.type)) {
-          reason = `Non-bus transit vehicle (${line?.vehicle?.type ?? "unknown"}).`;
+          reason = `Veículo de transporte que não é ônibus (${line?.vehicle?.type ?? "desconhecido"}).`;
           break;
         }
         const code = line?.nameShort ?? line?.name ?? "";
         if (looksNonBus(code, line?.name)) {
-          reason = `Line ${code} is not a bus service.`;
+          reason = `A linha ${code} não é um serviço de ônibus.`;
           break;
         }
         if (!code) {
-          reason = "Bus step without a line identifier.";
+          reason = "Etapa de ônibus sem identificador de linha.";
           break;
         }
         const board = s.transitDetails?.stopDetails?.departureStop?.name ?? "";
@@ -100,11 +100,11 @@ export function parseGoogleRoutes(json: unknown, stamp: string, origin: GeoPoint
         steps.push({ kind: "BUS", lineCode: code, lineName: line?.name ?? code, boardStop: board, alightStop: alight, minutes });
         lastPoint = alight;
       } else {
-        reason = `Unsupported travel mode (${s.travelMode ?? "unknown"}).`;
+        reason = `Modo de viagem não suportado (${s.travelMode ?? "desconhecido"}).`;
       }
     }
     const buses = steps.filter((s) => s.kind === "BUS").length;
-    if (!reason && buses === 0) reason = "No bus step.";
+    if (!reason && buses === 0) reason = "Sem etapa de ônibus.";
     if (!reason) {
       const option: BusRouteOption = {
         id: `google:${idx}:${steps.map((s) => (s.kind === "BUS" ? s.lineCode : "w")).join("-")}`,

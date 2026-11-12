@@ -66,10 +66,10 @@ export function buildDemoNetwork(): NetLine[] {
   };
   const connector = (code: string, name: string, stops: NetStop[]): NetLine => ({ code, name, stops, offsets: cumulativeMinutes(stops) });
   lines.push(
-    connector("D-600", "Higienópolis - República - Sé (demo connector)", [ref("dms-1-5"), EXTRA.republica, ref("dms-3-1")]),
-    connector("D-700", "Ibirapuera - Paraíso - Sé (demo connector)", [ref("dms-4-5"), ref("dms-1-1"), EXTRA.liberdade, ref("dms-3-1")]),
-    connector("D-800", "Pinheiros - Consolação (demo connector)", [ref("dms-2-1"), EXTRA.reboucas, ref("dms-1-4")]),
-    connector("D-900", "Barra Funda - República (demo connector)", [ref("dms-5-1"), EXTRA.santaCecilia, EXTRA.republica]),
+    connector("D-600", "Higienópolis - República - Sé (conector demo)", [ref("dms-1-5"), EXTRA.republica, ref("dms-3-1")]),
+    connector("D-700", "Ibirapuera - Paraíso - Sé (conector demo)", [ref("dms-4-5"), ref("dms-1-1"), EXTRA.liberdade, ref("dms-3-1")]),
+    connector("D-800", "Pinheiros - Consolação (conector demo)", [ref("dms-2-1"), EXTRA.reboucas, ref("dms-1-4")]),
+    connector("D-900", "Barra Funda - República (conector demo)", [ref("dms-5-1"), EXTRA.santaCecilia, EXTRA.republica]),
   );
   return lines;
 }

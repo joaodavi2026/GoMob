@@ -166,7 +166,7 @@ describe("runRouteSearch", () => {
     const b = option("b", [bus("L2", "S1", "S2")], { durationMinutes: 20 });
     const res = await runRouteSearch({ origin: O, destination: D, sort: "lower_risk" }, { provider: fake([a, b]), riskFor: async () => null });
     expect(res.sortApplied).toBe("fastest");
-    expect(res.notice).toMatch(/Not enough comparable risk data/);
+    expect(res.notice).toMatch(/Não há dados de risco comparáveis suficientes/);
     expect(res.routes.map((r) => r.id)).toEqual(["b", "a"]);
     expect(res.recommendations.lowerRisk).toBeUndefined();
   });

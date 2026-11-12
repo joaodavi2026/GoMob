@@ -9,7 +9,7 @@ export function Donut({ slices, size = 140, centerLabel }: { slices: Slice[]; si
   const c = 2 * Math.PI * r;
   let offset = 0;
   return (
-    <svg viewBox="0 0 140 140" width={size} height={size} role="img" aria-label={slices.map((s) => `${s.label}: ${s.value}`).join(", ") || "No data"}>
+    <svg viewBox="0 0 140 140" width={size} height={size} role="img" aria-label={slices.map((s) => `${s.label}: ${s.value}`).join(", ") || "Sem dados"}>
       <circle cx="70" cy="70" r={r} fill="none" stroke="var(--color-border)" strokeWidth="18" />
       {total > 0 &&
         slices
@@ -37,7 +37,7 @@ export function Donut({ slices, size = 140, centerLabel }: { slices: Slice[]; si
         {total}
       </text>
       <text x="70" y="86" textAnchor="middle" className="fill-muted text-[10px]">
-        {total === 0 ? "No data" : (centerLabel ?? "total")}
+        {total === 0 ? "Sem dados" : (centerLabel ?? "total")}
       </text>
     </svg>
   );

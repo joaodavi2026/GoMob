@@ -25,9 +25,9 @@ export type Prediction = {
   requested: { weekday: number; weekdayLabel: string; time: string; date?: string };
 };
 
-export const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+export const WEEKDAYS = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
 
-export const PREDICT_DEMO_NOTICE = "Illustrative demonstration scenario, not a validated forecast.";
+export const PREDICT_DEMO_NOTICE = "Cenário ilustrativo de demonstração, não é uma previsão validada.";
 
 /** Perfil de demanda ILUSTRATIVO (não derivado de dados): picos de dias úteis às 6-9h e 16-19h. */
 export function illustrativeDemandProfile(weekday: number, hour: number): number {
@@ -58,9 +58,9 @@ function qualityFromConfidence(c: number | null): DataQuality["level"] {
 }
 
 const SUPPORT_REASON: Record<NonNullable<DemandSupport["reason"]>, string> = {
-  NO_DATA: "No historical demand records exist for this line.",
-  DAILY_AGGREGATE_ONLY: "Only day-level aggregated records exist; hourly peaks cannot be derived from them.",
-  INSUFFICIENT_SAMPLES: "Hourly records exist but are too sparse to sustain a pattern for this weekday and hour.",
+  NO_DATA: "Não há registros históricos de demanda para esta linha.",
+  DAILY_AGGREGATE_ONLY: "Só existem registros agregados por dia; não é possível derivar picos por hora a partir deles.",
+  INSUFFICIENT_SAMPLES: "Existem registros por hora, mas são escassos demais para sustentar um padrão neste dia da semana e horário.",
 };
 
 /**
@@ -84,10 +84,10 @@ export function buildPrediction(args: {
   const time = `${String(target.hour).padStart(2, "0")}:${String(target.minute).padStart(2, "0")}`;
   const requested = { weekday: target.weekday, weekdayLabel: WEEKDAYS[target.weekday], time, date: target.date };
   const limitations: string[] = [
-    "This is an estimate of crowding risk, not a passenger count or a calibrated probability.",
-    "Live signals such as bus spacing and delays cannot be known in advance and are not part of this estimate.",
+    "Isto é uma estimativa de risco de lotação, não uma contagem de passageiros nem uma probabilidade calibrada.",
+    "Sinais ao vivo, como espaçamento entre ônibus e atrasos, não podem ser conhecidos com antecedência e não fazem parte desta estimativa.",
   ];
-  if (target.date && args.todaySp && target.date < args.todaySp) limitations.push("The selected date is in the past; this is not a forecast.");
+  if (target.date && args.todaySp && target.date < args.todaySp) limitations.push("A data escolhida está no passado; isto não é uma previsão.");
 
   const { factor, support } = computeHourlyDemandFactor(history, { weekday: target.weekday, hour: target.hour });
 
@@ -99,23 +99,23 @@ export function buildPrediction(args: {
       minCoverage: 0,
       ignoreFreshness: true,
       confidenceCap: 0.6,
-      explanationPrefix: "Pattern-based estimate from hourly history only.",
+      explanationPrefix: "Estimativa baseada em padrões, apenas a partir do histórico por hora.",
     });
-    limitations.push(`Based on ${support.distinctDates} ${WEEKDAYS[target.weekday]}(s) of hourly records; patterns may change and may not repeat.`);
+    limitations.push(`Com base em ${support.distinctDates} dia(s) de ${WEEKDAYS[target.weekday].toLowerCase()} com registros por hora; os padrões podem mudar e não se repetir.`);
     const level = qualityFromConfidence(risk.confidence);
     return {
       risk,
       dataQuality: {
         level,
-        label: level === "HIGH" ? "Good" : level === "MEDIUM" ? "Fair" : "Limited",
-        notes: [`${support.samples} hourly records across ${support.distinctDates} dates and ${support.hoursCovered} hours.`, "Confidence is a data-quality indicator, not statistical accuracy."],
+        label: level === "HIGH" ? "Boa" : level === "MEDIUM" ? "Razoável" : "Limitada",
+        notes: [`${support.samples} registros por hora em ${support.distinctDates} datas e ${support.hoursCovered} horários.`, "A confiança é um indicador de qualidade dos dados, não de precisão estatística."],
       },
       historicalSource: {
         kind: "HISTORICAL",
         granularity: "HOURLY",
         samples: support.samples,
         distinctDates: support.distinctDates,
-        description: `Hourly historical demand (${support.sources.join(", ") || "unspecified source"}).`,
+        description: `Demanda histórica por hora (${support.sources.join(", ") || "fonte não especificada"}).`,
       },
       limitations,
       isDemo: false,
@@ -148,20 +148,20 @@ export function buildPrediction(args: {
     limitations.unshift(PREDICT_DEMO_NOTICE, reason);
     return {
       risk,
-      dataQuality: { level: "DEMO", label: "Demonstration", notes: ["No sustained historical pattern is available, so a labeled demonstration scenario is shown."] },
-      historicalSource: { kind: "DEMO_SCENARIO", granularity: support.granularity, samples: support.samples, distinctDates: support.distinctDates, description: `Demonstration scenario ${scenario}; not derived from real history.` },
+      dataQuality: { level: "DEMO", label: "Demonstração", notes: ["Não há padrão histórico consistente disponível, por isso é exibido um cenário de demonstração identificado."] },
+      historicalSource: { kind: "DEMO_SCENARIO", granularity: support.granularity, samples: support.samples, distinctDates: support.distinctDates, description: `Cenário de demonstração ${scenario}; não derivado de histórico real.` },
       limitations,
       isDemo: true,
       requested,
     };
   }
 
-  limitations.unshift(reason, "Not enough historical data to estimate risk for this selection.");
-  const risk = computeRisk({}, { weights: args.weights, now, essential: ["demand"], explanationPrefix: "No prediction available." });
+  limitations.unshift(reason, "Não há dados históricos suficientes para estimar o risco nesta seleção.");
+  const risk = computeRisk({}, { weights: args.weights, now, essential: ["demand"], explanationPrefix: "Nenhuma previsão disponível." });
   return {
     risk,
-    dataQuality: { level: "NONE", label: "Insufficient", notes: [reason] },
-    historicalSource: { kind: "NONE", granularity: support.granularity, samples: support.samples, distinctDates: support.distinctDates, description: "No historical source supports this prediction." },
+    dataQuality: { level: "NONE", label: "Insuficiente", notes: [reason] },
+    historicalSource: { kind: "NONE", granularity: support.granularity, samples: support.samples, distinctDates: support.distinctDates, description: "Nenhuma fonte histórica sustenta esta previsão." },
     limitations,
     isDemo: false,
     requested,

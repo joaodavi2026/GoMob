@@ -13,7 +13,7 @@ export const POST = handle(async (req: Request) => {
     return ok(data, { headers: { "Cache-Control": "private, no-store" } });
   } catch (e) {
     if (e instanceof RouteProviderUnavailableError) {
-      return fail(503, "ROUTES_UNAVAILABLE", "Route search is temporarily unavailable. Please try again later.");
+      return fail(503, "ROUTES_UNAVAILABLE", "A busca de rotas está temporariamente indisponível. Tente novamente mais tarde.");
     }
     throw e;
   }

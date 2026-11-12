@@ -42,7 +42,7 @@ export default function AdminIntelligencePage() {
             const r = await apiFetch<{ risk: RiskResult }>(`/api/intelligence/risk?lineId=${encodeURIComponent(l.id)}`);
             return { line: l, risk: r.risk, error: null as string | null };
           } catch (e) {
-            return { line: l, risk: null, error: e instanceof Error ? e.message : "Unavailable" };
+            return { line: l, risk: null, error: e instanceof Error ? e.message : "Indisponível" };
           }
         }),
       ),
@@ -51,12 +51,12 @@ export default function AdminIntelligencePage() {
   const save = useMutation({
     mutationFn: (weights: Weights) => apiFetch<{ weights: Weights }>("/api/admin/settings", { method: "PUT", body: JSON.stringify({ weights }) }),
     onSuccess: (r) => {
-      toast.success("Weights saved and recorded in the audit log.");
+      toast.success("Pesos salvos e registrados no log de auditoria.");
       setDraft(r.weights);
       qc.invalidateQueries({ queryKey: ["admin", "settings"] });
       qc.invalidateQueries({ queryKey: ["admin", "risk-results"] });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not save weights."),
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Não foi possível salvar os pesos."),
   });
 
   const s = settings.data;
@@ -68,16 +68,16 @@ export default function AdminIntelligencePage() {
   return (
     <div className="space-y-4">
       <PageIntro demo={s?.mode === "DEMO"}>
-        <span>The risk score is a hypothetical, non-calibrated estimate. It is not occupancy and not a probability.</span>
+        <span>A pontuação de risco é uma estimativa hipotética e não calibrada. Não representa lotação nem probabilidade.</span>
       </PageIntro>
 
       <Section
-        title="Algorithm weights"
+        title="Pesos do algoritmo"
         subtitle="riskScore = wD·demand + wI·headway + wA·delay + wO·operations"
-        action={s && <Badge tone={s.editable ? "primary" : "neutral"}>{s.editable ? "Editable (DEMO MODE)" : "Read-only (LIVE MODE)"}</Badge>}
+        action={s && <Badge tone={s.editable ? "primary" : "neutral"}>{s.editable ? "Editável (MODO DEMONSTRAÇÃO)" : "Somente leitura (MODO AO VIVO)"}</Badge>}
       >
         {settings.isError ? (
-          <ErrorState message="Could not load settings." onRetry={() => settings.refetch()} />
+          <ErrorState message="Não foi possível carregar as configurações." onRetry={() => settings.refetch()} />
         ) : !s || !draft ? (
           <Skeleton className="h-40 w-full" />
         ) : (
@@ -89,7 +89,7 @@ export default function AdminIntelligencePage() {
                     <span>
                       {f.code} — {f.label}
                     </span>
-                    <span className="tabular-nums text-muted">default {s.defaults[f.key].toFixed(2)}</span>
+                    <span className="tabular-nums text-muted">padrão {s.defaults[f.key].toFixed(2)}</span>
                   </span>
                   <input
                     type="number"
@@ -105,14 +105,14 @@ export default function AdminIntelligencePage() {
               ))}
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <Badge tone={valid ? "low" : "high"}>Sum = {Number.isFinite(sum) ? sum.toFixed(2) : "invalid"}</Badge>
+              <Badge tone={valid ? "low" : "high"}>Soma = {Number.isFinite(sum) ? sum.toFixed(2) : "inválida"}</Badge>
               {!valid && validation && !validation.ok && <span className="text-sm text-risk-high">{validation.error}</span>}
               <div className="ml-auto flex gap-2">
                 <Button variant="secondary" size="sm" disabled={!s.editable} onClick={() => setDraft(s.defaults)}>
-                  Restore defaults
+                  Restaurar padrões
                 </Button>
                 <Button size="sm" disabled={!s.editable || !valid || !dirty} loading={save.isPending} onClick={() => draft && save.mutate(draft)}>
-                  Save weights
+                  Salvar pesos
                 </Button>
               </div>
             </div>
@@ -121,7 +121,7 @@ export default function AdminIntelligencePage() {
         )}
       </Section>
 
-      <Section title="Factor definitions">
+      <Section title="Definições dos fatores">
         <dl className="grid gap-3 sm:grid-cols-2">
           {FACTOR_DEFINITIONS.map((f) => (
             <div key={f.key} className="rounded-xl bg-canvas p-3">
@@ -132,13 +132,13 @@ export default function AdminIntelligencePage() {
             </div>
           ))}
         </dl>
-        <p className="mt-3 text-xs text-muted">Missing data is never treated as zero: when essential factors are unavailable the result is &quot;insufficient data&quot;.</p>
+        <p className="mt-3 text-xs text-muted">Dados ausentes nunca são tratados como zero: quando fatores essenciais estão indisponíveis, o resultado é &quot;dados insuficientes&quot;.</p>
       </Section>
 
       <div>
-        <h2 className="mb-2 font-semibold">Calculated results (monitored lines)</h2>
+        <h2 className="mb-2 font-semibold">Resultados calculados (linhas monitoradas)</h2>
         {lines.isSuccess && monitored.length === 0 ? (
-          <EmptyState title="No monitored lines" description="Enable monitoring in Bus Lines to see calculated results." />
+          <EmptyState title="Nenhuma linha monitorada" description="Ative o monitoramento em Linhas para ver os resultados calculados." />
         ) : results.isLoading || lines.isLoading ? (
           <Skeleton className="h-40 w-full" />
         ) : (
@@ -146,23 +146,23 @@ export default function AdminIntelligencePage() {
             <table className="w-full min-w-[760px]">
               <thead className="border-b border-border bg-canvas">
                 <tr>
-                  <th className={th}>Line</th>
-                  <th className={th}>Risk</th>
-                  <th className={th}>Score</th>
-                  <th className={th}>Data quality (confidence)</th>
-                  <th className={th}>Source</th>
-                  <th className={th}>Calculated at</th>
-                  <th className={th}>Explanation</th>
+                  <th className={th}>Linha</th>
+                  <th className={th}>Risco</th>
+                  <th className={th}>Pontuação</th>
+                  <th className={th}>Qualidade dos dados (confiança)</th>
+                  <th className={th}>Fonte</th>
+                  <th className={th}>Calculado em</th>
+                  <th className={th}>Explicação</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {(results.data ?? []).map(({ line, risk, error }) => (
                   <tr key={line.id}>
                     <td className={`${td} font-semibold`}>{line.displayCode}</td>
-                    <td className={td}>{risk ? <RiskBadge level={risk.level} /> : <Badge tone="unknown">Unavailable</Badge>}</td>
+                    <td className={td}>{risk ? <RiskBadge level={risk.level} /> : <Badge tone="unknown">Indisponível</Badge>}</td>
                     <td className={`${td} tabular-nums`}>{risk?.score != null ? Math.round(risk.score) : "—"}</td>
                     <td className={`${td} tabular-nums`}>{risk?.confidence != null ? `${Math.round(risk.confidence * 100)}%` : "—"}</td>
-                    <td className={td}>{risk ? (risk.source === "OFFICIAL" ? "Official" : risk.source === "DERIVED" ? "Derived" : "Demo") : "—"}</td>
+                    <td className={td}>{risk ? (risk.source === "OFFICIAL" ? "Oficial" : risk.source === "DERIVED" ? "Derivada" : "Demonstração") : "—"}</td>
                     <td className={td}>{formatDateTime(risk?.calculatedAt)}</td>
                     <td className={`${td} max-w-sm text-muted`}>{risk ? risk.explanation : error}</td>
                   </tr>
@@ -171,7 +171,7 @@ export default function AdminIntelligencePage() {
             </table>
           </TableWrap>
         )}
-        <p className="mt-2 text-xs text-muted">Confidence is a data-quality indicator, not proven statistical accuracy.</p>
+        <p className="mt-2 text-xs text-muted">A confiança é um indicador de qualidade dos dados, não de precisão estatística comprovada.</p>
       </div>
     </div>
   );

@@ -18,7 +18,7 @@ export function DataTable<T>({
   loading,
   error,
   onRetry,
-  emptyTitle = "Nothing to show",
+  emptyTitle = "Nada para mostrar",
   emptyDescription,
   caption,
 }: {

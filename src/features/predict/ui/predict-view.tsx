@@ -51,8 +51,8 @@ export function PredictView() {
   return (
     <div className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight">Plan ahead. Travel smarter.</h1>
-        <p className="mt-2 text-muted">Explore estimated crowding risks before your next bus journey.</p>
+        <h1 className="text-3xl font-bold tracking-tight">Planeje antes. Viaje melhor.</h1>
+        <p className="mt-2 text-muted">Confira o risco estimado de lotação antes da sua próxima viagem de ônibus.</p>
       </header>
 
       <Card className="p-4 sm:p-6">
@@ -64,30 +64,30 @@ export function PredictView() {
           }}
         >
           <label className="sm:col-span-2">
-            <span className="mb-1.5 block text-sm font-medium">Bus line</span>
+            <span className="mb-1.5 block text-sm font-medium">Linha de ônibus</span>
             <select className={field} value={lineId} onChange={(e) => setLineId(e.target.value)} disabled={lines.isPending} required>
-              <option value="">{lines.isPending ? "Loading lines..." : "Select a line"}</option>
+              <option value="">{lines.isPending ? "Carregando linhas..." : "Escolha uma linha"}</option>
               {lines.data?.lines.map((l) => (
                 <option key={l.id} value={l.id}>
                   {l.displayCode} - {l.name}
                 </option>
               ))}
             </select>
-            {lines.isError && <span className="mt-1 block text-xs text-risk-high">Lines could not be loaded.</span>}
-            {selected && <span className="mt-1 block text-xs text-muted">Direction {selected.direction}</span>}
+            {lines.isError && <span className="mt-1 block text-xs text-risk-high">Não foi possível carregar as linhas.</span>}
+            {selected && <span className="mt-1 block text-xs text-muted">Sentido {selected.direction}</span>}
           </label>
 
           <div>
             <div className="mb-1.5 flex items-center justify-between text-sm font-medium">
-              <span className="flex items-center gap-1"><CalendarDays className="h-4 w-4" aria-hidden /> {mode === "date" ? "Date" : "Day of week"}</span>
+              <span className="flex items-center gap-1"><CalendarDays className="h-4 w-4" aria-hidden /> {mode === "date" ? "Data" : "Dia da semana"}</span>
               <button type="button" className="text-xs font-medium text-primary-pressed underline" onClick={() => setMode(mode === "date" ? "weekday" : "date")}>
-                Use {mode === "date" ? "day of week" : "a date"}
+                Usar {mode === "date" ? "dia da semana" : "uma data"}
               </button>
             </div>
             {mode === "date" ? (
-              <input type="date" className={field} value={date} onChange={(e) => setDate(e.target.value)} required aria-label="Date" />
+              <input type="date" className={field} value={date} onChange={(e) => setDate(e.target.value)} required aria-label="Data" />
             ) : (
-              <select className={field} value={weekday} onChange={(e) => setWeekday(e.target.value)} aria-label="Day of week">
+              <select className={field} value={weekday} onChange={(e) => setWeekday(e.target.value)} aria-label="Dia da semana">
                 {WEEKDAYS.map((d, i) => (
                   <option key={d} value={i}>{d}</option>
                 ))}
@@ -96,13 +96,13 @@ export function PredictView() {
           </div>
 
           <label>
-            <span className="mb-1.5 flex items-center gap-1 text-sm font-medium"><Clock className="h-4 w-4" aria-hidden /> Time</span>
+            <span className="mb-1.5 flex items-center gap-1 text-sm font-medium"><Clock className="h-4 w-4" aria-hidden /> Horário</span>
             <input type="time" className={field} value={time} onChange={(e) => setTime(e.target.value)} required />
           </label>
 
           <div className="sm:col-span-2">
             <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={!canSubmit} loading={result.isFetching}>
-              Predict risk
+              Prever risco
             </Button>
           </div>
         </form>
@@ -124,20 +124,20 @@ function PredictionResult({ data }: { data: PredictData }) {
         <span className="text-sm text-muted">{line.name}</span>
       </div>
       <p className="text-sm">
-        {p.requested.date ? `${p.requested.weekdayLabel}, ${p.requested.date}` : p.requested.weekdayLabel} at <strong>{p.requested.time}</strong>
+        {p.requested.date ? `${p.requested.weekdayLabel}, ${p.requested.date}` : p.requested.weekdayLabel} às <strong>{p.requested.time}</strong>
       </p>
 
       {p.isDemo && (
         <div role="note" className="flex items-start gap-2 rounded-xl border border-primary/20 bg-primary-light p-3 text-sm">
           <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary-pressed" aria-hidden />
-          <p><strong>Demonstration scenario.</strong> This illustrative result is not a validated forecast and is not derived from real history. <DemoBadge /></p>
+          <p><strong>Cenário de demonstração.</strong> Este resultado ilustrativo não é uma previsão validada e não deriva de histórico real. <DemoBadge /></p>
         </div>
       )}
 
       <RiskPanel risk={p.risk} />
 
       <section>
-        <h2 className="text-sm font-semibold">Data quality</h2>
+        <h2 className="text-sm font-semibold">Qualidade dos dados</h2>
         <p className="mt-1 text-sm"><Badge tone={p.dataQuality.level === "HIGH" || p.dataQuality.level === "MEDIUM" ? "low" : "unknown"}>{p.dataQuality.label}</Badge></p>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted">
           {p.dataQuality.notes.map((n) => <li key={n}>{n}</li>)}
@@ -145,12 +145,12 @@ function PredictionResult({ data }: { data: PredictData }) {
       </section>
 
       <section>
-        <h2 className="text-sm font-semibold">Historical source</h2>
+        <h2 className="text-sm font-semibold">Fonte histórica</h2>
         <p className="mt-1 text-sm text-muted">{p.historicalSource.description}</p>
       </section>
 
       <section>
-        <h2 className="text-sm font-semibold">Limitations</h2>
+        <h2 className="text-sm font-semibold">Limitações</h2>
         <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-muted">
           {p.limitations.map((l) => <li key={l}>{l}</li>)}
         </ul>

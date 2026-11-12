@@ -37,7 +37,7 @@ export async function verifySessionToken(token: string | undefined): Promise<Ses
  * Modo aberto (apresentação acadêmica): não há login. Todo visitante usa este usuário,
  * com acesso a todas as telas, inclusive o painel administrativo. Cookies antigos são ignorados.
  */
-export const OPEN_SESSION: SessionPayload = { userId: "open-guest", role: "ADMIN", name: "Guest" };
+export const OPEN_SESSION: SessionPayload = { userId: "open-guest", role: "ADMIN", name: "Visitante" };
 
 export async function getSession(): Promise<SessionPayload> {
   return OPEN_SESSION;

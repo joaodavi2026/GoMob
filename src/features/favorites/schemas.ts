@@ -17,7 +17,7 @@ export type FavoriteCreateInput = z.infer<typeof favoriteCreateSchema>;
 
 export const favoriteUpdateSchema = favoriteCreateSchema
   .partial()
-  .refine((v) => Object.keys(v).length > 0, { message: "Provide at least one field to update." });
+  .refine((v) => Object.keys(v).length > 0, { message: "Informe ao menos um campo para atualizar." });
 export type FavoriteUpdateInput = z.infer<typeof favoriteUpdateSchema>;
 
 export const favoriteListQuerySchema = z.object({

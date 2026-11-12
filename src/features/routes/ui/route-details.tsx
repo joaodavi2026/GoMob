@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownToLine, ArrowUpFromLine, Bookmark, Footprints, X } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, Bookmark, Bus, Footprints, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/primitives";
 import { RiskPanel } from "@/features/intelligence/ui/risk-panel";
@@ -36,12 +36,12 @@ export function RouteDetails({
       <div className="space-y-4 p-4">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <h2 className="text-lg font-semibold">Route details</h2>
+            <h2 className="text-lg font-semibold">Detalhes da rota</h2>
             <p className="text-sm text-muted">
-              {route.durationMinutes !== null ? `${route.durationMinutes} min` : "Duration unknown"} - {route.transfers} transfer{route.transfers === 1 ? "" : "s"} - {route.walkMinutes} min walking
+              {route.durationMinutes !== null ? `${route.durationMinutes} min` : "Duração desconhecida"} - {route.transfers} {route.transfers === 1 ? "baldeação" : "baldeações"} - {route.walkMinutes} min de caminhada
             </p>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close route details">
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Fechar detalhes da rota">
             <X className="h-5 w-5" aria-hidden />
           </Button>
         </div>
@@ -50,25 +50,25 @@ export function RouteDetails({
           {route.steps.map((s, i) => (
             <li key={i} className="flex gap-3">
               <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-pressed">
-                {s.kind === "WALK" ? <Footprints className="h-4 w-4" aria-hidden /> : <span className="text-[10px] font-bold">BUS</span>}
+                {s.kind === "WALK" ? <Footprints className="h-4 w-4" aria-hidden /> : <Bus className="h-4 w-4" aria-label="Ônibus" />}
               </span>
               <div className="min-w-0 text-sm">
                 {s.kind === "WALK" ? (
-                  <p>Walk {s.minutes} min from <strong>{s.from}</strong> to <strong>{s.to}</strong></p>
+                  <p>Caminhe {s.minutes} min de <strong>{s.from}</strong> até <strong>{s.to}</strong></p>
                 ) : (
                   <>
-                    <p className="font-semibold">Bus {s.lineCode} <span className="font-normal text-muted">- {s.lineName}</span> ({s.minutes} min)</p>
-                    <p className="flex items-center gap-1 text-muted"><ArrowUpFromLine className="h-3.5 w-3.5" aria-hidden /> Board at {s.boardStop}</p>
-                    <p className="flex items-center gap-1 text-muted"><ArrowDownToLine className="h-3.5 w-3.5" aria-hidden /> Get off at {s.alightStop}</p>
+                    <p className="font-semibold">Ônibus {s.lineCode} <span className="font-normal text-muted">- {s.lineName}</span> ({s.minutes} min)</p>
+                    <p className="flex items-center gap-1 text-muted"><ArrowUpFromLine className="h-3.5 w-3.5" aria-hidden /> Embarque em {s.boardStop}</p>
+                    <p className="flex items-center gap-1 text-muted"><ArrowDownToLine className="h-3.5 w-3.5" aria-hidden /> Desça em {s.alightStop}</p>
                     {route.lineRisks[s.lineCode] ? (
-                      <div className="mt-1 flex items-center gap-2"><span className="text-xs text-muted">Line risk:</span><RiskBadge level={route.lineRisks[s.lineCode].level} /></div>
+                      <div className="mt-1 flex items-center gap-2"><span className="text-xs text-muted">Risco da linha:</span><RiskBadge level={route.lineRisks[s.lineCode].level} /></div>
                     ) : (
-                      <p className="mt-1 text-xs text-muted">No risk estimate for this line.</p>
+                      <p className="mt-1 text-xs text-muted">Sem estimativa de risco para esta linha.</p>
                     )}
                   </>
                 )}
                 {s.kind === "BUS" && i < route.steps.length - 1 && route.steps[i + 1].kind === "BUS" && (
-                  <p className="mt-2 rounded-lg bg-canvas px-2 py-1 text-xs text-muted">Transfer at {s.alightStop} (declared transfer point)</p>
+                  <p className="mt-2 rounded-lg bg-canvas px-2 py-1 text-xs text-muted">Baldeação em {s.alightStop} (ponto de baldeação declarado)</p>
                 )}
               </div>
             </li>
@@ -77,20 +77,20 @@ export function RouteDetails({
 
         {route.risk && (
           <div>
-            <h3 className="mb-1 text-sm font-semibold">Estimated crowding risk ({busLineCodes(route).join(", ")})</h3>
+            <h3 className="mb-1 text-sm font-semibold">Risco estimado de lotação ({busLineCodes(route).join(", ")})</h3>
             <RiskPanel risk={route.risk} compact />
           </div>
         )}
 
         {firstLineId && (
           <div>
-            <h3 className="mb-1 text-sm font-semibold">Alerts</h3>
+            <h3 className="mb-1 text-sm font-semibold">Alertas</h3>
             <AlertsList lineId={firstLineId} compact limit={2} />
           </div>
         )}
 
         <Button onClick={onSave} loading={saving} variant="secondary" className="w-full">
-          <Bookmark className="h-4 w-4" aria-hidden /> Save to favorites
+          <Bookmark className="h-4 w-4" aria-hidden /> Salvar nos favoritos
         </Button>
       </div>
     </Card>
