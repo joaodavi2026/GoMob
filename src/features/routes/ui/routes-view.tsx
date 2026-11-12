@@ -7,6 +7,7 @@ import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EmptyState, ErrorState, Skeleton } from "@/components/ui/primitives";
 import { useToast } from "@/components/ui/toast";
+import { useA11y } from "@/features/a11y/a11y";
 import { apiFetch } from "@/lib/api";
 import type { GeoPoint } from "@/types/transit";
 import { formatPointParam, parsePointParam } from "../points";
@@ -34,6 +35,7 @@ export function RoutesView() {
   const router = useRouter();
   const params = useSearchParams();
   const toast = useToast();
+  const { announce } = useA11y();
   const [origin, setOrigin] = useState<GeoPoint | null>(() => parsePointParam(params.get("o")));
   const [destination, setDestination] = useState<GeoPoint | null>(() => parsePointParam(params.get("d")));
   const [sort, setSort] = useState<SortKey>("fastest");
@@ -91,8 +93,15 @@ export function RoutesView() {
           nickname: `${origin!.label ?? "Origem"} para ${destination!.label ?? "Destino"}`.slice(0, 60),
         }),
       }),
-    onSuccess: () => toast.success("Salvo nos favoritos."),
-    onError: (e) => toast.error((e as Error).message || "Não foi possível salvar o favorito."),
+    onSuccess: () => {
+      toast.success("Trajeto salvo em Salvos.");
+      announce("Trajeto salvo em Salvos.");
+    },
+    onError: (e) => {
+      const msg = `Não foi possível salvar o trajeto. ${(e as Error).message || ""} Toque em Salvar trajeto para tentar de novo.`.replace(/s+/g, " ");
+      toast.error(msg);
+      announce(msg);
+    },
   });
 
   const details =
@@ -104,6 +113,7 @@ export function RoutesView() {
         onClose={() => setSelectedId(null)}
         onSave={() => save.mutate()}
         saving={save.isPending}
+        saved={save.isSuccess}
       />
     ) : null;
 
@@ -171,7 +181,7 @@ export function RoutesView() {
               <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden /> {data.notice}
             </p>
           )}
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
             <ul className="space-y-3" aria-label="Opções de rota">
               {data.routes.map((r) => (
                 <li key={r.id} className="space-y-3">
@@ -180,7 +190,10 @@ export function RoutesView() {
                     tags={tagsFor.get(r.id) ?? []}
                     why={[...(whyFor.get(r.id) ?? []), ...(riskNote ? [`Risco de lotação: ${riskNote}`] : [])]}
                     selected={r.id === selectedId}
-                    onView={() => setSelectedId(r.id === selectedId ? null : r.id)}
+                    onView={() => {
+                      save.reset();
+                      setSelectedId(r.id === selectedId ? null : r.id);
+                    }}
                     origin={origin?.label ?? "Origem"}
                     destination={destination?.label ?? "Destino"}
                   />

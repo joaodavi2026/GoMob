@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { usePathname } from "next/navigation";
 import { BellRing, Square, Volume2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { pickVoice, prepareSpeech, rankVoices, splitForSpeech } from "./speech";
 
 /** Perfis de viagem: atalhos que ligam conjuntos de recursos. Ninguém precisa declarar deficiência. */
 export type Profile = "mobility" | "blind" | "deaf" | "nonverbal" | "simple";
@@ -12,6 +13,8 @@ export type A11yPrefs = {
   profiles: Profile[];
   voice: boolean;
   rate: number;
+  /** Voz escolhida pela pessoa (nome da voz do aparelho); null = a mais clara disponível. */
+  voiceName: string | null;
   vibration: boolean;
   visualAlerts: boolean;
   textSize: 0 | 1 | 2;
@@ -24,7 +27,8 @@ export type A11yPrefs = {
 export const DEFAULT_PREFS: A11yPrefs = {
   profiles: [],
   voice: false,
-  rate: 1,
+  rate: 0.95,
+  voiceName: null,
   vibration: false,
   visualAlerts: false,
   textSize: 0,
@@ -74,6 +78,24 @@ const subscribe = (l: () => void) => {
   return () => listeners.delete(l);
 };
 
+// ---- vozes do aparelho (carregam de forma assíncrona: evento "voiceschanged") --------------------
+let voiceCache: SpeechSynthesisVoice[] = [];
+const EMPTY_VOICES: SpeechSynthesisVoice[] = [];
+function subscribeVoices(cb: () => void) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return () => {};
+  const synth = window.speechSynthesis;
+  const update = () => {
+    voiceCache = synth.getVoices();
+    cb();
+  };
+  voiceCache = synth.getVoices();
+  synth.addEventListener("voiceschanged", update);
+  return () => synth.removeEventListener("voiceschanged", update);
+}
+const voicesSnapshot = () => voiceCache;
+
+export type VoiceOption = { name: string; lang: string; recommended: boolean };
+
 // ---- contexto -------------------------------------------------------------------------------
 type Alert = { id: number; text: string };
 type A11yApi = {
@@ -86,7 +108,11 @@ type A11yApi = {
   speaking: boolean;
   /** Aviso importante por todos os canais escolhidos: texto, voz, vibração e flash visual. */
   notify: (text: string) => void;
+  /** Confirmação ou erro curto, lido pelo TalkBack/VoiceOver (e falado se a voz estiver ligada), sem alerta em tela cheia. */
+  announce: (text: string) => void;
   voiceSupported: boolean;
+  /** Vozes em português do aparelho, da mais clara para a menos clara. */
+  voices: VoiceOption[];
   vibrationSupported: boolean;
   active: boolean;
 };
@@ -104,6 +130,11 @@ const noSupport = () => false;
 export function A11yProvider({ children }: { children: React.ReactNode }) {
   const prefs = useSyncExternalStore(subscribe, load, () => DEFAULT_PREFS);
   const voiceSupported = useSyncExternalStore(subscribe, () => typeof window !== "undefined" && "speechSynthesis" in window, noSupport);
+  const rawVoices = useSyncExternalStore(subscribeVoices, voicesSnapshot, () => EMPTY_VOICES);
+  const voices = useMemo<VoiceOption[]>(() => {
+    const ranked = rankVoices(rawVoices);
+    return ranked.map((v, i) => ({ name: v.name, lang: v.lang, recommended: i === 0 }));
+  }, [rawVoices]);
   const vibrationSupported = useSyncExternalStore(subscribe, () => typeof navigator !== "undefined" && "vibrate" in navigator, noSupport);
   const [speaking, setSpeaking] = useState(false);
   const [alert, setAlert] = useState<Alert | null>(null);
@@ -143,15 +174,28 @@ export function A11yProvider({ children }: { children: React.ReactNode }) {
     if (typeof window === "undefined" || !("speechSynthesis" in window) || !text.trim()) return;
     const synth = window.speechSynthesis;
     synth.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "pt-BR";
-    u.rate = load().rate;
-    const voice = synth.getVoices().find((v) => v.lang?.toLowerCase().startsWith("pt-br")) ?? synth.getVoices().find((v) => v.lang?.toLowerCase().startsWith("pt"));
-    if (voice) u.voice = voice;
-    u.onend = () => setSpeaking(false);
-    u.onerror = () => setSpeaking(false);
+    const p = load();
+    const all = voiceCache.length ? voiceCache : synth.getVoices();
+    const voice = pickVoice(all, p.voiceName);
+    // forma falada (abreviações, códigos de linha, horários) e uma fala por frase
+    const chunks = splitForSpeech(prepareSpeech(text));
+    if (!chunks.length) return;
     setSpeaking(true);
-    synth.speak(u);
+    chunks.forEach((chunk, i) => {
+      const u = new SpeechSynthesisUtterance(chunk);
+      u.lang = voice?.lang || "pt-BR";
+      if (voice) u.voice = voice;
+      u.rate = p.rate;
+      u.pitch = 1;
+      if (i === chunks.length - 1) {
+        u.onend = () => setSpeaking(false);
+      }
+      u.onerror = (e) => {
+        // "interrupted"/"canceled" acontecem ao parar ou trocar de leitura
+        if (e.error !== "interrupted" && e.error !== "canceled") setSpeaking(false);
+      };
+      synth.speak(u);
+    });
   }, []);
 
   const notify = useCallback(
@@ -163,6 +207,16 @@ export function A11yProvider({ children }: { children: React.ReactNode }) {
       if (alertTimer.current) clearTimeout(alertTimer.current);
       setAlert({ id: Date.now(), text });
       alertTimer.current = setTimeout(() => setAlert(null), p.visualAlerts ? 6000 : 4000);
+    },
+    [speak],
+  );
+
+  const announce = useCallback(
+    (text: string) => {
+      // limpa e reescreve para o leitor de tela anunciar mesmo uma mensagem repetida
+      setLiveMsg("");
+      setTimeout(() => setLiveMsg(text), 60);
+      if (load().voice) speak(text);
     },
     [speak],
   );
@@ -179,8 +233,8 @@ export function A11yProvider({ children }: { children: React.ReactNode }) {
     prefs.simple;
 
   const api = useMemo<A11yApi>(
-    () => ({ prefs, update, toggleProfile, reset, speak, stop, speaking, notify, voiceSupported, vibrationSupported, active }),
-    [prefs, update, toggleProfile, reset, speak, stop, speaking, notify, voiceSupported, vibrationSupported, active],
+    () => ({ prefs, update, toggleProfile, reset, speak, stop, speaking, notify, announce, voiceSupported, voices, vibrationSupported, active }),
+    [prefs, update, toggleProfile, reset, speak, stop, speaking, notify, announce, voiceSupported, voices, vibrationSupported, active],
   );
 
   return (

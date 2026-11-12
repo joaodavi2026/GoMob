@@ -70,7 +70,7 @@ export function FavoriteJourneys() {
           description="Busque uma rota e salve-a para voltar a ela com um toque."
         />
       ) : (
-        <ul className="grid gap-2 sm:grid-cols-2">
+        <ul className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
           {favs.slice(0, 4).map((f) => (
             <li key={f.id}>
               <button

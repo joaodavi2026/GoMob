@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin, X } from "lucide-react";
 import { apiFetch } from "@/lib/api";
+import { MAX_LINES_PER_VEHICLES_REQUEST } from "@/config/transit";
 import { Badge, Card, EmptyState, ErrorState, Skeleton } from "@/components/ui/primitives";
 import { Button } from "@/components/ui/button";
 import type { AdminLine } from "@/features/admin/lines";
@@ -29,7 +30,15 @@ export default function AdminVehiclesPage() {
 
   const vehicles = useQuery({
     queryKey: ["admin", "vehicles", ids.join(",")],
-    queryFn: () => apiFetch<VehiclesData>(`/api/vehicles?lineIds=${encodeURIComponent(ids.join(","))}`),
+    // a API aceita até MAX_LINES_PER_VEHICLES_REQUEST linhas por chamada: busca em lotes e junta
+    queryFn: async (): Promise<VehiclesData> => {
+      const chunks: string[][] = [];
+      for (let i = 0; i < ids.length; i += MAX_LINES_PER_VEHICLES_REQUEST) chunks.push(ids.slice(i, i + MAX_LINES_PER_VEHICLES_REQUEST));
+      const parts = await Promise.all(chunks.map((c) => apiFetch<VehiclesData>(`/api/vehicles?lineIds=${encodeURIComponent(c.join(","))}`)));
+      const order: IntegrationState[] = ["UNAVAILABLE", "STALE", "UPDATING", "DEMO", "CONNECTED"];
+      const state = parts.map((p) => p.state).sort((a, b) => order.indexOf(a) - order.indexOf(b))[0] ?? "UNAVAILABLE";
+      return { vehicles: parts.flatMap((p) => p.vehicles), state };
+    },
     enabled: ids.length > 0,
     refetchInterval: 20_000,
   });

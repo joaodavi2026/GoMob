@@ -1,4 +1,4 @@
-import { getDemoRisk, getLineRisk } from "@/features/intelligence/service";
+import { getDemoRisk, getGtfsLineRisk, getLineRisk } from "@/features/intelligence/service";
 import { getLines } from "@/server/transit/service";
 import type { RiskResult, RouteProvider } from "@/types/transit";
 import { existsSync } from "node:fs";
@@ -25,7 +25,7 @@ export function selectProvider(): RouteProvider {
     googleProvider ??= new GoogleRoutesProvider({ apiKey: process.env.GOOGLE_ROUTES_API_KEY!.trim() });
     return googleProvider;
   }
-  if (existsSync(GTFS_FILE)) {
+  if (existsSync(/*turbopackIgnore: true*/ GTFS_FILE)) {
     gtfsProvider ??= new GtfsRouteProvider(GTFS_FILE);
     return gtfsProvider;
   }
@@ -37,9 +37,15 @@ export function selectProvider(): RouteProvider {
 const withTimeout = <T,>(p: Promise<T>, ms: number) =>
   Promise.race([p, new Promise<null>((r) => setTimeout(() => r(null), ms))]);
 
-const riskFor: RiskLookup = (code, lineId, option) => withTimeout(lookupRisk(code, lineId, option), 1500);
+const riskFor: RiskLookup = (code, lineId, option) => withTimeout(lookupRisk(code, lineId, option), 3000);
 
 const lookupRisk: RiskLookup = async (code, lineId, option): Promise<RiskResult | null> => {
+  // Rotas do GTFS: frota ao vivo (uma chamada em cache) + paradas do GTFS, no sentido da viagem.
+  if (option.source === "GTFS") {
+    const step = option.steps.find((s) => s.kind === "BUS" && s.lineCode === code);
+    const direction = step && step.kind === "BUS" ? (step.direction ?? 0) : 0;
+    return getGtfsLineRisk(code, direction);
+  }
   if (lineId) return getLineRisk(lineId);
   try {
     const found = (await getLines({ search: code })).lines.find((l) => l.displayCode === code);

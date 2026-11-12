@@ -119,7 +119,7 @@ function FloatingNav({ pathname }: { pathname: string }) {
                 <span className={cn("flex items-center justify-center rounded-full", active && "h-9 w-9 bg-white text-primary")}>
                   <Icon className={cn("h-[22px] w-[22px]", active && "stroke-[2.4]")} />
                 </span>
-                {active && <span className="truncate text-sm font-semibold">{label}</span>}
+                {active && <span className="truncate text-sm font-semibold max-[359px]:sr-only">{label}</span>}
               </Link>
             </li>
           );
@@ -168,7 +168,7 @@ export function PassengerShell({ children }: { children: React.ReactNode }) {
 
       <div className="lg:pl-60">
         <header className={cn("sticky top-0 z-30 bg-canvas/85 backdrop-blur-md lg:border-b lg:border-border lg:bg-white/90", bleed && "hidden lg:block")}>
-          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-5 sm:px-6 lg:h-14">
+          <div className="mx-auto flex min-h-16 max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-2 px-5 py-2 sm:px-6 lg:min-h-14 lg:py-0">
             <div className="flex min-w-0 items-center gap-2.5 lg:invisible">
               <Link href="/home" aria-label="Início do GoMob" className="tap flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white shadow-soft">
                 <Logo variant="mark" priority className="h-7 w-7" />
@@ -177,7 +177,7 @@ export function PassengerShell({ children }: { children: React.ReactNode }) {
                 Go<span className="text-primary">Mob</span>
               </span>
             </div>
-            <div className="flex items-center gap-2.5">
+            <div className="ml-auto flex flex-wrap items-center justify-end gap-2.5">
               <SourceIndicator />
               <AccessibilityButton />
               <UserMenu />

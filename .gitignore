@@ -51,3 +51,6 @@ next-env.d.ts
 
 # gerado por scripts/copy-maplibre-worker.mjs
 /public/vendor/
+
+# favoritos locais quando não há banco (src/features/favorites/local-repo.ts)
+/.data/

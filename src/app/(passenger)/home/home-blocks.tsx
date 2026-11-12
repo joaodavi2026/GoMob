@@ -20,7 +20,7 @@ export function HomeHeader() {
   const { data: me } = useMe();
   const name = me?.name?.trim();
   return (
-    <header className="flex items-center justify-between gap-3 pt-4">
+    <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 pt-4">
       <div className="flex min-w-0 items-center gap-3">
         <UserMenu className="h-12 w-12" />
         <div className="min-w-0">

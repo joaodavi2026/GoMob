@@ -130,21 +130,49 @@ export function AccessibilityView() {
         />
         {prefs.voice && (
           <Row>
-            <span className="text-sm font-semibold">Velocidade da voz</span>
+            <label htmlFor="voice-pick" className="text-sm font-semibold">
+              Voz
+            </label>
+            {a.voices.length > 0 ? (
+              <>
+                <select
+                  id="voice-pick"
+                  value={prefs.voiceName ?? ""}
+                  onChange={(e) => update({ voiceName: e.target.value || null })}
+                  className="h-12 w-full rounded-2xl border border-border bg-white px-3 text-[15px] font-medium text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                >
+                  <option value="">Automática: a mais clara do aparelho ({a.voices[0].name})</option>
+                  {a.voices.map((v) => (
+                    <option key={v.name} value={v.name}>
+                      {v.name}
+                      {v.recommended ? " (recomendada)" : ""}
+                      {v.lang.toLowerCase().replace("_", "-") !== "pt-br" ? " · português de Portugal" : ""}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted">Teste algumas vozes e fique com a que você entende melhor. Vozes com “Natural”, “Online” ou “Google” no nome costumam ser as mais claras.</p>
+              </>
+            ) : (
+              <p className="rounded-2xl bg-risk-moderate/10 p-3 text-sm text-ink">
+                <strong>Este aparelho não tem voz em português instalada.</strong> No Android: Configurações › Acessibilidade › Saída de texto para fala › instale
+                “Português (Brasil)”. No iPhone: Ajustes › Acessibilidade › Conteúdo Falado › Vozes › Português (Brasil) › Luciana (Aprimorada).
+              </p>
+            )}
+            <span className="mt-2 text-sm font-semibold">Velocidade da voz</span>
             <Segmented
               label="Velocidade da voz"
               value={prefs.rate}
               options={[
                 [0.8, "Devagar"],
-                [1, "Normal"],
-                [1.25, "Rápida"],
+                [0.95, "Normal"],
+                [1.15, "Rápida"],
               ]}
               onChange={(v) => update({ rate: v })}
             />
             <SpeakButton
               className="mt-1 w-full justify-center"
               label="Testar voz"
-              text="Olá! Eu sou a voz do GoMob. Vou ler as linhas, as paradas e os avisos da sua viagem."
+              text="Olá! Eu sou a voz do GoMob. Pegue a linha 875A-10, sentido Perdizes, na R. Domingos De Morais, 1725. Desça na Av. Paulista, 1374. A viagem leva cerca de 22 min."
             />
           </Row>
         )}

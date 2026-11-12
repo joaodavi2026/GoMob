@@ -50,7 +50,7 @@ export type RiskResult = {
 
 export type RouteStep =
   | { kind: "WALK"; minutes: number; from: string; to: string }
-  | { kind: "BUS"; lineCode: string; lineName: string; boardStop: string; alightStop: string; minutes: number; lineId?: string };
+  | { kind: "BUS"; lineCode: string; lineName: string; boardStop: string; alightStop: string; minutes: number; lineId?: string; /** sentido no GTFS (0 ida, 1 volta) */ direction?: number };
 
 export type BusRouteOption = {
   id: string;

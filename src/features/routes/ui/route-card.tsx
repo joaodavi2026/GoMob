@@ -67,7 +67,7 @@ export function RouteCard({
           </div>
         </div>
 
-        <p className="mt-3 truncate text-xs text-muted">
+        <p className="mt-3 break-words text-xs text-muted">
           {origin} → {destination}
         </p>
 
@@ -85,11 +85,11 @@ export function RouteCard({
               </li>
             ) : (
               <li key={i} className="rounded-2xl bg-primary-light/60 p-3">
-                <p className="flex items-center gap-2 text-sm font-bold text-ink">
+                <p className="flex flex-wrap items-center gap-2 text-sm font-bold text-ink">
                   <span className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg bg-night px-2 py-0.5 text-xs text-white">
                     <Bus className="h-3.5 w-3.5 text-primary" aria-hidden /> {s.lineCode}
                   </span>
-                  <span className="min-w-0 truncate">{s.lineName}</span>
+                  <span className="min-w-0 break-words">{s.lineName}</span>
                 </p>
                 <p className="mt-2 flex items-start gap-1.5 text-sm text-ink">
                   <ArrowUpFromLine className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
@@ -134,7 +134,7 @@ export function RouteCard({
       <div className="relative border-t border-dashed border-border px-4 py-3">
         <span className="absolute -left-2.5 -top-2.5 h-5 w-5 rounded-full bg-canvas" aria-hidden />
         <span className="absolute -right-2.5 -top-2.5 h-5 w-5 rounded-full bg-canvas" aria-hidden />
-        <dl className="flex items-center gap-4 text-xs text-muted">
+        <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted">
           <div className="flex items-center gap-1">
             <dt><Footprints className="h-3.5 w-3.5" aria-label="Caminhada" /></dt>
             <dd className="font-semibold text-ink">{route.walkMinutes} min</dd>
@@ -150,7 +150,7 @@ export function RouteCard({
           {route.source === "DEMO" && <DemoBadge label="Demonstração" />}
         </div>
         <Button className="mt-3 w-full" variant={selected ? "primary" : "dark"} onClick={onView} aria-pressed={selected}>
-          {selected ? "Fechar detalhes" : "Ver rota e mapa"}
+          {selected ? "Fechar detalhes do trajeto" : "Ver detalhes do trajeto"}
         </Button>
       </div>
     </Card>

@@ -69,7 +69,7 @@ let cached: Index | null = null;
 
 function loadIndex(path = join(process.cwd(), "public", "gtfs", "network.json")): Index {
   if (cached) return cached;
-  const net = JSON.parse(readFileSync(path, "utf8")) as Network;
+  const net = JSON.parse(readFileSync(/*turbopackIgnore: true*/ path, "utf8")) as Network;
   const lds: LineDir[] = [];
   const stopLd: [number, number][][] = [];
   for (const line of net.lines) {
@@ -96,6 +96,17 @@ function loadIndex(path = join(process.cwd(), "public", "gtfs", "network.json"))
   }
   cached = { net, lds, stopLd };
   return cached;
+}
+
+/** Paradas (em ordem) de uma linha de ônibus do GTFS em um sentido (0 = ida, 1 = volta). */
+export function gtfsLineStops(code: string, direction: number, path?: string) {
+  const idx = loadIndex(path);
+  const ld = idx.lds.find((x) => x.line.code === code && x.dir.d === direction) ?? idx.lds.find((x) => x.line.code === code);
+  if (!ld) return [];
+  return ld.dir.stops.map((s) => {
+    const st = idx.net.stops[s];
+    return { id: st[0], name: st[1], latitude: st[2], longitude: st[3] };
+  });
 }
 
 function nearStops(idx: Index, p: GeoPoint) {
@@ -211,6 +222,7 @@ export class GtfsRouteProvider implements RouteProvider {
         boardStop: name(ld.dir.stops[leg.from]),
         alightStop: name(ld.dir.stops[leg.to]),
         minutes,
+        direction: ld.dir.d,
       });
       for (let i = leg.from; i <= leg.to; i++) {
         const st = idx.net.stops[ld.dir.stops[i]];

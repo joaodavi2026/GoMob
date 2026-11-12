@@ -47,7 +47,11 @@ export default function AdminOverviewPage() {
   return (
     <div>
       <PageIntro demo={d?.isDemo}>
-        {d && !d.dbAvailable && <Badge tone="moderate">Banco de dados indisponível — valores exibidos como zero</Badge>}
+        {d && !d.dbAvailable && (
+          <Badge tone="moderate">
+            {"liveFallback" in d && d.liveFallback ? "Sem banco de dados: números calculados agora com os dados ao vivo da SPTrans (sem histórico)" : "Banco de dados indisponível — valores exibidos como zero"}
+          </Badge>
+        )}
         {d && <span>Última atualização: {formatDateTime(d.generatedAt)}</span>}
       </PageIntro>
 
