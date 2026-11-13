@@ -12,7 +12,7 @@ import { useA11y } from "@/features/a11y/a11y";
 import { Checkout } from "./checkout";
 import { IdentityCheck } from "./identity-check";
 import { PLAN_KEY, brl, usePlan, type PlanView } from "./use-plan";
-import { getVerifyMode, setVerifyMode, type VerifyMode } from "./webauthn";
+import { deviceKeyInfo, devicePlatform, forgetDeviceKey, getVerifyMode, providerLabel, setVerifyMode, subscribeDeviceKey, type DevicePlatform, type VerifyMode } from "./webauthn";
 
 const BENEFITS = [
   { icon: Megaphone, title: "Sem anúncios", text: "Nada de anúncio em tela cheia nem banners no meio do app." },
@@ -41,7 +41,7 @@ function useVerifyMode(): [VerifyMode, (m: VerifyMode) => void] {
       return () => modeListeners.delete(cb);
     },
     getVerifyMode,
-    () => "device",
+    () => "sim",
   );
   return [
     mode,
@@ -51,6 +51,12 @@ function useVerifyMode(): [VerifyMode, (m: VerifyMode) => void] {
     },
   ];
 }
+
+const noop = () => () => {};
+/** Tipo de aparelho (só no navegador; no servidor conta como computador). */
+const usePlatform = () => useSyncExternalStore<DevicePlatform>(noop, () => devicePlatform().platform, () => "desktop");
+/** Chave de confirmação registrada neste aparelho, se houver. */
+const useDeviceKey = () => useSyncExternalStore(subscribeDeviceKey, deviceKeyInfo, () => null);
 
 export function PremiumView() {
   const plan = usePlan();
@@ -63,6 +69,8 @@ export function PremiumView() {
   const [verifyCancel, setVerifyCancel] = useState(false);
   const [canceling, setCanceling] = useState(false);
   const [mode, setMode] = useVerifyMode();
+  const platform = usePlatform();
+  const deviceKey = useDeviceKey();
 
   if (plan.isPending) {
     return (
@@ -251,10 +259,15 @@ export function PremiumView() {
             <p className="text-xs text-muted">Usada ao assinar e ao cancelar.</p>
             <div className="mt-2 grid grid-cols-1 gap-2 min-[420px]:grid-cols-2" role="radiogroup" aria-label="Como confirmar">
               {(
-                [
-                  ["device", "Biometria do aparelho", "Face ID, digital, PIN ou Windows Hello"],
-                  ["sim", "Simulada", "Face ID ou PIN de demonstração"],
-                ] as [VerifyMode, string, string][]
+                (platform === "desktop"
+                  ? [
+                      ["sim", "PIN de segurança", "Um PIN do GoMob, digitado no teclado"],
+                      ["device", "Windows Hello", "PIN, rosto ou digital do Windows"],
+                    ]
+                  : [
+                      ["device", "Biometria do aparelho", "Face ID, digital ou PIN do celular"],
+                      ["sim", "Simulada", "Face ID ou PIN de demonstração"],
+                    ]) as [VerifyMode, string, string][]
               ).map(([value, label, hint]) => (
                 <button
                   key={value}
@@ -269,6 +282,24 @@ export function PremiumView() {
                 </button>
               ))}
             </div>
+            {platform === "desktop" && mode === "device" && (
+              <div className="mt-2 rounded-2xl bg-canvas px-3 py-2 text-xs text-muted">
+                <p>
+                  Um site não consegue pedir a senha da conta do Windows. Com o Windows Hello configurado (Configurações do Windows, Contas, Opções de entrada, PIN), o Windows pede o mesmo PIN, rosto ou digital da tela de bloqueio. Sem ele, o navegador oferece o Gerenciador de senhas do Google.
+                </p>
+              </div>
+            )}
+            {mode === "device" && deviceKey && (
+              <div className={cn("mt-2 rounded-2xl px-3 py-2 text-xs", deviceKey.provider === "google" && platform === "desktop" ? "bg-primary-light text-primary-pressed" : "bg-canvas text-muted")} role="status">
+                <p>
+                  Neste aparelho a confirmação está sendo feita por: <strong>{providerLabel(deviceKey.provider)}</strong>.
+                  {deviceKey.provider === "google" && platform === "desktop" && " Para usar o Windows, configure o Windows Hello e refaça a configuração; na janela do navegador, escolha salvar de outra forma e depois Windows Hello."}
+                </p>
+                <button type="button" onClick={forgetDeviceKey} className="mt-1 h-9 font-bold underline underline-offset-4">
+                  Refazer a configuração
+                </button>
+              </div>
+            )}
           </fieldset>
         </section>
       )}

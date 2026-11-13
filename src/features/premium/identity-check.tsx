@@ -11,8 +11,10 @@ type Stage = "idle" | "working" | "success";
 
 /**
  * Confirmação de identidade antes de assinar ou cancelar o plano, como nos apps de pagamento:
- *  - biometria real do aparelho (Face ID, digital/PIN do Android, Windows Hello) quando o navegador permite;
- *  - senão, uma simulação: Face ID no iPhone, teclado de PIN no Samsung/Android e no computador.
+ *  - celular: biometria real do aparelho (Face ID, digital/PIN do Android) quando o navegador permite;
+ *    senão, uma simulação (Face ID no iPhone, teclado de PIN no Samsung/Android);
+ *  - computador: PIN de segurança do próprio app, digitado no teclado. O Windows Hello é opcional (tela do Premium),
+ *    porque um site não consegue pedir a senha do Windows e, sem o Hello, o Chrome mostraria o Google no lugar.
  */
 export function IdentityCheck({
   open,
@@ -88,7 +90,7 @@ export function IdentityCheck({
   if (!open || !variant || typeof document === "undefined") return null;
 
   const simVariant: Variant = info.platform === "ios" ? "faceid" : "pin";
-  const deviceLabel = info.platform === "ios" ? "Face ID" : info.platform === "android" ? "biometria ou PIN do aparelho" : "Windows Hello ou senha do aparelho";
+  const deviceLabel = info.platform === "ios" ? "Face ID" : info.platform === "android" ? "biometria ou PIN do aparelho" : "o Windows Hello (PIN, rosto ou digital do Windows)";
 
   const runDevice = async () => {
     setStage("working");
@@ -163,12 +165,15 @@ export function IdentityCheck({
               className="tap mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-base font-bold text-white disabled:opacity-60"
             >
               {variant === "faceid" || info.platform === "ios" ? <ScanFace className="h-5 w-5" aria-hidden /> : <Fingerprint className="h-5 w-5" aria-hidden />}
-              {variant === "faceid" ? "Confirmar com Face ID" : info.platform === "ios" ? "Confirmar com Face ID" : info.platform === "android" ? "Confirmar com biometria ou PIN" : "Confirmar com o aparelho"}
+              {variant === "faceid" ? "Confirmar com Face ID" : info.platform === "ios" ? "Confirmar com Face ID" : info.platform === "android" ? "Confirmar com biometria ou PIN" : "Confirmar com o Windows Hello"}
             </button>
             {variant === "device" && (
               <button type="button" onClick={() => (setError(null), setVariant(simVariant))} className="mt-2 h-11 text-sm font-semibold text-white/70 underline underline-offset-4">
-                Verificar de outro jeito
+                {info.platform === "desktop" ? "Usar o PIN de segurança do GoMob" : "Verificar de outro jeito"}
               </button>
+            )}
+            {variant === "device" && info.platform === "desktop" && (
+              <p className="mt-1 text-center text-xs text-white/50">Se o navegador oferecer o Gerenciador de senhas do Google, escolha salvar de outra forma e depois Windows Hello.</p>
             )}
             {variant === "faceid" && <p className="mt-3 text-center text-xs text-white/50">Simulação do Face ID para a demonstração.</p>}
           </div>
@@ -254,6 +259,9 @@ function PinPad({ samsung, platform, onOk }: { samsung: boolean; platform: Devic
     return () => document.removeEventListener("keydown", onKey);
   }, [press, erase]);
 
+  const desktop = platform === "desktop";
+  // no computador o PIN é digitado no teclado; o teclado na tela fica para telas de toque
+  const [pad, setPad] = useState(!desktop);
   const where = samsung ? "PIN do Samsung" : platform === "android" ? "PIN do aparelho" : "PIN de segurança";
   const title = mode === "enter" ? `Digite seu ${where}` : mode === "create" ? "Crie um PIN de 4 dígitos" : "Repita o PIN para confirmar";
 
@@ -262,7 +270,9 @@ function PinPad({ samsung, platform, onOk }: { samsung: boolean; platform: Devic
       <p className="text-center text-base font-bold" aria-live="polite">
         {title}
       </p>
-      <p className="mt-1 text-center text-xs text-white/50">Simulação do {where} para a demonstração.</p>
+      <p className="mt-1 text-center text-xs text-white/50">
+        {desktop ? "É um PIN só do GoMob neste computador. Não use a senha do Windows nem a de outra conta." : `Simulação do ${where} para a demonstração.`}
+      </p>
       <div className={cn("mt-4 flex justify-center gap-4", shake && "idc-shake")} role="img" aria-label={`${pin.length} de 4 dígitos digitados`}>
         {[0, 1, 2, 3].map((i) => (
           <span key={i} className={cn("h-4 w-4 rounded-full border-2 border-white/60", i < pin.length && "border-primary bg-primary")} />
@@ -271,7 +281,31 @@ function PinPad({ samsung, platform, onOk }: { samsung: boolean; platform: Devic
       <p role="alert" className="mt-2 min-h-5 text-center text-sm font-semibold text-[#ff9c8f]">
         {error}
       </p>
-      <div className="mx-auto mt-2 grid max-w-[280px] grid-cols-3 gap-3">
+      {!pad && (
+        <div className="mt-2 flex flex-col items-center gap-1 pb-2">
+          <p className="rounded-2xl bg-white/10 px-4 py-3 text-center text-sm font-semibold">Digite os 4 números no teclado</p>
+          <div className="flex flex-wrap justify-center gap-x-4">
+            <button type="button" onClick={() => setPad(true)} className="h-11 text-sm font-semibold text-white/70 underline underline-offset-4">
+              Mostrar teclado na tela
+            </button>
+            {mode === "enter" && (
+              <button
+                type="button"
+                onClick={() => {
+                  clearPin();
+                  setMode("create");
+                  setPin("");
+                  setError(null);
+                }}
+                className="h-11 text-sm font-semibold text-white/70 underline underline-offset-4"
+              >
+                Esqueci o PIN
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+      <div className={cn("mx-auto mt-2 grid max-w-[280px] grid-cols-3 gap-3", !pad && "hidden")}>
         {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((d) => (
           <button key={d} type="button" onClick={() => press(d)} className="tap flex h-16 items-center justify-center rounded-full bg-white/10 text-2xl font-bold">
             {d}
