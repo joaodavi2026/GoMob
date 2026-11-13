@@ -10,17 +10,8 @@ import { RiskIndicator, timeAgo } from "@/components/ui/indicators";
 import { Badge, Card, DemoBadge, EmptyState, ErrorState, Skeleton } from "@/components/ui/primitives";
 import type { RiskResult, TransitLine } from "@/types/transit";
 import { routesHref } from "./places";
+import { useFavorites } from "@/features/favorites/use-favorites";
 
-type FavoriteItem = {
-  id: string;
-  nickname: string;
-  originLabel: string;
-  destinationLabel: string;
-  originLatitude: number;
-  originLongitude: number;
-  destinationLatitude: number;
-  destinationLongitude: number;
-};
 type AlertItem = { id: string; lineId?: string | null; type: string; title: string; description: string; createdAt: string; isDemo: boolean };
 type LinesData = { lines: (TransitLine & { active?: boolean })[]; source?: string; state?: string };
 
@@ -51,8 +42,8 @@ const unavailable = "Os dados ao vivo estão temporariamente indisponíveis.";
 
 export function FavoriteJourneys() {
   const router = useRouter();
-  const q = useQuery({ queryKey: ["favorites"], queryFn: () => apiFetch<{ favorites: FavoriteItem[] }>("/api/favorites"), retry: 0 });
-  const favs = q.data?.favorites ?? [];
+  const q = useFavorites();
+  const favs = q.data ?? [];
 
   return (
     <section aria-labelledby="fav-h" className="mt-8">

@@ -38,7 +38,7 @@ export const MIN_WEIGHT_COVERAGE = 0.45;
 export const DEFAULT_ESSENTIAL: FactorKey[] = ["headway"];
 
 export const FACTOR_LABEL: Record<FactorKey, string> = {
-  demand: "demanda histórica",
+  demand: "demanda do horário",
   headway: "irregularidade dos intervalos",
   delay: "atraso operacional",
   operations: "irregularidade operacional",
@@ -118,7 +118,7 @@ function phrase(key: FactorKey, v: number): string | null {
   if (v < 60) return null;
   switch (key) {
     case "demand":
-      return "demanda historicamente alta neste período";
+      return "demanda alta neste horário";
     case "headway":
       return "intervalos irregulares entre os ônibus";
     case "delay":

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { FAVORITES_KEY } from "@/features/favorites/use-favorites";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { Info } from "lucide-react";
@@ -15,6 +16,8 @@ import { SORT_LABELS, type RouteSearchResponse, type SortKey } from "../types";
 import { PlaceSearch } from "./place-search";
 import { RouteCard, type RouteTag } from "./route-card";
 import { RouteDetails } from "./route-details";
+import { TripMode } from "@/features/trip/trip-mode";
+import { useAds } from "@/features/ads/ads";
 
 /** true em telas largas (lg): os detalhes ficam na coluna da direita; no celular, abaixo do cartão. */
 const LG = "(min-width: 1024px)";
@@ -36,10 +39,16 @@ export function RoutesView() {
   const params = useSearchParams();
   const toast = useToast();
   const { announce } = useA11y();
+  const qc = useQueryClient();
+  const ads = useAds();
+  /** No plano grátis, um anúncio aparece antes de o trajeto começar. */
+  const startTrip = (id: string) => ads.request(() => setTripId(id));
   const [origin, setOrigin] = useState<GeoPoint | null>(() => parsePointParam(params.get("o")));
   const [destination, setDestination] = useState<GeoPoint | null>(() => parsePointParam(params.get("d")));
   const [sort, setSort] = useState<SortKey>("fastest");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  /** Rota aberta no modo "em trajeto" (mapa guiando a viagem). */
+  const [tripId, setTripId] = useState<string | null>(null);
 
   // Mantém a URL (?o=&d=) em sincronia para compartilhamento/retorno.
   useEffect(() => {
@@ -94,6 +103,7 @@ export function RoutesView() {
         }),
       }),
     onSuccess: () => {
+      qc.invalidateQueries({ queryKey: FAVORITES_KEY });
       toast.success("Trajeto salvo em Salvos.");
       announce("Trajeto salvo em Salvos.");
     },
@@ -114,11 +124,15 @@ export function RoutesView() {
         onSave={() => save.mutate()}
         saving={save.isPending}
         saved={save.isSuccess}
+        onStart={selected.steps.some((s) => s.kind === "BUS" && s.legStops?.length) ? () => startTrip(selected.id) : undefined}
       />
     ) : null;
 
+  const tripRoute = data?.routes.find((r) => r.id === tripId) ?? null;
+
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5 pb-4 pt-2">
+      {tripRoute && origin && destination && <TripMode route={tripRoute} origin={origin} destination={destination} onClose={() => setTripId(null)} />}
       <header>
         <h1 className="text-[30px] font-extrabold leading-tight tracking-tight">Para onde vamos?</h1>
         <p className="mt-1 text-sm text-muted">Viagens de ônibus, com caminhada até as paradas e nas baldeações.</p>
@@ -194,6 +208,7 @@ export function RoutesView() {
                       save.reset();
                       setSelectedId(r.id === selectedId ? null : r.id);
                     }}
+                    onStart={r.steps.some((s) => s.kind === "BUS" && s.legStops?.length) ? () => startTrip(r.id) : undefined}
                     origin={origin?.label ?? "Origem"}
                     destination={destination?.label ?? "Destino"}
                   />
@@ -203,7 +218,7 @@ export function RoutesView() {
               ))}
             </ul>
             <div className="hidden lg:block">
-              {(isDesktop && details) || <EmptyState title="Escolha uma rota" description="Toque em Ver rota em um cartão para ver o passo a passo e o mapa." />}
+              {(isDesktop && details) || <EmptyState title="Escolha uma rota" description="Toque em Ver detalhes ou em Iniciar trajeto em um cartão." />}
             </div>
           </div>
         </>

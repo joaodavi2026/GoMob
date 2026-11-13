@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, Pencil, Search, Star, Trash2 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -10,17 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Card, EmptyState, Skeleton } from "@/components/ui/primitives";
 import { ConfirmDialog, Modal } from "@/components/ui/overlay";
 import { useToast } from "@/components/ui/toast";
-
-type Favorite = {
-  id: string;
-  nickname: string;
-  originLabel: string;
-  destinationLabel: string;
-  originLatitude: number;
-  originLongitude: number;
-  destinationLatitude: number;
-  destinationLongitude: number;
-};
+import { FAVORITES_KEY, useFavorites, type Favorite } from "@/features/favorites/use-favorites";
 
 function searchHref(f: Favorite) {
   const enc = encodeURIComponent;
@@ -36,13 +26,7 @@ export function FavoritesView() {
   const [nickname, setNickname] = useState("");
   const [removing, setRemoving] = useState<Favorite | null>(null);
 
-  const list = useQuery({
-    queryKey: ["favorites"],
-    queryFn: async () => {
-      const data = await apiFetch<{ favorites?: Favorite[]; items?: Favorite[] }>("/api/favorites");
-      return data.favorites ?? data.items ?? [];
-    },
-  });
+  const list = useFavorites();
 
   const rename = useMutation({
     mutationFn: (v: { id: string; nickname: string }) =>
@@ -50,7 +34,7 @@ export function FavoritesView() {
     onSuccess: () => {
       toast.success("Viagem atualizada.");
       setEditing(null);
-      qc.invalidateQueries({ queryKey: ["favorites"] });
+      qc.invalidateQueries({ queryKey: FAVORITES_KEY });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -60,7 +44,7 @@ export function FavoritesView() {
     onSuccess: () => {
       toast.success("Viagem removida.");
       setRemoving(null);
-      qc.invalidateQueries({ queryKey: ["favorites"] });
+      qc.invalidateQueries({ queryKey: FAVORITES_KEY });
     },
     onError: (e: Error) => toast.error(e.message),
   });

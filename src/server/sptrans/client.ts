@@ -205,6 +205,8 @@ export function createSptransClient(opts: SptransClientOptions = {}) {
     positionsByLine: (codigoLinha: number) => get(`/Posicao/Linha?codigoLinha=${Math.trunc(codigoLinha)}`, SPTRANS_TTL.positionsMs, false),
     /** Todas as posições da frota (uma chamada, ~15 mil veículos). */
     allPositions: () => get(`/Posicao`, SPTRANS_TTL.positionsMs, false),
+    /** Previsão de chegada dos ônibus em uma parada (código da parada = stop_id do GTFS). */
+    forecastByStop: (codigoParada: number) => get(`/Previsao/Parada?codigoParada=${Math.trunc(codigoParada)}`, SPTRANS_TTL.positionsMs, false),
     getHealth: (): SptransHealth => ({ ...health }),
     clearCache: () => cache.clear(),
   };

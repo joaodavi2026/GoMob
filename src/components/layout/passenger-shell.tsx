@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Accessibility, ShieldCheck, User as UserIcon } from "lucide-react";
+import { Accessibility, Crown, ShieldCheck, User as UserIcon } from "lucide-react";
+import { AdsProvider } from "@/features/ads/ads";
+import { usePlan } from "@/features/premium/use-plan";
 import { ReadScreenButton } from "@/features/a11y/a11y";
 import { CompassIcon, HeartIcon, HomeIcon, LiveIcon, RouteIcon } from "@/components/icons/animated-icons";
 import { Logo } from "@/components/ui/logo";
@@ -53,6 +55,7 @@ function SourceIndicator() {
 export function UserMenu({ className }: { className?: string }) {
   const router = useRouter();
   const { data: me } = useMe();
+  const { premium } = usePlan();
 
   return (
     <Dropdown
@@ -64,6 +67,7 @@ export function UserMenu({ className }: { className?: string }) {
       }
       items={[
         { key: "profile", label: "Perfil", icon: <UserIcon className="h-4 w-4" aria-hidden />, onSelect: () => router.push("/profile") },
+        { key: "premium", label: premium ? "Premium ativo" : "Assinar Premium", icon: <Crown className="h-4 w-4 text-primary" aria-hidden />, onSelect: () => router.push("/premium") },
         { key: "a11y", label: "Acessibilidade", icon: <Accessibility className="h-4 w-4" aria-hidden />, onSelect: () => router.push("/accessibility") },
         ...(me?.role === "ADMIN"
           ? [{ key: "admin", label: "Painel administrativo", icon: <ShieldCheck className="h-4 w-4" aria-hidden />, onSelect: () => router.push("/admin") }]
@@ -113,7 +117,7 @@ function FloatingNav({ pathname }: { pathname: string }) {
                 data-still={active ? undefined : ""}
                 className={cn(
                   "tap flex h-12 items-center rounded-full transition-all duration-300",
-                  active ? "gap-2 bg-primary pl-1.5 pr-4 text-white" : "w-12 justify-center text-white/60 hover:bg-white/10 hover:text-white",
+                  active ? "gap-2 bg-primary pl-1.5 pr-3.5 text-white" : "w-11 justify-center text-white/60 hover:bg-white/10 hover:text-white",
                 )}
               >
                 <span className={cn("flex items-center justify-center rounded-full", active && "h-9 w-9 bg-white text-primary")}>
@@ -134,6 +138,7 @@ export function PassengerShell({ children }: { children: React.ReactNode }) {
   const bleed = FULL_BLEED_MOBILE.some((p) => isActive(pathname, p));
 
   return (
+    <AdsProvider>
     <div className="min-h-dvh bg-canvas">
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[200] focus:rounded-lg focus:bg-white focus:px-3 focus:py-2">
         Pular para o conteúdo
@@ -193,6 +198,7 @@ export function PassengerShell({ children }: { children: React.ReactNode }) {
       <ReadScreenButton />
       <FloatingNav pathname={pathname} />
     </div>
+    </AdsProvider>
   );
 }
 

@@ -111,9 +111,9 @@ describe("missing data policy", () => {
     expect(r.level).toBe("HIGH");
     expect(r.explanation).toMatch(/intervalos irregulares entre os ônibus/);
     expect(r.explanation).not.toMatch(/atrasos operacionais/);
-    expect(r.explanation).not.toMatch(/demanda historicamente alta/);
+    expect(r.explanation).not.toMatch(/demanda alta neste horário/);
     expect(r.explanation).toMatch(/Com base em 2 de 4 sinais/);
-    expect(r.explanation).toMatch(/Não disponível: demanda histórica, atraso operacional/);
+    expect(r.explanation).toMatch(/Não disponível: demanda do horário, atraso operacional/);
   });
   it("fewer factors lower confidence versus full data", () => {
     const full = computeRisk({ demand: f(50), headway: f(50), delay: f(50), operations: f(50) }, { now: NOW });

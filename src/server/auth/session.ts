@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { MEMBER_COOKIE, memberByToken, memberUserId } from "@/features/family/store";
 
 export const SESSION_COOKIE = "gomob_session";
 const MAX_AGE_SECONDS = 60 * 60 * 8;
@@ -39,7 +40,17 @@ export async function verifySessionToken(token: string | undefined): Promise<Ses
  */
 export const OPEN_SESSION: SessionPayload = { userId: "open-guest", role: "ADMIN", name: "João Davi" };
 
+/**
+ * Familiares convidados (aba Família) entram pelo link de convite e ficam com um cookie próprio,
+ * sem senha. Sem esse cookie, o aparelho usa o usuário aberto.
+ */
 export async function getSession(): Promise<SessionPayload> {
+  try {
+    const member = memberByToken((await cookies()).get(MEMBER_COOKIE)?.value);
+    if (member) return { userId: memberUserId(member.id), role: "USER", name: member.name };
+  } catch {
+    // fora de uma requisição (ou armazenamento indisponível): usuário aberto
+  }
   return OPEN_SESSION;
 }
 

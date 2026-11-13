@@ -223,6 +223,10 @@ export class GtfsRouteProvider implements RouteProvider {
         alightStop: name(ld.dir.stops[leg.to]),
         minutes,
         direction: ld.dir.d,
+        legStops: ld.dir.stops.slice(leg.from, leg.to + 1).map((sid) => {
+          const st = idx.net.stops[sid];
+          return [st[3], st[2], st[1]] as [number, number, string];
+        }),
       });
       for (let i = leg.from; i <= leg.to; i++) {
         const st = idx.net.stops[ld.dir.stops[i]];

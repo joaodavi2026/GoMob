@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PremiumTeaser } from "@/features/premium/premium-teaser";
 import { useRouter } from "next/navigation";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useFavorites } from "@/features/favorites/use-favorites";
 import { Check, GraduationCap, Heart, Pencil, X } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -44,7 +46,7 @@ export function ProfileView() {
   const qc = useQueryClient();
   const toast = useToast();
   const me = useMe();
-  const favs = useQuery({ queryKey: ["favorites"], retry: 0, queryFn: () => apiFetch<{ favorites: unknown[] }>("/api/favorites") });
+  const favs = useFavorites();
 
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
@@ -94,13 +96,14 @@ export function ProfileView() {
   }
 
   const user = me.data;
-  const favCount = favs.data?.favorites.length;
+  const favCount = favs.data?.length;
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <h1 className="pt-2 text-[30px] leading-tight tracking-tight">
         <span className="font-light text-muted">Seu</span> <span className="font-extrabold">perfil</span>
       </h1>
+      <PremiumTeaser />
 
       {me.isPending ? (
         <Skeleton className="h-64 w-full rounded-2xl" />

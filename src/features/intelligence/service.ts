@@ -1,6 +1,6 @@
 import { db } from "@/server/db";
 import { getScenario } from "@/server/demo/scenario";
-import { getStops, getVehicles } from "@/server/transit/service";
+import { getLine, getStops, getVehicles } from "@/server/transit/service";
 import type { RiskResult, TransitStop, TransitVehicle } from "@/types/transit";
 import { getFleetSnapshot } from "@/server/sptrans/fleet";
 import { gtfsLineStops } from "@/features/routes/gtfs-provider";
@@ -8,6 +8,7 @@ import { computeHourlyDemandFactor, saoPauloParts, type HistoryRow } from "./dem
 import { demoFactors, DEMO_LABEL } from "./demo";
 import { computeRisk, type RiskInputs } from "./engine";
 import { computeSpacingSignals } from "./signals";
+import { intervalFactor, routeLengthMeters, typicalDemand } from "./profile";
 import { parseWeights, WEIGHTS_SETTING_KEY, type RiskWeights, DEFAULT_WEIGHTS } from "./weights";
 
 /**
@@ -73,8 +74,31 @@ export async function getGtfsLineRisk(code: string, direction: number, opts: { n
     const sig = computeSpacingSignals(vehicles, stops, now);
     inputs.headway = sig.headway;
     inputs.operations = sig.operations;
+    if (sig.headway.value === null) return profileRisk(vehicles.length, stops, fleet.fetchedAt, weights, now);
   }
   return computeRisk(inputs, { weights, now });
+}
+
+/**
+ * Poucos ônibus ao vivo (menos de 3) não permitem medir a regularidade dos intervalos. Em vez de ficar
+ * sem estimativa, usa a demanda típica do horário e o intervalo estimado pela quantidade de ônibus na linha.
+ * A confiança é limitada e a explicação deixa claro que é uma estimativa aproximada.
+ */
+function profileRisk(liveVehicles: number, stops: TransitStop[], observedAt: string, weights: RiskWeights, now: Date): RiskResult {
+  const parts = saoPauloParts(now);
+  const inputs: RiskInputs = {
+    demand: typicalDemand(parts.weekday, parts.hour),
+    headway: intervalFactor(routeLengthMeters(stops), liveVehicles, observedAt),
+  };
+  const seen = liveVehicles === 0 ? "não há ônibus ao vivo" : liveVehicles === 1 ? "há só 1 ônibus ao vivo" : `há só ${liveVehicles} ônibus ao vivo`;
+  return computeRisk(inputs, {
+    weights,
+    now,
+    essential: [],
+    minCoverage: 0.3,
+    confidenceCap: 0.4,
+    explanationPrefix: `Estimativa aproximada: ${seen} neste sentido agora, por isso usamos a demanda típica do horário${liveVehicles ? " e o intervalo estimado pela quantidade de ônibus" : ""}.`,
+  });
 }
 
 export const isDemoLineId = (lineId: string) => lineId.startsWith("demo-");
@@ -91,6 +115,12 @@ export async function getDemoRisk(lineKey: string, now: Date = new Date()): Prom
 export async function getLineRisk(lineId: string, opts: { now?: Date } = {}): Promise<RiskResult> {
   const now = opts.now ?? new Date();
   if (isDemoLineId(lineId)) return getDemoRisk(lineId, now);
+
+  // Linhas reais: mesma base das rotas (frota ao vivo + paradas do GTFS), no sentido da linha.
+  const line = await getLine(lineId).catch(() => null);
+  if (line && line.source === "SPTRANS" && gtfsLineStops(line.displayCode, line.direction === 2 ? 1 : 0).length >= 2) {
+    return getGtfsLineRisk(line.displayCode, line.direction === 2 ? 1 : 0, { now });
+  }
 
   const weights = await loadWeights();
   const inputs: RiskInputs = {};

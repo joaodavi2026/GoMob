@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDownToLine, ArrowUpFromLine, Bus, ChevronDown, Clock, Footprints, HelpCircle, Repeat } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, Bus, ChevronDown, Clock, Footprints, HelpCircle, Navigation, Repeat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge, Card, DemoBadge } from "@/components/ui/primitives";
 import { RiskBadge } from "@/components/ui/risk-badge";
@@ -24,6 +24,7 @@ export function RouteCard({
   why = [],
   selected,
   onView,
+  onStart,
   origin,
   destination,
 }: {
@@ -32,6 +33,8 @@ export function RouteCard({
   why?: string[];
   selected: boolean;
   onView: () => void;
+  /** Abre o modo "em trajeto" (mapa guiando a viagem). */
+  onStart?: () => void;
   origin: string;
   destination: string;
 }) {
@@ -149,9 +152,16 @@ export function RouteCard({
           <Clock className="h-3 w-3" aria-hidden /> Dados de {time(route.dataTimestamp)} · {SOURCE_LABEL[route.source]}
           {route.source === "DEMO" && <DemoBadge label="Demonstração" />}
         </div>
-        <Button className="mt-3 w-full" variant={selected ? "primary" : "dark"} onClick={onView} aria-pressed={selected}>
-          {selected ? "Fechar detalhes do trajeto" : "Ver detalhes do trajeto"}
-        </Button>
+        <div className="mt-3 grid grid-cols-1 gap-2 min-[360px]:grid-cols-[1.4fr_1fr]">
+          {onStart && (
+            <Button onClick={onStart} size="lg" className="w-full">
+              <Navigation className="h-5 w-5" aria-hidden /> Iniciar trajeto
+            </Button>
+          )}
+          <Button variant={selected ? "primary" : "dark"} size="lg" className="w-full" onClick={onView} aria-pressed={selected}>
+            {selected ? "Fechar detalhes" : "Ver detalhes"}
+          </Button>
+        </div>
       </div>
     </Card>
   );

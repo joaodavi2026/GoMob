@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Accessibility, BellRing, Bookmark, BookmarkCheck, Bus, Footprints, Info, Landmark, MapPin, X } from "lucide-react";
+import { Accessibility, BellRing, Bookmark, BookmarkCheck, Bus, Footprints, Info, Landmark, MapPin, Navigation, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/primitives";
 import { RiskPanel } from "@/features/intelligence/ui/risk-panel";
@@ -121,6 +121,7 @@ export function RouteDetails({
   onSave,
   saving,
   saved,
+  onStart,
 }: {
   route: RouteResult;
   origin: GeoPoint;
@@ -129,6 +130,7 @@ export function RouteDetails({
   onSave: () => void;
   saving: boolean;
   saved: boolean;
+  onStart?: () => void;
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
   // ao abrir, o foco vai para o título: leitor de tela e teclado começam no lugar certo
@@ -165,7 +167,12 @@ export function RouteDetails({
         </div>
 
         <div className="space-y-2">
-          <Button onClick={onSave} loading={saving} disabled={saved} size="lg" className="w-full" aria-describedby="save-status">
+          {onStart && (
+            <Button onClick={onStart} size="lg" className="w-full">
+              <Navigation className="h-5 w-5" aria-hidden /> Iniciar trajeto no mapa
+            </Button>
+          )}
+          <Button onClick={onSave} loading={saving} disabled={saved} size="lg" variant={onStart ? "dark" : "primary"} className="w-full" aria-describedby="save-status">
             {saved ? <BookmarkCheck className="h-5 w-5" aria-hidden /> : <Bookmark className="h-5 w-5" aria-hidden />}
             {saved ? "Trajeto salvo" : "Salvar trajeto"}
           </Button>

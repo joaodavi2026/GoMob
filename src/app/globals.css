@@ -484,3 +484,133 @@ a[data-still]:not(:hover):not(:focus-visible) .ai-anim * {
 a[data-still]:not(:hover):not(:focus-visible) .ai-anim .ai-dot {
   display: none;
 }
+
+/* ---- Modo "em trajeto": você no mapa ---- */
+.trip-me {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #1a73e8;
+  border: 4px solid #ffffff;
+  box-shadow: 0 0 0 0 rgb(26 115 232 / 0.45), 0 2px 8px rgb(0 0 0 / 0.3);
+  animation: trip-pulse 1.8s ease-out infinite;
+}
+@keyframes trip-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(26 115 232 / 0.45), 0 2px 8px rgb(0 0 0 / 0.3); }
+  100% { box-shadow: 0 0 0 18px rgb(26 115 232 / 0), 0 2px 8px rgb(0 0 0 / 0.3); }
+}
+
+/* ---- Confirmação de identidade (Face ID / PIN) ---- */
+.idc-pop {
+  animation: idc-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes idc-pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.idc-scan {
+  animation: idc-glow 1.1s ease-in-out infinite;
+}
+.idc-scan::after {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  height: 3px;
+  border-radius: 3px;
+  background: #ff6b00;
+  box-shadow: 0 0 12px #ff6b00;
+  animation: idc-line 1.1s ease-in-out infinite;
+}
+@keyframes idc-line {
+  0%, 100% { top: 18%; }
+  50% { top: 80%; }
+}
+@keyframes idc-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(255 107 0 / 0.5); }
+  50% { box-shadow: 0 0 0 14px rgb(255 107 0 / 0); }
+}
+.idc-shake {
+  animation: idc-shake 0.4s ease-in-out;
+}
+@keyframes idc-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-10px); }
+  40%, 80% { transform: translateX(10px); }
+}
+
+/* ---- Anúncios (simulação) ---- */
+.ad-in {
+  animation: ad-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes ad-in {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.ad-float {
+  animation: ad-float 4s ease-in-out infinite;
+}
+@keyframes ad-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+.ad-ring {
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+.ad-ring circle {
+  transition: stroke-dashoffset 1s linear;
+}
+
+/* ---- Gobi, o guia ---- */
+.gobi .gobi-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: gobi-blink 4.2s infinite;
+}
+.gobi .gobi-antenna {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: gobi-wiggle 3s ease-in-out infinite;
+}
+@keyframes gobi-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+@keyframes gobi-wiggle {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+.gobi-dot {
+  animation: gobi-dot 0.9s ease-in-out infinite;
+}
+@keyframes gobi-dot {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(-4px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gobi .gobi-eyes, .gobi .gobi-antenna, .gobi-dot { animation: none; }
+}
+
+/* ---- Família: pessoa no mapa ---- */
+.fam-pin {
+  display: flex;
+  height: 40px;
+  min-width: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #ff6b00;
+  color: #fff;
+  font: 800 14px var(--font-sans), sans-serif;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 0 rgb(255 107 0 / 0.45), 0 4px 12px rgb(0 0 0 / 0.3);
+  animation: fam-pulse 1.8s ease-out infinite;
+}
+@keyframes fam-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(255 107 0 / 0.45), 0 4px 12px rgb(0 0 0 / 0.3); }
+  100% { box-shadow: 0 0 0 18px rgb(255 107 0 / 0), 0 4px 12px rgb(0 0 0 / 0.3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .idc-pop, .idc-scan, .idc-scan::after, .idc-shake, .ad-in, .ad-float, .fam-pin { animation: none; }
+}
