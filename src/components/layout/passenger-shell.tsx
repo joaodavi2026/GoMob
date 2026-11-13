@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { PlanTag } from "@/features/premium/plan-tag";
 import { usePathname, useRouter } from "next/navigation";
 import { Accessibility, Crown, ShieldCheck, User as UserIcon } from "lucide-react";
 import { AdsProvider } from "@/features/ads/ads";
@@ -61,7 +62,10 @@ export function UserMenu({ className }: { className?: string }) {
     <Dropdown
       header={
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold">{me?.name ?? "Usuário GoMob"}</p>
+          <p className="flex items-center gap-2 text-sm font-semibold">
+            <span className="truncate">{me?.name ?? "Usuário GoMob"}</span>
+            <PlanTag link={false} />
+          </p>
           {me?.email && <p className="truncate text-xs text-muted">{me.email}</p>}
         </div>
       }

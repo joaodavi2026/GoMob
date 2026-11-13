@@ -2,7 +2,7 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Ban, BellRing, Check, CreditCard, Crown, Megaphone, MoonStar, ShieldCheck, Users, X } from "lucide-react";
+import { Ban, BellRing, Check, CreditCard, Crown, Infinity as InfinityIcon, Megaphone, MoonStar, ShieldCheck, Users, X } from "lucide-react";
 import { Button, ConfirmDialog, ErrorState, Skeleton } from "@/components/ui";
 import { useToast } from "@/components/ui/toast";
 import { useMe } from "@/components/layout/hooks";
@@ -14,8 +14,25 @@ import { IdentityCheck } from "./identity-check";
 import { PLAN_KEY, brl, usePlan, type PlanView } from "./use-plan";
 import { deviceKeyInfo, devicePlatform, forgetDeviceKey, getVerifyMode, providerLabel, setVerifyMode, subscribeDeviceKey, type DevicePlatform, type VerifyMode } from "./webauthn";
 
+/** Os dois planos, lado a lado na tela. `ad`: item que fala dos anúncios (ganha destaque). */
+const PLANS: { id: "FREE" | "PREMIUM"; name: string; tagline: string; items: { text: string; ad?: boolean }[] }[] = [
+  {
+    id: "FREE",
+    name: "Plano Gratuito",
+    tagline: "Tudo o que é essencial para andar de ônibus, com anúncios.",
+    items: [{ text: "Com anúncios", ad: true }, { text: "Rotas, linhas e ônibus ao vivo" }, { text: "Modo em trajeto com voz" }, { text: "Atividade, Família e Gobi" }],
+  },
+  {
+    id: "PREMIUM",
+    name: "Plano Premium",
+    tagline: "Sem anúncios e com viagens ilimitadas.",
+    items: [{ text: "Sem anúncios", ad: true }, { text: "Viagens ilimitadas" }, { text: "Trajeto em segundo plano, com avisos por notificação" }, { text: "Vale para a sua família" }],
+  },
+];
+
 const BENEFITS = [
   { icon: Megaphone, title: "Sem anúncios", text: "Nada de anúncio em tela cheia nem banners no meio do app." },
+  { icon: InfinityIcon, title: "Viagens ilimitadas", text: "Use o modo em trajeto quantas vezes quiser, sem interrupções antes de começar." },
   { icon: MoonStar, title: "Trajeto em segundo plano", text: "A tela não apaga durante a viagem e os avisos chegam como notificação quando você sai do app." },
   { icon: BellRing, title: "Aviso para descer", text: "Notificação do sistema quando o seu ponto é o próximo, mesmo com o app minimizado." },
   { icon: Users, title: "Vale para a família", text: "As pessoas da sua família também ficam sem anúncios." },
@@ -121,6 +138,17 @@ export function PremiumView() {
               <p className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-risk-low/20 px-3 py-2 text-sm font-bold">
                 <ShieldCheck className="h-5 w-5 text-[#6ee7a0]" aria-hidden /> Sem anúncios neste app
               </p>
+              {/* cancelar fica à vista logo no topo (o mesmo botão existe em Pagamento, mais abaixo) */}
+              {p.canManage && (
+                <button
+                  type="button"
+                  onClick={() => setConfirmCancel(true)}
+                  disabled={canceling}
+                  className="tap mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-white/25 bg-white/10 text-sm font-bold text-white disabled:opacity-60"
+                >
+                  <Ban className="h-4 w-4" aria-hidden /> Cancelar plano
+                </button>
+              )}
             </>
           ) : (
             <>
@@ -139,6 +167,52 @@ export function PremiumView() {
             </>
           )}
         </div>
+      </section>
+
+      {/* os dois planos */}
+      <section aria-labelledby="pm-plans">
+        <h2 id="pm-plans" className="mb-3 text-lg font-extrabold text-ink">
+          Planos
+        </h2>
+        <ul className="grid grid-cols-1 gap-3 min-[560px]:grid-cols-2">
+          {PLANS.map((pl) => {
+            const current = (pl.id === "PREMIUM") === premium;
+            const gold = pl.id === "PREMIUM";
+            return (
+              <li key={pl.id} className={cn("flex flex-col rounded-3xl p-4 shadow-soft", gold ? "bg-night text-white" : "bg-white text-ink", current && "ring-2 ring-primary")}>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="flex items-center gap-1.5 text-base font-extrabold">
+                    {gold && <Crown className="h-4 w-4 text-[#ffc861]" aria-hidden />}
+                    {pl.name}
+                  </h3>
+                  {current && <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-wide text-white">Seu plano</span>}
+                </div>
+                <p className="mt-1 flex items-end gap-1">
+                  <span className="text-2xl font-extrabold">{gold ? price : "R$ 0"}</span>
+                  <span className={cn("pb-0.5 text-xs font-semibold", gold ? "text-white/70" : "text-muted")}>{gold ? "por mês" : "para sempre"}</span>
+                </p>
+                <p className={cn("mt-1 text-sm", gold ? "text-white/75" : "text-muted")}>{pl.tagline}</p>
+                <ul className="mt-3 flex-1 space-y-2 text-sm">
+                  {pl.items.map((it) => (
+                    <li key={it.text} className={cn("flex items-start gap-2", it.ad && "font-extrabold")}>
+                      {it.ad && !gold ? (
+                        <Megaphone className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                      ) : (
+                        <Check className={cn("mt-0.5 h-4 w-4 shrink-0", gold ? "text-[#6ee7a0]" : "text-risk-low")} aria-hidden />
+                      )}
+                      <span>{it.text}</span>
+                    </li>
+                  ))}
+                </ul>
+                {gold && p.canManage && !premium && (
+                  <Button className="mt-4 w-full" onClick={() => setBuying(true)}>
+                    <Crown className="h-4 w-4" aria-hidden /> Assinar Premium
+                  </Button>
+                )}
+              </li>
+            );
+          })}
+        </ul>
       </section>
 
       {/* benefícios */}
@@ -166,7 +240,7 @@ export function PremiumView() {
       {!premium && (
         <section aria-labelledby="pm-compare" className="rounded-3xl bg-white p-4 shadow-soft">
           <h2 id="pm-compare" className="text-lg font-extrabold text-ink">
-            Grátis ou Premium
+            Gratuita ou Premium
           </h2>
           <table className="mt-2 w-full text-sm">
             <thead>
@@ -174,8 +248,8 @@ export function PremiumView() {
                 <th scope="col" className="py-2 text-left font-semibold">
                   Recurso
                 </th>
-                <th scope="col" className="w-16 py-2 font-semibold">
-                  Grátis
+                <th scope="col" className="w-20 py-2 font-semibold">
+                  Gratuita
                 </th>
                 <th scope="col" className="w-20 py-2 font-semibold text-primary-pressed">
                   Premium

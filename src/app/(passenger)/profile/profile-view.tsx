@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PlanTag } from "@/features/premium/plan-tag";
 import { PremiumTeaser } from "@/features/premium/premium-teaser";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -131,6 +132,7 @@ export function ProfileView() {
               ) : (
                 <div className="flex items-center gap-2">
                   <p className="truncate text-xl font-bold">{user.name}</p>
+                  <PlanTag />
                   <Button variant="ghost" size="icon" onClick={startEdit} aria-label="Editar nome de exibição">
                     <Pencil className="h-4 w-4" aria-hidden />
                   </Button>

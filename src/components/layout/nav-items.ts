@@ -12,7 +12,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/activity", label: "Atividade", icon: History, mobile: true },
   { href: "/family", label: "Família", icon: Users, mobile: true },
   { href: "/favorites", label: "Salvos", icon: Heart, mobile: true },
-  { href: "/premium", label: "Premium", icon: Crown, mobile: false },
+  { href: "/premium", label: "Planos", icon: Crown, mobile: false },
   { href: "/accessibility", label: "Acessibilidade", icon: Accessibility, mobile: false },
   { href: "/profile", label: "Perfil", icon: User, mobile: false },
 ];

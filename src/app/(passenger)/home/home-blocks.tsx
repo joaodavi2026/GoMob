@@ -1,6 +1,7 @@
 "use client";
 
 import "maplibre-gl/dist/maplibre-gl.css";
+import { PlanTag } from "@/features/premium/plan-tag";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { ArrowRight, Bus, ChevronRight, Clock, Compass, MapPin, Ticket, TrainFront, TramFront } from "lucide-react";
@@ -24,10 +25,16 @@ export function HomeHeader() {
       <div className="flex min-w-0 items-center gap-3">
         <UserMenu className="h-12 w-12" />
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-ink">
-            Olá{name ? `, ${name}` : ""} 👋
+          <p className="flex items-center gap-2 text-sm font-semibold text-ink">
+            <span className="truncate">
+              Olá{name ? `, ${name}` : ""} 👋
+            </span>
+            {/* em telas largas a etiqueta do plano fica ao lado do nome */}
+            <PlanTag className="max-[479px]:hidden" />
           </p>
-          <p className="flex items-center gap-1 text-xs text-muted">
+          {/* no celular não cabe ao lado do nome sem empurrar o botão de Acessibilidade: fica logo abaixo */}
+          <PlanTag className="mt-1 min-[480px]:hidden" />
+          <p className="flex items-center gap-1 text-xs text-muted max-[479px]:hidden">
             <MapPin className="h-3.5 w-3.5 text-primary" aria-hidden /> São Paulo, SP
           </p>
         </div>
