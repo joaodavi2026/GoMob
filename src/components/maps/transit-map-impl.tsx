@@ -7,6 +7,7 @@ import { Crosshair, LocateFixed, RotateCw } from "lucide-react";
 import { SAO_PAULO_CENTER } from "@/config/transit";
 import { configureMaplibreWorker } from "@/components/maps/maplibre-worker";
 import { cn } from "@/lib/utils";
+import { geoErrorText, locate as locateDevice } from "@/lib/geo";
 import { classifyFreshness } from "@/server/transit/freshness";
 import type { GeoPoint, TransitStop, TransitVehicle } from "@/types/transit";
 import type { TransitMapProps } from "./transit-map";
@@ -250,19 +251,17 @@ export default function TransitMapImpl({
     const ml = mlRef.current;
     const map = mapRef.current;
     if (!ml || !map) return;
-    if (!("geolocation" in navigator)) return setGeoMsg("Localização indisponível neste dispositivo.");
     setGeoMsg(null);
-    navigator.geolocation.getCurrentPosition(
+    locateDevice().then(
       (pos) => {
         const el = document.createElement("div");
         Object.assign(el.style, { width: "16px", height: "16px", borderRadius: "9999px", background: "#2563eb", border: "3px solid #fff", boxShadow: "0 0 0 4px rgba(37,99,235,.25)" });
         el.setAttribute("aria-label", "Sua localização");
         meMarker.current?.remove();
-        meMarker.current = new ml.Marker({ element: el }).setLngLat([pos.coords.longitude, pos.coords.latitude]).addTo(map);
-        map.flyTo({ center: [pos.coords.longitude, pos.coords.latitude], zoom: 15, duration: 600 });
+        meMarker.current = new ml.Marker({ element: el }).setLngLat([pos.lon, pos.lat]).addTo(map);
+        map.flyTo({ center: [pos.lon, pos.lat], zoom: 15, duration: 600 });
       },
-      () => setGeoMsg("A permissão de localização não foi concedida."),
-      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 60_000 },
+      (e) => setGeoMsg(geoErrorText(e)),
     );
   }
 

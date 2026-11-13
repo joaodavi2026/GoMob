@@ -3,7 +3,7 @@ import { levelLabel } from "@/features/intelligence/engine";
 import { haversineMeters } from "@/features/intelligence/signals";
 import { getStopArrivals } from "@/features/network/arrivals";
 import { railInfo, titleCase } from "@/features/network/rail";
-import { findLine, gtfs, headwayNow, nearestStops, nextDepartures, norm, resolvePlace, runsNow, type Place, type SLine } from "@/features/network/server";
+import { coverageNotice, findLine, gtfs, headwayNow, nearestStops, nextDepartures, norm, resolvePlace, runsNow, type Place, type SLine } from "@/features/network/server";
 import { formatPointParam } from "@/features/routes/points";
 import { searchBusRoutes } from "@/features/routes/service";
 import { getFleetSnapshot } from "@/server/sptrans/fleet";
@@ -67,6 +67,18 @@ function help(): Reply {
 async function route(origin: Place, destination: Place): Promise<Reply> {
   const apart = haversineMeters(origin, destination);
   if (apart < 300) return { text: `Você já está pertinho de ${destination.label}: cerca de ${Math.max(10, Math.round(apart / 10) * 10)} m. Dá para ir a pé.` };
+  // origem fora da área da SPTrans (ex.: outra cidade): explica e pede outro ponto de partida
+  const outside = coverageNotice(origin.label === "Sua localização" ? "Você está" : `${origin.label} fica`, origin.latitude, origin.longitude);
+  if (outside) {
+    return {
+      text: outside,
+      note: `Para ir a ${destination.label}, diga de onde você sai dentro de São Paulo: uma estação, um terminal ou uma avenida.`,
+      expect: { kind: "origin", destination },
+      suggestions: ["Praça da Sé", "Barra Funda", "Terminal Lapa"],
+    };
+  }
+  const outsideTo = coverageNotice(`${destination.label} fica`, destination.latitude, destination.longitude);
+  if (outsideTo) return { text: outsideTo };
   const res = await searchBusRoutes({
     origin: { latitude: origin.latitude, longitude: origin.longitude, label: origin.label },
     destination: { latitude: destination.latitude, longitude: destination.longitude, label: destination.label },
@@ -152,7 +164,7 @@ async function crowd(l: SLine): Promise<Reply> {
 async function arrivals(at: { lat: number; lon: number }, l: SLine | null): Promise<Reply> {
   const { net } = gtfs();
   const near = nearestStops(at.lat, at.lon, 6, 1000, true);
-  if (!near.length) return { text: "Não encontrei pontos de ônibus a menos de 1 km de você." };
+  if (!near.length) return { text: coverageNotice("Você está", at.lat, at.lon) ?? "Não encontrei pontos de ônibus a menos de 1 km de você.", suggestions: ["Como vou do Paraíso para a Sé?", "Horário da linha 875A-10"] };
   const boards = (await Promise.all(near.map((n) => getStopArrivals(net.stops[n.index][0]).then((b) => (b ? { b, meters: n.meters } : null)).catch(() => null)))).filter((x) => x !== null);
   const items: string[] = [];
   for (const { b, meters } of boards) {

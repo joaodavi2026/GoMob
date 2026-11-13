@@ -1,15 +1,39 @@
+import { cookies } from "next/headers";
 import { z } from "zod";
 import { ApiError, handle, ok } from "@/lib/api";
 import { requireUser } from "@/server/auth/guards";
 import { OPEN_SESSION } from "@/server/auth/session";
 import { OWNER_ID } from "@/features/family/store";
-import { CARD_BRANDS, PRICE_CENTS, cancel, getPlanState, subscribe } from "@/features/premium/plan";
+import { CARD_BRANDS, PRICE_CENTS, adoptPlan, cancel, getPlanState, subscribe } from "@/features/premium/plan";
+import { PLAN_COOKIE, PLAN_COOKIE_MAX_AGE, decodeSnapshot, encodeSnapshot, reconcile, snapshotOf } from "@/features/premium/plan-cookie";
 
 export const dynamic = "force-dynamic";
 
-/** Plano simulado. Quem assina é o dono da família; os familiares herdam o Premium. */
-function view(isOwner: boolean) {
+/**
+ * Plano simulado. Quem assina é o dono da família; os familiares herdam o Premium.
+ * O estado também fica em um cookie assinado no aparelho do dono: em hospedagem sem disco gravável
+ * o servidor esquece o plano entre uma requisição e outra, e o cookie traz o estado mais recente de volta.
+ */
+async function current(isOwner: boolean) {
   const s = getPlanState();
+  if (!isOwner) return s;
+  const r = reconcile(s, decodeSnapshot((await cookies()).get(PLAN_COOKIE)?.value));
+  if (r.fromCookie) adoptPlan(r.plan, r.card); // esta instância do servidor estava desatualizada
+  return { ...s, plan: r.plan, card: r.card };
+}
+
+async function remember(req: Request) {
+  const s = getPlanState();
+  (await cookies()).set(PLAN_COOKIE, encodeSnapshot(snapshotOf(s.plan, s.card)), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: new URL(req.url).protocol === "https:",
+    path: "/",
+    maxAge: PLAN_COOKIE_MAX_AGE,
+  });
+}
+
+function view(s: Awaited<ReturnType<typeof current>>, isOwner: boolean) {
   return {
     plan: s.plan,
     card: isOwner ? s.card : null,
@@ -37,22 +61,27 @@ function ownerOnly(userId: string) {
 
 export const GET = handle(async () => {
   const session = await requireUser();
-  return ok(view(session.userId === OWNER_ID), { headers: { "Cache-Control": "private, no-store" } });
+  const isOwner = session.userId === OWNER_ID;
+  return ok(view(await current(isOwner), isOwner), { headers: { "Cache-Control": "private, no-store" } });
 });
 
 export const POST = handle(async (req: Request) => {
   const session = await requireUser();
   ownerOnly(session.userId);
   const body = subscribeSchema.parse(await req.json().catch(() => ({})));
-  if (!body.card && !getPlanState().card) throw new ApiError(400, "NO_CARD", "Cadastre um cartão para assinar.");
+  const before = await current(true); // traz o cartão guardado no aparelho, se o servidor o esqueceu
+  if (!body.card && !before.card) throw new ApiError(400, "NO_CARD", "Cadastre um cartão para assinar.");
   subscribe(body.card);
-  return ok(view(true));
+  await remember(req);
+  return ok(view(getPlanState(), true));
 });
 
 export const DELETE = handle(async (req: Request) => {
   const session = await requireUser();
   ownerOnly(session.userId);
   z.object({ verified: z.literal(true) }).parse(await req.json().catch(() => ({})));
+  await current(true);
   cancel();
-  return ok(view(true));
+  await remember(req);
+  return ok(view(getPlanState(), true));
 });

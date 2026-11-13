@@ -183,7 +183,7 @@ export function RoutesView() {
           description={
             data.isDemo
               ? "A rede de demonstração cobre apenas algumas viagens entre os locais da lista. Tente outra origem ou outro destino."
-              : "Não encontramos uma viagem de ônibus com até uma baldeação entre esses locais. Tente um destino próximo a um terminal ou outra origem."
+              : (data.notice ?? "Não encontramos uma viagem de ônibus com até uma baldeação entre esses locais. Tente um destino próximo a um terminal ou outra origem.")
           }
         />
       )}

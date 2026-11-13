@@ -6,10 +6,11 @@ import { ChevronRight, Footprints, LocateFixed, MapPin } from "lucide-react";
 import { Skeleton } from "@/components/ui/primitives";
 import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api";
+import { geoErrorText, locate as locateDevice } from "@/lib/geo";
 import { ArrivalsBoard, StopSheet, type StopArrivals } from "./stop-arrivals";
 
 type Here = { lat: number; lon: number; label: string; real: boolean };
-type Near = { stops: (StopArrivals & { meters: number })[] };
+type Near = { stops: (StopArrivals & { meters: number })[]; outside?: string | null };
 
 /** Ponto de referência enquanto a localização não é ativada (deixado explícito na tela). */
 const FALLBACK: Here = { lat: -23.5616, lon: -46.6557, label: "MASP - Av. Paulista", real: false };
@@ -19,6 +20,7 @@ export function Around() {
   const toast = useToast();
   const [here, setHere] = useState<Here>(FALLBACK);
   const [locating, setLocating] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
   const [stopId, setStopId] = useState<string | null>(null);
   // deixa a tela inicial aparecer antes de buscar as chegadas
   const [ready, setReady] = useState(false);
@@ -34,20 +36,19 @@ export function Around() {
     queryFn: () => apiFetch<Near>(`/api/stops/nearby?lat=${here.lat}&lon=${here.lon}`),
   });
 
-  function locate() {
-    if (!("geolocation" in navigator)) return toast.error("Este aparelho não informa a localização.");
+  async function locate() {
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (p) => {
-        setLocating(false);
-        setHere({ lat: p.coords.latitude, lon: p.coords.longitude, label: "você", real: true });
-      },
-      () => {
-        setLocating(false);
-        toast.error("Não foi possível usar sua localização. Mostrando pontos perto do MASP.");
-      },
-      { enableHighAccuracy: true, timeout: 10_000, maximumAge: 60_000 },
-    );
+    setGeoError(null);
+    try {
+      const p = await locateDevice();
+      setHere({ lat: p.lat, lon: p.lon, label: "você", real: true });
+    } catch (e) {
+      const msg = geoErrorText(e);
+      setGeoError(msg);
+      toast.error(msg);
+    } finally {
+      setLocating(false);
+    }
   }
 
   const stops = near.data?.stops ?? [];
@@ -66,6 +67,19 @@ export function Around() {
         )}
       </p>
 
+      {geoError && (
+        <p role="alert" className="mb-3 rounded-2xl bg-primary-light px-3 py-2 text-sm text-primary-pressed">
+          {geoError}
+        </p>
+      )}
+      {near.data?.outside && (
+        <div role="status" className="mb-3 rounded-2xl bg-primary-light px-3 py-2 text-sm text-primary-pressed">
+          <p>{near.data.outside}</p>
+          <button type="button" onClick={() => setHere(FALLBACK)} className="mt-1 h-9 font-bold underline underline-offset-4">
+            Ver pontos perto do MASP
+          </button>
+        </div>
+      )}
       {!near.data && !near.isError ? (
         <div className="space-y-3" aria-busy="true">
           <Skeleton className="h-36 w-full rounded-3xl" />
@@ -74,7 +88,7 @@ export function Around() {
       ) : near.isError ? (
         <p className="rounded-3xl bg-white p-5 text-center text-sm text-muted shadow-soft">Não foi possível carregar os pontos próximos agora.</p>
       ) : stops.length === 0 ? (
-        <p className="rounded-3xl bg-white p-5 text-center text-sm text-muted shadow-soft">Nenhum ponto de ônibus a menos de 1,2 km.</p>
+        !near.data?.outside && <p className="rounded-3xl bg-white p-5 text-center text-sm text-muted shadow-soft">Nenhum ponto de ônibus a menos de 1,2 km.</p>
       ) : (
         <ul className="space-y-3">
           {stops.slice(0, 3).map((s) => (

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowUpDown, Flag, Info, LocateFixed, MapPin } from "lucide-react";
 import { Combobox, type ComboOption } from "@/components/ui/dropdown";
 import { useToast } from "@/components/ui/toast";
+import { geoErrorText, locate as locateDevice } from "@/lib/geo";
 import type { GeoPoint } from "@/types/transit";
 import { findPlace, KNOWN_PLACES, placeToPoint } from "../places";
 
@@ -39,22 +40,18 @@ export function PlaceSearch({
     setDq(oq);
   }
 
-  function locate() {
-    if (!("geolocation" in navigator)) return toast.error("Este aparelho não informa a localização.");
+  async function locate() {
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLocating(false);
-        const p: GeoPoint = { latitude: pos.coords.latitude, longitude: pos.coords.longitude, label: "Minha localização" };
-        onOrigin(p);
-        setOq(p.label!);
-      },
-      (err) => {
-        setLocating(false);
-        toast.error(err.code === err.PERMISSION_DENIED ? "Permissão de localização negada. Escolha um local da lista." : "Não foi possível obter sua localização.");
-      },
-      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 60_000 },
-    );
+    try {
+      const fix = await locateDevice();
+      const p: GeoPoint = { latitude: fix.lat, longitude: fix.lon, label: "Minha localização" };
+      onOrigin(p);
+      setOq(p.label!);
+    } catch (e) {
+      toast.error(geoErrorText(e));
+    } finally {
+      setLocating(false);
+    }
   }
 
   function pickQuick(id: string) {

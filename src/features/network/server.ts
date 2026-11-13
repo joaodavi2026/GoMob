@@ -144,6 +144,30 @@ export function nearestStops(lat: number, lon: number, count = 5, maxMeters = 12
   return out.sort((a, b) => a.meters - b.meters).slice(0, count);
 }
 
+/** Ponto de ônibus mais próximo, a qualquer distância (para saber se um lugar está na área atendida pela SPTrans). */
+export function nearestBusStop(lat: number, lon: number): { name: string; meters: number } | null {
+  const { net, atStop } = gtfs();
+  const here = { latitude: lat, longitude: lon };
+  let best: { name: string; meters: number } | null = null;
+  net.stops.forEach((s, i) => {
+    if (!atStop[i]?.some(([li]) => net.lines[li].type === 3)) return;
+    const m = haversineMeters(here, { latitude: s[2], longitude: s[3] });
+    if (!best || m < best.meters) best = { name: s[1], meters: m };
+  });
+  return best;
+}
+
+/** Distância a pé aceita até um ponto de ônibus; além disso o lugar conta como fora da área atendida. */
+export const COVERAGE_METERS = 1200;
+export const kmText = (m: number) => (m < 1000 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1).replace(".", ",")} km`);
+
+/** Aviso quando um lugar fica longe de qualquer ponto da SPTrans (ex.: outra cidade da Grande São Paulo). */
+export function coverageNotice(what: string, lat: number, lon: number): string | null {
+  const near = nearestBusStop(lat, lon);
+  if (near && near.meters <= COVERAGE_METERS) return null;
+  return `${what} fora da área atendida pelos ônibus municipais de São Paulo (SPTrans)${near ? `: o ponto mais próximo, ${near.name}, fica a ${kmText(near.meters)}` : ""}. O GoMob ainda não cobre ônibus intermunicipais nem de outras cidades.`;
+}
+
 /** Linhas (e sentido) que passam em uma parada. */
 export function linesAtStop(stopIndex: number) {
   const { net, atStop } = gtfs();

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ChevronRight, LocateFixed, Send } from "lucide-react";
 import { apiFetch } from "@/lib/api";
+import { geoErrorText, locate, locationAlreadyAllowed } from "@/lib/geo";
 import { cn } from "@/lib/utils";
 import { useA11y } from "@/features/a11y/a11y";
 import type { Reply } from "./brain";
@@ -79,27 +80,43 @@ export function AssistantView() {
   }, [msgs, busy]);
 
   /** Pede a localização e refaz a última pergunta com ela. */
-  const useLocation = () => {
-    if (!("geolocation" in navigator)) {
-      setMsgs((m) => [...m, { id: nextId.current++, from: "gobi", reply: { text: "Este aparelho não informa a localização. Diga o nome do lugar, por exemplo: do Paraíso para a Sé." } }]);
-      return;
-    }
+  const useLocation = async () => {
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (p) => {
-        const at = { lat: p.coords.latitude, lon: p.coords.longitude };
-        locRef.current = at;
-        setLoc(at);
-        setLocating(false);
-        void ask(expect.current ? "minha localização" : lastQuestion.current || "Quando passa o próximo ônibus perto de mim?", at);
-      },
-      () => {
-        setLocating(false);
-        setMsgs((m) => [...m, { id: nextId.current++, from: "gobi", reply: { text: "Não consegui usar sua localização. Sem problema: diga o nome do lugar, de uma estação ou de um terminal." } }]);
-      },
-      { enableHighAccuracy: true, timeout: 10_000, maximumAge: 60_000 },
-    );
+    try {
+      const p = await locate();
+      const at = { lat: p.lat, lon: p.lon };
+      locRef.current = at;
+      setLoc(at);
+      void ask(expect.current ? "minha localização" : lastQuestion.current || "Quando passa o próximo ônibus perto de mim?", at);
+    } catch (e) {
+      // sem localização: a conversa continua pelo nome do lugar
+      setMsgs((m) => [
+        ...m,
+        { id: nextId.current++, from: "gobi", reply: { text: geoErrorText(e), note: "Sem problema: diga de onde você sai, pelo nome de uma estação, de um terminal ou de uma avenida.", expect: expect.current } },
+      ]);
+    } finally {
+      setLocating(false);
+    }
   };
+
+  // quem já liberou a localização neste site não precisa tocar em nada: o Gobi já a usa nas perguntas
+  useEffect(() => {
+    let alive = true;
+    void locationAlreadyAllowed().then(async (ok) => {
+      if (!ok || !alive) return;
+      try {
+        const p = await locate();
+        if (!alive) return;
+        locRef.current = { lat: p.lat, lon: p.lon };
+        setLoc(locRef.current);
+      } catch {
+        // segue sem localização
+      }
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const starters = line ? LINE_STARTERS(line) : STARTERS;
   const lastReply = [...msgs].reverse().find((m) => m.from === "gobi");

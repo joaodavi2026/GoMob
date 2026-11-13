@@ -2,7 +2,7 @@ import { z } from "zod";
 import { handle, ok } from "@/lib/api";
 import { requireUser } from "@/server/auth/guards";
 import { getStopArrivals } from "@/features/network/arrivals";
-import { gtfs, nearestStops } from "@/features/network/server";
+import { coverageNotice, gtfs, nearestStops } from "@/features/network/server";
 
 export const dynamic = "force-dynamic";
 
@@ -21,5 +21,7 @@ export const GET = handle(async (req: Request) => {
       return data ? { ...data, meters: Math.round(n.meters) } : null;
     }),
   );
-  return ok({ stops: stops.filter((s) => s !== null) }, { headers: { "Cache-Control": "private, no-store" } });
+  // nenhum ponto por perto: diz se a pessoa está fora da área da SPTrans
+  const outside = near.length === 0 ? coverageNotice("Você está", lat, lon) : null;
+  return ok({ stops: stops.filter((s) => s !== null), outside }, { headers: { "Cache-Control": "private, no-store" } });
 });

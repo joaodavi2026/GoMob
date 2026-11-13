@@ -45,6 +45,14 @@ export function cancel(now = new Date()) {
   });
 }
 
+/** Adota o estado guardado no aparelho quando esta instância do servidor estava desatualizada (ver plan-cookie.ts). */
+export function adoptPlan(plan: Plan, card: SavedCard | null) {
+  store.update((d) => {
+    d.plan = plan;
+    if (card) d.card = card;
+  });
+}
+
 export function removeCard() {
   store.update((d) => {
     d.card = null;

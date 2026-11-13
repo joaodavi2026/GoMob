@@ -1,4 +1,5 @@
 import { getDemoRisk, getGtfsLineRisk, getLineRisk } from "@/features/intelligence/service";
+import { coverageNotice } from "@/features/network/server";
 import { getLines } from "@/server/transit/service";
 import type { RiskResult, RouteProvider } from "@/types/transit";
 import { existsSync } from "node:fs";
@@ -59,5 +60,16 @@ const lookupRisk: RiskLookup = async (code, lineId, option): Promise<RiskResult 
 };
 
 export async function searchBusRoutes(input: { origin: GeoPoint; destination: GeoPoint; sort?: SortKey }): Promise<RouteSearchResponse> {
-  return runRouteSearch(input, { provider: selectProvider(), riskFor });
+  const res = await runRouteSearch(input, { provider: selectProvider(), riskFor });
+  // sem rota: avisa quando a origem ou o destino ficam fora da área atendida pela SPTrans
+  if (res.routes.length === 0 && !res.isDemo) {
+    try {
+      const outside =
+        coverageNotice("A origem fica", input.origin.latitude, input.origin.longitude) ?? coverageNotice("O destino fica", input.destination.latitude, input.destination.longitude);
+      if (outside) res.notice = outside;
+    } catch {
+      // rede GTFS indisponível: segue com a mensagem padrão
+    }
+  }
+  return res;
 }
