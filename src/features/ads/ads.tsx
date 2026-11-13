@@ -23,6 +23,10 @@ export const useAds = () => useContext(AdsContext);
 
 const SKIP_SECONDS = 5;
 const MIN_INTERVAL_MS = 90_000;
+/** Tempo sem tocar na tela para um anúncio automático poder aparecer. */
+const IDLE_MS = 6_000;
+/** Intervalo mínimo entre um anúncio e o próximo pedido por uma ação (buscar rotas, iniciar trajeto). */
+const REPEAT_MS = 30_000;
 const NO_AUTO_ADS = ["/premium", "/convite", "/accessibility", "/assistant"];
 const LAST_KEY = "gomob.ad.last";
 const INDEX_KEY = "gomob.ad.index";
@@ -58,6 +62,17 @@ export function AdsProvider({ children }: { children: React.ReactNode }) {
   const show = useCallback((after?: () => void) => {
     // nunca por cima do modo em trajeto (a pessoa está na rua) nem de uma confirmação em andamento
     if (!enabledRef.current || document.querySelector("[data-no-ads]")) return after?.();
+    // anúncio aberto agora: a ação da pessoa acontece assim que ela pular este mesmo anúncio
+    if (afterRef.current !== undefined || document.querySelector("[data-ad-open]")) {
+      const prev = afterRef.current;
+      afterRef.current = () => {
+        prev?.();
+        after?.();
+      };
+      return;
+    }
+    // acabou de ver um anúncio: não mostra outro em seguida
+    if (after && Date.now() - session.get(LAST_KEY) < REPEAT_MS) return after();
     const i = session.get(INDEX_KEY);
     session.set(INDEX_KEY, i + 1);
     session.set(LAST_KEY, Date.now());
@@ -65,11 +80,34 @@ export function AdsProvider({ children }: { children: React.ReactNode }) {
     setAd(CREATIVES[i % CREATIVES.length]);
   }, []);
 
-  // ao abrir o app e, depois, no máximo a cada 90 s ao trocar de tela
+  // última vez que a pessoa tocou, digitou ou escolheu algo na tela
+  const lastTouch = useRef(0);
+  useEffect(() => {
+    const mark = () => (lastTouch.current = Date.now());
+    const opts = { capture: true, passive: true } as const;
+    window.addEventListener("pointerdown", mark, opts);
+    window.addEventListener("keydown", mark, opts);
+    window.addEventListener("input", mark, opts);
+    return () => {
+      window.removeEventListener("pointerdown", mark, opts);
+      window.removeEventListener("keydown", mark, opts);
+      window.removeEventListener("input", mark, opts);
+    };
+  }, []);
+
+  // ao abrir o app e, depois, no máximo a cada 90 s ao trocar de tela.
+  // Nunca no meio de uma ação: se a pessoa está usando a tela (ex.: montando uma busca), espera ela parar.
+  // Assim o anúncio não abre por cima de um toque em "Buscar rotas" e não engole esse toque.
   useEffect(() => {
     if (!enabled || NO_AUTO_ADS.some((p) => pathname.startsWith(p))) return;
     if (Date.now() - session.get(LAST_KEY) < MIN_INTERVAL_MS) return;
-    const t = setTimeout(() => show(), 1600);
+    let t: ReturnType<typeof setTimeout>;
+    const attempt = () => {
+      const busy = Date.now() - lastTouch.current < IDLE_MS || document.activeElement?.closest("form, [role=dialog]");
+      if (busy) t = setTimeout(attempt, 2000);
+      else show();
+    };
+    t = setTimeout(attempt, 1600);
     return () => clearTimeout(t);
   }, [enabled, pathname, show]);
 
@@ -130,6 +168,7 @@ function Interstitial({ creative: c, onClose }: { creative: Creative; onClose: (
       role="dialog"
       aria-modal="true"
       aria-label={`Anúncio de ${c.brand}`}
+      data-ad-open
     >
       <span className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/15" aria-hidden />
       <span className="pointer-events-none absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-black/15" aria-hidden />
