@@ -1,4 +1,5 @@
 import type { BusRouteOption, RiskResult } from "@/types/transit";
+import type { Emptiest, RouteCrowding } from "./crowding";
 
 export type SortKey = "fastest" | "fewer_transfers" | "less_walking" | "lower_risk";
 
@@ -10,7 +11,11 @@ export const SORT_LABELS: Record<SortKey, string> = {
 };
 
 /** Rota com risco por linha (chave: código de exibição da linha). `risk` agrega as linhas. */
-export type RouteResult = BusRouteOption & { lineRisks: Record<string, RiskResult> };
+export type RouteResult = BusRouteOption & {
+  lineRisks: Record<string, RiskResult>;
+  /** Índice aproximado de lotação por dia e hora (gráfico "Horários de pico"). */
+  crowding?: RouteCrowding;
+};
 
 export type Recommendation = { routeId: string; reasons: string[] };
 
@@ -30,4 +35,6 @@ export type RouteSearchResponse = {
   sortApplied: SortKey;
   notice?: string;
   isDemo: boolean;
+  /** Rota mais vazia agora (estimativa), quando há ao menos 2 comparáveis. */
+  emptiest?: Emptiest;
 };

@@ -1,5 +1,5 @@
 import { getDemoRisk, getGtfsLineRisk, getLineRisk } from "@/features/intelligence/service";
-import { coverageNotice } from "@/features/network/server";
+import { coverageNotice, gtfs } from "@/features/network/server";
 import { getLines } from "@/server/transit/service";
 import type { RiskResult, RouteProvider } from "@/types/transit";
 import { existsSync } from "node:fs";
@@ -7,6 +7,7 @@ import { join } from "node:path";
 import { DemoRouteProvider } from "./demo-provider";
 import { GtfsRouteProvider } from "./gtfs-provider";
 import { GoogleRoutesProvider, isGoogleRoutesEnabled } from "./google";
+import { pickEmptiest, routeCrowding } from "./crowding";
 import { runRouteSearch, type RiskLookup } from "./search";
 import type { RouteSearchResponse, SortKey } from "./types";
 import type { GeoPoint } from "@/types/transit";
@@ -59,6 +60,24 @@ const lookupRisk: RiskLookup = async (code, lineId, option): Promise<RiskResult 
   return null;
 };
 
+/** Lotação por horário e rota mais vazia. É um extra: se falhar, a busca continua como sempre. */
+function addCrowding(res: RouteSearchResponse) {
+  try {
+    const now = new Date();
+    for (const r of res.routes) {
+      const legs = r.steps.flatMap((s) => {
+        if (s.kind !== "BUS") return [];
+        const dir = r.source === "GTFS" ? gtfs().byCode.get(s.lineCode.toUpperCase())?.dirs.find((d) => d.d === (s.direction ?? 0)) : undefined;
+        return [{ code: s.lineCode, schedule: dir ? { freq: dir.freq, days: dir.days } : null, risk: r.lineRisks[s.lineCode] }];
+      });
+      r.crowding = routeCrowding(legs, now) ?? undefined;
+    }
+    res.emptiest = pickEmptiest(res.routes);
+  } catch {
+    // sem a lotação por horário: as rotas aparecem normalmente
+  }
+}
+
 export async function searchBusRoutes(input: { origin: GeoPoint; destination: GeoPoint; sort?: SortKey }): Promise<RouteSearchResponse> {
   const res = await runRouteSearch(input, { provider: selectProvider(), riskFor });
   // sem rota: avisa quando a origem ou o destino ficam fora da área atendida pela SPTrans
@@ -71,5 +90,6 @@ export async function searchBusRoutes(input: { origin: GeoPoint; destination: Ge
       // rede GTFS indisponível: segue com a mensagem padrão
     }
   }
+  addCrowding(res);
   return res;
 }

@@ -79,6 +79,7 @@ export function RoutesView() {
       why.set(rec.routeId, [...(why.get(rec.routeId) ?? []), `${t}: ${rec.reasons.join(" ")}`]);
     };
     if (data) {
+      add(data.emptiest, "Mais vazia");
       add(data.recommendations.fastest, "Mais rápida");
       add(data.recommendations.fewerTransfers, "Menos baldeações");
       add(data.recommendations.lowerRisk, "Menor risco estimado");

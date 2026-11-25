@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDownToLine, ArrowUpFromLine, Bus, ChevronDown, Clock, Footprints, HelpCircle, Navigation, Repeat } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, Bus, ChevronDown, Clock, Footprints, HelpCircle, Navigation, Repeat, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge, Card, DemoBadge } from "@/components/ui/primitives";
 import { RiskBadge } from "@/components/ui/risk-badge";
 import { cn } from "@/lib/utils";
 import { busLineCodes } from "../risk";
 import type { RouteResult } from "../types";
+import { PopularTimes } from "./popular-times";
 
-export type RouteTag = "Mais rápida" | "Menos baldeações" | "Menor risco estimado" | "Equilibrada";
+export type RouteTag = "Mais vazia" | "Mais rápida" | "Menos baldeações" | "Menor risco estimado" | "Equilibrada";
 
 const SOURCE_LABEL: Record<RouteResult["source"], string> = { DEMO: "Rota de demonstração", GTFS: "Horário programado da SPTrans (GTFS)", GOOGLE: "Google Routes" };
 
@@ -51,9 +52,15 @@ export function RouteCard({
             </p>
             {tags.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1">
-                {tags.map((t) => (
-                  <Badge key={t} tone="primary" className="border-0 px-2 py-0.5 text-[11px]">{t}</Badge>
-                ))}
+                {tags.map((t) =>
+                  t === "Mais vazia" ? (
+                    <Badge key={t} className="border-0 bg-[#0f7a37] px-2 py-0.5 text-[11px] font-bold text-white">
+                      <Users className="h-3 w-3" aria-hidden /> {t}
+                    </Badge>
+                  ) : (
+                    <Badge key={t} tone="primary" className="border-0 px-2 py-0.5 text-[11px]">{t}</Badge>
+                  ),
+                )}
               </div>
             )}
           </div>
@@ -112,7 +119,7 @@ export function RouteCard({
           )}
         </ol>
 
-        {why.length > 0 && (
+        {(why.length > 0 || route.crowding) && (
           <div className="mt-3">
             <button
               type="button"
@@ -123,7 +130,8 @@ export function RouteCard({
               <HelpCircle className="h-4 w-4" aria-hidden /> Por que esta rota?
               <ChevronDown className={cn("h-4 w-4 transition-transform", whyOpen && "rotate-180")} aria-hidden />
             </button>
-            {whyOpen && (
+            {whyOpen && route.crowding && <PopularTimes crowding={route.crowding} />}
+            {whyOpen && why.length > 0 && (
               <ul className="mt-2 space-y-1.5 rounded-2xl bg-canvas p-3 text-sm text-muted">
                 {why.map((w) => (
                   <li key={w}>{w}</li>
