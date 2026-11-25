@@ -1,0 +1,3 @@
+Plus Jakarta Sans (subconjunto latino, variavel 300-800), distribuida pelo Google Fonts.
+Licenca: SIL Open Font License 1.1 - https://openfontlicense.org
+Projeto: https://github.com/tokotype/PlusJakartaSans

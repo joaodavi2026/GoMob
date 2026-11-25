@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", weight: ["300", "400", "500", "600", "700", "800"] });
+// Plus Jakarta Sans (variável, subconjunto latino) guardada no projeto: o build não depende do Google Fonts,
+// que chegou a derrubar o deploy ("next/font/google queries have exactly one entry").
+const jakarta = localFont({ src: "./fonts/plus-jakarta-sans-latin.woff2", variable: "--font-jakarta", weight: "300 800", style: "normal", display: "swap" });
 
 export const metadata: Metadata = {
   title: { default: "GoMob — Mobilidade inteligente. Viaje melhor.", template: "%s · GoMob" },
