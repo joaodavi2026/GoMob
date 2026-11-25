@@ -4,6 +4,7 @@ import type { GeoPoint } from "@/types/transit";
 export type KnownPlace = { id: string; label: string; latitude: number; longitude: number };
 
 export const KNOWN_PLACES: KnownPlace[] = [
+  { id: "pinheiros", label: "Largo da Batata - Pinheiros", latitude: -23.5666, longitude: -46.6917 },
   { id: "paraiso", label: "Paraíso", latitude: -23.5885, longitude: -46.6415 },
   { id: "brigadeiro", label: "Av. Brigadeiro Luís Antônio", latitude: -23.5762, longitude: -46.6473 },
   { id: "masp", label: "MASP - Av. Paulista", latitude: -23.5616, longitude: -46.6557 },
@@ -12,7 +13,6 @@ export const KNOWN_PLACES: KnownPlace[] = [
   { id: "republica", label: "Praça da República", latitude: -23.5434, longitude: -46.6429 },
   { id: "se", label: "Praça da Sé", latitude: -23.5503, longitude: -46.6331 },
   { id: "tatuape", label: "Tatuapé", latitude: -23.5407, longitude: -46.5762 },
-  { id: "pinheiros", label: "Largo da Batata - Pinheiros", latitude: -23.5666, longitude: -46.6917 },
   { id: "itaim", label: "Itaim Bibi", latitude: -23.5848, longitude: -46.6808 },
   { id: "ibirapuera", label: "Parque Ibirapuera", latitude: -23.5872, longitude: -46.6574 },
   { id: "santoamaro", label: "Largo Treze - Santo Amaro", latitude: -23.6543, longitude: -46.7088 },
